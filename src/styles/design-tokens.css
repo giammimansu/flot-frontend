@@ -1,0 +1,118 @@
+/* ============================================================
+   FLOT Design System — Colors & Type
+   ============================================================ */
+
+/* Google Fonts substitutions (flagged in README) */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ---------- COLOR — BASE ---------- */
+
+  /* Surfaces */
+  --surface-0: #FAFAFA;       /* app canvas */
+  --surface-1: #FFFFFF;       /* cards, sheets */
+  --surface-2: #F1F5F9;       /* input fills, muted pills */
+  --surface-scrim: rgba(15, 23, 42, 0.40);
+
+  /* Ink (navy/slate family) */
+  --ink: #0F172A;             /* Slate-900 — primary text & icons */
+  --ink-muted: #475569;       /* Slate-600 — secondary copy */
+  --ink-subtle: #94A3B8;      /* Slate-400 — placeholders, disabled */
+  --ink-inverse: #FFFFFF;     /* on-amber text */
+
+  /* Hairline / borders */
+  --hairline: #E2E8F0;        /* Slate-200 */
+  --hairline-strong: #CBD5E1; /* Slate-300 */
+
+  /* Accent — Taxi Amber */
+  --amber: #F59E0B;           /* Amber-500 */
+  --amber-pressed: #D97706;   /* Amber-600 */
+  --amber-soft: #FEF3C7;      /* Amber-100 — radar tint only */
+  --amber-glow: rgba(245, 158, 11, 0.30);
+
+  /* Semantic */
+  --success: #16A34A;         /* Green-600 — savings, confirmations */
+  --success-soft: #DCFCE7;    /* Green-100 — savings pill bg */
+  --error: #DC2626;           /* Red-600 */
+  --error-soft: #FEE2E2;      /* Red-100 */
+
+  /* ---------- COLOR — SEMANTIC ---------- */
+  --fg-1: var(--ink);
+  --fg-2: var(--ink-muted);
+  --fg-3: var(--ink-subtle);
+  --bg-1: var(--surface-0);
+  --bg-2: var(--surface-1);
+  --bg-3: var(--surface-2);
+  --border: var(--hairline);
+  --focus-ring: var(--amber-glow);
+
+  /* ---------- TYPE — FAMILIES ---------- */
+  --font-display: 'Bricolage Grotesque', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* ---------- TYPE — SCALE ---------- */
+  --fs-12: 12px;
+  --fs-14: 14px;
+  --fs-16: 16px;
+  --fs-18: 18px;
+  --fs-20: 20px;
+  --fs-24: 24px;
+  --fs-32: 32px;
+  --fs-44: 44px;
+  --fs-56: 56px;
+
+  /* Line heights */
+  --lh-tight: 1.05;
+  --lh-snug: 1.15;
+  --lh-normal: 1.35;
+  --lh-relaxed: 1.5;
+
+  /* Weights */
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --fw-display: 700;
+
+  /* Letter spacing */
+  --tracking-tight: -0.02em;
+  --tracking-snug: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.04em;
+
+  /* ---------- SPACING (8pt grid + 4pt half-step) ---------- */
+  --space-0: 0;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-7: 32px;
+  --space-8: 40px;
+  --space-9: 48px;
+  --space-10: 64px;
+  --space-11: 80px;
+  --space-12: 96px;
+
+  /* ---------- RADII — "Aerostat Chic" ---------- */
+  --radius-sm: 12px;
+  --radius-md: 16px;
+  --radius-lg: 24px;      /* house radius */
+  --radius-xl: 32px;      /* hero + modals */
+  --radius-pill: 999px;
+
+  /* ---------- ELEVATION ---------- */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.06);
+  --shadow-sheet: 0 -8px 32px rgba(15, 23, 42, 0.12);
+  --shadow-button: 0 1px 2px rgba(15, 23, 42, 0.08);
+
+  /* ---------- MOTION ---------- */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur-press: 120ms;
+  --dur-fast: 180ms;
+  --dur-base: 240ms;
+  --dur-sheet: 360ms;
+  --dur-match: 600ms;
+}

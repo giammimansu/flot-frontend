@@ -1,0 +1,46 @@
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px var(--space-3);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+}
+
+/* Variants */
+.neutral {
+  background: var(--surface-2);
+  color: var(--ink-muted);
+}
+
+.success {
+  background: var(--success-soft);
+  color: #15803D;
+}
+
+.live {
+  background: var(--amber-soft);
+  color: #92400E;
+}
+
+.error {
+  background: var(--error-soft);
+  color: #B91C1C;
+}
+
+.amber {
+  background: var(--amber-soft);
+  color: #92400E;
+}
+
+/* Live pulse dot */
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--amber);
+  animation: mPulse 1.4s infinite;
+}

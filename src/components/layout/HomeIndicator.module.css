@@ -1,0 +1,12 @@
+.root {
+  display: flex;
+  justify-content: center;
+  padding: var(--space-5) 0 calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+}
+
+.bar {
+  width: 134px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: rgba(15, 23, 42, 0.18);
+}

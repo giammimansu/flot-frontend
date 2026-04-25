@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLOT — Active Search</title>
+<link rel="stylesheet" href="colors_and_type.css"/>
+<style>
+  body {
+    margin: 0; min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+    background: #E8E8ED;
+    font-family: var(--font-body);
+  }
+  .phone {
+    width: 375px; height: 812px; background: var(--surface-0);
+    border-radius: 44px; border: 1.5px solid var(--hairline-strong);
+    overflow: hidden; position: relative;
+    display: flex; flex-direction: column;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  }
+  .pressable { transition: transform 120ms var(--ease-out); cursor: pointer; }
+  .pressable:active { transform: scale(0.97); }
+  @keyframes radarPulse { 0%{transform:scale(1);opacity:.8} 100%{transform:scale(2.2);opacity:0} }
+  @keyframes dotBlink0 { 0%,100%{opacity:0} 35%,65%{opacity:1} }
+  @keyframes dotBlink1 { 0%,100%{opacity:0} 25%,55%{opacity:1} }
+  @keyframes dotBlink2 { 0%,100%{opacity:0} 40%,70%{opacity:1} }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.55;transform:scale(1.25)} }
+  @keyframes modalPop { from{opacity:0;transform:scale(.92) translateY(8px)} to{opacity:1;transform:scale(1) translateY(0)} }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="MalpensaComponents.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const statusMsgs = [
+  'Scanning Terminal 1 for fellow travelers…',
+  'Checking nearby destinations…',
+  'Calculating potential savings…',
+  'Matching arrival times…',
+  'Finalizing your pair…',
+];
+
+const travelerDots = [
+  { letter:'L', top:'18%', left:'72%', anim:'dotBlink0 4s infinite ease-in-out' },
+  { letter:'K', top:'65%', left:'15%', anim:'dotBlink1 6s infinite ease-in-out 1s' },
+  { letter:'R', top:'75%', left:'68%', anim:'dotBlink2 5s infinite ease-in-out 2s' },
+];
+
+const ProModal = ({ onClose }) => (
+  <div onClick={onClose} style={{
+    position:'absolute', inset:0, zIndex:50,
+    background:'rgba(15,23,42,0.40)', display:'flex',
+    alignItems:'center', justifyContent:'center', padding:20,
+    animation:'fadeIn 200ms',
+  }}>
+    <div onClick={e => e.stopPropagation()} style={{
+      background:'var(--surface-1)', borderRadius:28, padding:'28px 24px',
+      width:'100%', maxWidth:320,
+      boxShadow:'0 24px 64px rgba(15,23,42,0.20)',
+      animation:'modalPop 300ms cubic-bezier(0.22,0.61,0.36,1)',
+    }}>
+      <div style={{ display:'flex', justifyContent:'center', marginBottom:16 }}>
+        <div style={{
+          width:56, height:56, borderRadius:999, background:'var(--amber)',
+          display:'flex', alignItems:'center', justifyContent:'center', color:'var(--ink)',
+        }}>
+          <MIcon name="crown" size={28} sw={2}/>
+        </div>
+      </div>
+      <div style={{ textAlign:'center' }}>
+        <div style={{ fontFamily:'var(--font-display)', fontSize:24, fontWeight:800, color:'var(--ink)' }}>Coming soon</div>
+        <p style={{ fontFamily:'var(--font-body)', fontSize:14, color:'var(--ink-muted)', lineHeight:1.5, marginTop:6 }}>
+          The live radar map is part of FLOT PRO.
+        </p>
+        <div style={{ marginTop:14 }}>
+          <span style={{
+            display:'inline-block', padding:'6px 14px', borderRadius:999,
+            background:'var(--surface-2)', fontFamily:'var(--font-body)',
+            fontSize:12, fontWeight:600, color:'var(--ink-subtle)',
+          }}>Launching Q3 2025</span>
+        </div>
+      </div>
+      <button className="pressable" onClick={onClose} style={{
+        marginTop:20, width:'100%', height:52, borderRadius:16,
+        background:'var(--ink)', color:'#fff', border:'none',
+        fontFamily:'var(--font-body)', fontSize:15, fontWeight:600, cursor:'pointer',
+      }}>Got it</button>
+    </div>
+  </div>
+);
+
+const ActiveSearch = () => {
+  const [sec, setSec] = React.useState(300);
+  const [mi, setMi] = React.useState(0);
+  const [modal, setModal] = React.useState(false);
+
+  React.useEffect(() => {
+    const t = setInterval(() => setSec(s => s <= 0 ? 0 : s - 1), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  React.useEffect(() => {
+    const t = setInterval(() => setMi(i => (i + 1) % statusMsgs.length), 8000);
+    return () => clearInterval(t);
+  }, []);
+
+  const mm = String(Math.floor(sec / 60)).padStart(2, '0');
+  const ss = String(sec % 60).padStart(2, '0');
+
+  return (
+    <div className="phone">
+      {/* TOP NAV */}
+      <div style={{ padding:'16px 20px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <div style={{ width:8, height:8, borderRadius:999, background:'var(--amber)' }}></div>
+          <span style={{ fontFamily:'var(--font-display)', fontSize:20, fontWeight:800, color:'var(--ink)' }}>FLOT</span>
+        </div>
+        <span style={{
+          display:'inline-flex', alignItems:'center', gap:6,
+          padding:'6px 12px', borderRadius:999,
+          background:'var(--amber-soft)', fontFamily:'var(--font-body)',
+          fontSize:12, fontWeight:600, color:'#92400E',
+        }}>
+          <span style={{ width:6, height:6, borderRadius:999, background:'var(--amber)', animation:'livePulse 1.4s infinite' }}></span>
+          Searching · {mm}:{ss}
+        </span>
+      </div>
+
+      {/* ROUTE SUMMARY */}
+      <div style={{
+        margin:'12px 20px 0', padding:'12px 14px',
+        background:'var(--surface-1)', border:'1px solid var(--hairline)', borderRadius:16,
+        display:'flex', gap:8, alignItems:'center',
+      }}>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:10, fontFamily:'var(--font-body)', fontWeight:600, color:'var(--ink-subtle)', letterSpacing:'0.08em', textTransform:'uppercase' }}>From</div>
+          <div style={{ fontSize:14, fontFamily:'var(--font-body)', fontWeight:600, color:'var(--ink)', marginTop:2 }}>Terminal 1</div>
+        </div>
+        <div style={{ width:1, height:32, background:'var(--hairline)', alignSelf:'center' }}></div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:10, fontFamily:'var(--font-body)', fontWeight:600, color:'var(--ink-subtle)', letterSpacing:'0.08em', textTransform:'uppercase' }}>To</div>
+          <div style={{ fontSize:14, fontFamily:'var(--font-body)', fontWeight:600, color:'var(--ink)', marginTop:2 }}>Milano Centrale</div>
+        </div>
+      </div>
+
+      {/* RADAR */}
+      <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', position:'relative' }}>
+        <div style={{
+          position:'relative', width:280, height:280,
+          display:'flex', alignItems:'center', justifyContent:'center',
+          borderRadius:999,
+          background:'radial-gradient(circle at center, rgba(254,243,199,0.8) 0%, rgba(250,250,250,0) 68%)',
+        }}>
+          {[0,1,2].map(i => (
+            <div key={i} style={{
+              position:'absolute', inset:0, border:'1.5px solid var(--amber)', borderRadius:999,
+              animation:`radarPulse 2400ms infinite ease-in-out ${i * 800}ms`,
+            }}/>
+          ))}
+          {/* Core */}
+          <div style={{
+            width:80, height:80, borderRadius:999, background:'var(--amber)',
+            display:'flex', alignItems:'center', justifyContent:'center', color:'var(--ink)',
+            boxShadow:'0 0 0 12px rgba(245,158,11,0.12), 0 12px 32px rgba(245,158,11,0.30)',
+            position:'relative', zIndex:2,
+          }}>
+            <MIcon name="search" size={34} sw={2.25}/>
+          </div>
+          {/* Traveler dots */}
+          {travelerDots.map((d, i) => (
+            <div key={i} style={{
+              position:'absolute', top:d.top, left:d.left,
+              width:28, height:28, borderRadius:999,
+              background:'var(--surface-1)', border:'2px solid var(--hairline)',
+              boxShadow:'var(--shadow-card)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontFamily:'var(--font-body)', fontSize:10, fontWeight:600, color:'var(--ink)',
+              animation:d.anim, zIndex:3,
+            }}>{d.letter}</div>
+          ))}
+        </div>
+      </div>
+
+      {/* STATUS */}
+      <div style={{ padding:'0 20px', textAlign:'center' }}>
+        <h2 style={{
+          fontFamily:'var(--font-display)', fontSize:22, fontWeight:700,
+          color:'var(--ink)', margin:0, letterSpacing:'-0.01em',
+        }}>Scanning for your ride partner</h2>
+        <div key={mi} style={{
+          marginTop:8, fontFamily:'var(--font-body)', fontSize:14, fontWeight:500,
+          color:'var(--ink-muted)', minHeight:20,
+          animation:'fadeUp 240ms cubic-bezier(0.22,0.61,0.36,1)',
+        }}>{statusMsgs[mi]}</div>
+      </div>
+
+      {/* GUARANTEE */}
+      <div style={{
+        margin:'16px 20px 0', padding:'14px 16px',
+        background:'var(--surface-1)', border:'1px solid var(--hairline)', borderRadius:20,
+        boxShadow:'var(--shadow-card)',
+        display:'flex', gap:12, alignItems:'flex-start',
+      }}>
+        <div style={{
+          width:32, height:32, borderRadius:999, background:'#EFF6FF',
+          display:'flex', alignItems:'center', justifyContent:'center', color:'#3B82F6', flexShrink:0,
+        }}>
+          <MIcon name="shield" size={16} sw={2}/>
+        </div>
+        <div>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:13, fontWeight:600, color:'var(--ink)' }}>Guaranteed response in 5 minutes</div>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:12, color:'var(--ink-muted)', marginTop:2, lineHeight:1.45 }}>We group passengers to maximise your savings.</div>
+        </div>
+      </div>
+
+      {/* PRO TEASER */}
+      <div className="pressable" onClick={() => setModal(true)} style={{
+        margin:'10px 20px 0', padding:'14px 16px',
+        background:'linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%)',
+        border:'1px solid #FDE68A', borderRadius:20,
+        display:'flex', gap:12, alignItems:'center',
+      }}>
+        <div style={{
+          width:32, height:32, borderRadius:999, background:'var(--amber)',
+          display:'flex', alignItems:'center', justifyContent:'center', color:'var(--ink)', flexShrink:0,
+        }}>
+          <MIcon name="crown" size={16} sw={2}/>
+        </div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:13, fontWeight:600, color:'var(--ink)' }}>PRO · €4.99/mo</div>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:12, color:'#92400E', marginTop:1 }}>See travelers around you on a live map.</div>
+        </div>
+        <MIcon name="chevron-right" size={16} color="#92400E"/>
+      </div>
+
+      {/* CANCEL */}
+      <div style={{ padding:'14px 20px 28px', textAlign:'center' }}>
+        <button style={{
+          border:'none', background:'transparent', cursor:'pointer',
+          fontFamily:'var(--font-body)', fontSize:13, fontWeight:500, color:'var(--ink-subtle)',
+          textDecoration:'underline', textUnderlineOffset:3,
+        }}>Cancel search</button>
+      </div>
+
+      {/* MODAL */}
+      {modal && <ProModal onClose={() => setModal(false)}/>}
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<ActiveSearch/>);
+</script>
+</body>
+</html>

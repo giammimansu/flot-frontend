@@ -1,0 +1,35 @@
+.root {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.stepBtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--hairline);
+  background: var(--surface-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink);
+  transition: opacity var(--dur-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.stepBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.value {
+  font-family: var(--font-display);
+  font-feature-settings: "tnum" 1;
+  font-size: 28px;
+  font-weight: var(--fw-bold);
+  color: var(--ink);
+  min-width: 32px;
+  text-align: center;
+}

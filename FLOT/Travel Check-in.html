@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLOT — Travel Check-in</title>
+<link rel="stylesheet" href="colors_and_type.css"/>
+<style>
+  body {
+    margin: 0; min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+    background: #E8E8ED;
+    font-family: var(--font-body);
+  }
+  .phone {
+    width: 375px; height: 812px; background: var(--surface-0);
+    border-radius: 44px; border: 1.5px solid var(--hairline-strong);
+    overflow: hidden; position: relative;
+    display: flex; flex-direction: column;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  }
+  .pressable { transition: transform 120ms var(--ease-out); cursor: pointer; }
+  .pressable:active { transform: scale(0.97); }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  @keyframes sheetUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="MalpensaComponents.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const places = [
+  { name:'Milano Centrale', sub:'Stazione Centrale · 50 min', zone:'Milano' },
+  { name:'Milano Duomo', sub:'Centro Storico · 55 min', zone:'Milano' },
+  { name:'Milano Porta Garibaldi', sub:'Isola · 45 min', zone:'Milano' },
+  { name:'Milano City Life', sub:'Tre Torri · 40 min', zone:'Milano' },
+  { name:'Navigli', sub:'Darsena · 55 min', zone:'Milano' },
+  { name:'Monza Centro', sub:'Via V. Emanuele · 35 min', zone:'Brianza' },
+  { name:'Bergamo', sub:'Città Alta · 65 min', zone:'Bergamo' },
+];
+
+const DestSheet = ({ onClose, onPick }) => {
+  const [q, setQ] = React.useState('');
+  const filtered = q ? places.filter(p => p.name.toLowerCase().includes(q.toLowerCase())) : places;
+  return (
+    <div style={{ position:'absolute', inset:0, zIndex:60 }}>
+      <div onClick={onClose} style={{ position:'absolute', inset:0, background:'rgba(15,23,42,0.40)', animation:'fadeIn 200ms' }}/>
+      <div style={{
+        position:'absolute', left:0, right:0, bottom:0, maxHeight:'85%',
+        background:'var(--surface-1)', borderRadius:'32px 32px 0 0',
+        display:'flex', flexDirection:'column',
+        boxShadow:'var(--shadow-sheet)',
+        animation:'sheetUp 360ms cubic-bezier(0.22,0.61,0.36,1)',
+      }}>
+        <div style={{ padding:'12px 20px 14px', flexShrink:0 }}>
+          <div style={{ width:40, height:4, borderRadius:999, background:'rgba(15,23,42,0.18)', margin:'0 auto 14px' }}/>
+          <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+            <h3 style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:700, color:'var(--ink)', margin:0 }}>Where are you going?</h3>
+            <button onClick={onClose} style={{ width:32, height:32, borderRadius:999, border:'none', background:'var(--surface-2)', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', color:'var(--ink-muted)' }}>
+              <MIcon name="x" size={16} sw={2.5}/>
+            </button>
+          </div>
+          <div style={{ display:'flex', alignItems:'center', gap:10, padding:'12px 14px', background:'var(--surface-2)', borderRadius:16 }}>
+            <MIcon name="search" size={18} color="var(--ink-subtle)"/>
+            <input autoFocus value={q} onChange={e => setQ(e.target.value)} placeholder="Search destination…"
+              style={{ flex:1, border:'none', background:'transparent', outline:'none', fontFamily:'var(--font-body)', fontSize:15, color:'var(--ink)' }}/>
+          </div>
+        </div>
+        <div style={{ flex:1, overflowY:'auto', padding:'0 20px 28px' }}>
+          {filtered.map((p, i) => (
+            <button key={p.name} onClick={() => onPick(p.name)} style={{
+              width:'100%', textAlign:'left', padding:'14px 0', border:'none', background:'transparent', cursor:'pointer',
+              borderBottom: i < filtered.length - 1 ? '1px solid #F1F5F9' : 'none',
+              display:'flex', alignItems:'center', gap:12,
+            }}>
+              <div style={{ width:36, height:36, borderRadius:12, background:'var(--surface-2)', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--ink-muted)', flexShrink:0 }}>
+                <MIcon name="map-pin" size={18}/>
+              </div>
+              <div style={{ flex:1 }}>
+                <div style={{ fontFamily:'var(--font-body)', fontSize:15, fontWeight:600, color:'var(--ink)' }}>{p.name}</div>
+                <div style={{ fontFamily:'var(--font-body)', fontSize:12, color:'var(--ink-subtle)', marginTop:2 }}>{p.sub}</div>
+              </div>
+              <span style={{ padding:'5px 10px', borderRadius:999, background:'var(--surface-2)', fontFamily:'var(--font-body)', fontSize:12, fontWeight:600, color:'var(--ink-muted)' }}>{p.zone}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const TravelCheckin = () => {
+  const [terminal, setTerminal] = React.useState('Terminal 1');
+  const [destination, setDestination] = React.useState('');
+  const [passengers, setPassengers] = React.useState(1);
+  const [luggage, setLuggage] = React.useState(0);
+  const [sheet, setSheet] = React.useState(false);
+
+  const savings = 120 - Math.round(120 / (passengers + 1));
+  const ready = !!destination;
+
+  return (
+    <div className="phone">
+      {/* scrollable content */}
+      <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch' }}>
+
+        {/* TOP NAV */}
+        <div style={{ padding:'16px 20px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <button className="pressable" style={{
+            width:40, height:40, borderRadius:999, border:'1px solid var(--hairline)',
+            background:'var(--surface-1)', display:'flex', alignItems:'center', justifyContent:'center',
+            color:'var(--ink)', padding:0, cursor:'pointer',
+          }}>
+            <MIcon name="chevron-left" size={20}/>
+          </button>
+          <span style={{ fontFamily:'var(--font-display)', fontSize:20, fontWeight:800, color:'var(--ink)', letterSpacing:'-0.01em' }}>FLOT</span>
+          <div style={{
+            width:36, height:36, borderRadius:999, background:'var(--surface-2)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            fontFamily:'var(--font-body)', fontSize:13, fontWeight:600, color:'var(--ink)',
+          }}>AL</div>
+        </div>
+
+        {/* HERO COPY */}
+        <div style={{ padding:'20px 20px 0' }}>
+          <h2 style={{
+            fontFamily:'var(--font-display)', fontSize:28, fontWeight:800,
+            lineHeight:1.1, letterSpacing:'-0.025em', color:'var(--ink)', margin:0,
+          }}>Where are you headed?</h2>
+          <p style={{
+            fontFamily:'var(--font-body)', fontSize:14, lineHeight:1.5,
+            color:'var(--ink-muted)', margin:'6px 0 0',
+          }}>Tell us your terminal, destination and party size.</p>
+        </div>
+
+        {/* TERMINAL */}
+        <div style={{ marginTop:20, padding:'0 20px' }}>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'var(--ink-subtle)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:8 }}>Terminal</div>
+          <MSegment options={['Terminal 1','Terminal 2']} value={terminal} onChange={setTerminal}/>
+        </div>
+
+        {/* DESTINATION */}
+        <div style={{ marginTop:16, padding:'0 20px' }}>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'var(--ink-subtle)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:8 }}>Destination</div>
+          <MDestInput value={destination} placeholder="Where are you going?" onClick={() => setSheet(true)} focused={false}/>
+        </div>
+
+        {/* PASSENGERS + LUGGAGE */}
+        <div style={{ marginTop:16, padding:'0 20px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <div style={{ padding:16, background:'var(--surface-2)', borderRadius:20 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:6, color:'var(--ink-muted)', marginBottom:10 }}>
+              <MIcon name="users" size={16}/>
+              <span style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', color:'var(--ink-subtle)' }}>Passengers</span>
+            </div>
+            <MStepper value={passengers} onChange={setPassengers} min={1} max={4}/>
+          </div>
+          <div style={{ padding:16, background:'var(--surface-2)', borderRadius:20 }}>
+            <div style={{ display:'flex', alignItems:'center', gap:6, color:'var(--ink-muted)', marginBottom:10 }}>
+              <MIcon name="luggage" size={16}/>
+              <span style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, letterSpacing:'0.06em', textTransform:'uppercase', color:'var(--ink-subtle)' }}>Luggage</span>
+            </div>
+            <MStepper value={luggage} onChange={setLuggage} min={0} max={4}/>
+          </div>
+        </div>
+
+        {/* SAVINGS CARD */}
+        <div style={{
+          margin:'14px 20px 0', padding:'14px 16px',
+          background:'var(--surface-1)', border:'1px solid var(--hairline)', borderRadius:20,
+          boxShadow:'var(--shadow-card)',
+          display:'flex', alignItems:'center', gap:12,
+        }}>
+          <div style={{
+            width:36, height:36, borderRadius:999, background:'var(--success-soft)',
+            display:'flex', alignItems:'center', justifyContent:'center', color:'#15803D', flexShrink:0,
+          }}>
+            <MIcon name="sparkles" size={18} sw={2}/>
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontFamily:'var(--font-body)', fontSize:14, fontWeight:600, color:'var(--ink)' }}>
+              You could save <span style={{ color:'var(--success)' }}>~€{savings}.00</span>
+            </div>
+            <div style={{ fontFamily:'var(--font-body)', fontSize:12, color:'var(--ink-muted)', marginTop:2 }}>
+              Fixed €120 fare split in {passengers + 1}
+            </div>
+          </div>
+        </div>
+
+        {/* spacer for CTA */}
+        <div style={{ height:100 }}/>
+      </div>
+
+      {/* CTA */}
+      <div style={{
+        position:'absolute', bottom:0, left:0, right:0,
+        padding:'12px 20px 28px',
+        background:'linear-gradient(transparent, #FAFAFA 24px)',
+      }}>
+        <MBtn variant="primary" disabled={!ready} icon="search">Find my ride partner</MBtn>
+      </div>
+
+      {/* SHEET */}
+      {sheet && <DestSheet onClose={() => setSheet(false)} onPick={v => { setDestination(v); setSheet(false); }}/>}
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<TravelCheckin/>);
+</script>
+</body>
+</html>

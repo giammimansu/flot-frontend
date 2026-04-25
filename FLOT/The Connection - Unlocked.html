@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLOT — The Connection (Unlocked)</title>
+<link rel="stylesheet" href="colors_and_type.css"/>
+<style>
+  body {
+    margin: 0; min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+    background: #E8E8ED; font-family: var(--font-body);
+  }
+  .phone {
+    width: 375px; background: var(--surface-0);
+    border-radius: 44px; border: 1.5px solid var(--hairline-strong);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+    animation: screenIn 400ms cubic-bezier(0.22,0.61,0.36,1) forwards;
+  }
+  .pressable { transition: transform 120ms var(--ease-out); cursor: pointer; }
+  .pressable:active { transform: scale(0.97); }
+  @keyframes screenIn { from{opacity:0;transform:scale(.97)} to{opacity:1;transform:scale(1)} }
+  @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.55;transform:scale(1.25)} }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="MalpensaComponents.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const VerifiedBadge = () => (
+  <span style={{
+    display:'inline-flex', alignItems:'center', gap:3,
+    padding:'3px 8px 3px 4px', background:'#EFF6FF',
+    borderRadius:999, border:'1px solid #BFDBFE',
+  }}>
+    <svg width="14" height="14" viewBox="0 0 16 16">
+      <circle cx="8" cy="8" r="7" fill="#3B82F6"/>
+      <path d="M5 8.5l2 2 4-4.5" stroke="#fff" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+    <span style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'#1D4ED8' }}>Verified</span>
+  </span>
+);
+
+const StarIcon = () => (
+  <svg width="12" height="12" viewBox="0 0 24 24" fill="var(--amber)" stroke="none" style={{ marginRight:2, verticalAlign:'middle', marginTop:-2 }}>
+    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+  </svg>
+);
+
+const Connection = () => {
+  return (
+    <div className="phone">
+      <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch' }}>
+
+        {/* TOP NAV */}
+        <div style={{ padding:'16px 20px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <button className="pressable" style={{
+            width:40, height:40, borderRadius:999, border:'1px solid var(--hairline)',
+            background:'var(--surface-1)', display:'flex', alignItems:'center', justifyContent:'center',
+            color:'var(--ink)', padding:0, cursor:'pointer',
+          }}>
+            <MIcon name="chevron-left" size={20}/>
+          </button>
+          <span style={{ fontFamily:'var(--font-body)', fontSize:16, fontWeight:600, color:'var(--ink)' }}>Your ride partner</span>
+          <span style={{
+            display:'inline-flex', alignItems:'center', gap:6,
+            padding:'6px 12px', borderRadius:999,
+            background:'var(--success-soft)', fontFamily:'var(--font-body)',
+            fontSize:12, fontWeight:600, color:'#15803D',
+          }}>
+            <span style={{ width:6, height:6, borderRadius:999, background:'var(--success)', animation:'livePulse 1.4s infinite' }}></span>
+            Connected
+          </span>
+        </div>
+
+        {/* HERO PROFILE CARD */}
+        <div style={{
+          margin:'16px 20px 0', background:'var(--surface-1)', border:'1px solid var(--hairline)',
+          borderRadius:28, boxShadow:'var(--shadow-card)', padding:'24px 20px 20px',
+          overflow:'hidden', position:'relative',
+        }}>
+          {/* Decorative circle */}
+          <div style={{ position:'absolute', top:-40, right:-40, width:160, height:160, borderRadius:999, background:'var(--success-soft)', opacity:0.5, zIndex:0 }}></div>
+
+          <div style={{ position:'relative', zIndex:1 }}>
+            {/* Avatar + Identity */}
+            <div style={{ display:'flex', alignItems:'flex-start', gap:16 }}>
+              <div style={{
+                width:72, height:72, borderRadius:999, flexShrink:0,
+                background:'linear-gradient(135deg, #BFDBFE 0%, #93C5FD 100%)',
+                display:'flex', alignItems:'center', justifyContent:'center',
+                fontFamily:'var(--font-display)', fontSize:28, fontWeight:800, color:'#1E40AF',
+                border:'3px solid var(--surface-1)',
+                boxShadow:'0 0 0 3px rgba(22,163,74,0.20)',
+              }}>MA</div>
+              <div style={{ flex:1 }}>
+                <div style={{ display:'flex', alignItems:'center', gap:8, flexWrap:'wrap' }}>
+                  <span style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:800, color:'var(--ink)' }}>Marco A.</span>
+                  <VerifiedBadge/>
+                </div>
+                <div style={{ marginTop:4, display:'flex', alignItems:'center', gap:8, fontFamily:'var(--font-body)', fontSize:13, color:'var(--ink-muted)' }}>
+                  <span>28 · Milan, IT</span>
+                  <span style={{ width:3, height:3, borderRadius:999, background:'var(--ink-subtle)' }}></span>
+                  <span>4 trips</span>
+                </div>
+                <div style={{ marginTop:8, display:'flex', gap:6 }}>
+                  {['IT','EN','ES'].map(l => (
+                    <span key={l} style={{
+                      padding:'4px 10px', borderRadius:999, background:'var(--surface-2)',
+                      fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'var(--ink-muted)',
+                    }}>{l}</span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ height:1, background:'var(--hairline)', margin:'16px 0' }}></div>
+
+            {/* Stats */}
+            <div style={{ display:'flex', alignItems:'center' }}>
+              {[
+                { val: <><StarIcon/>4.9</>, label:'Rating' },
+                { val:'12', label:'Trips' },
+                { val:<span style={{ color:'var(--success)' }}>100%</span>, label:'On time' },
+              ].map((s, i) => (
+                <React.Fragment key={i}>
+                  {i > 0 && <div style={{ width:1, height:32, background:'var(--hairline)', margin:'0 auto' }}></div>}
+                  <div style={{ flex:1, textAlign:'center' }}>
+                    <div style={{ fontFamily:'var(--font-display)', fontSize:20, fontWeight:700, color:'var(--ink)' }}>{s.val}</div>
+                    <div style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'var(--ink-subtle)', letterSpacing:'0.06em', textTransform:'uppercase', marginTop:2 }}>{s.label}</div>
+                  </div>
+                </React.Fragment>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* MEETING POINT */}
+        <div style={{
+          margin:'12px 20px 0', background:'var(--amber-soft)', border:'1px solid #FDE68A',
+          borderRadius:20, padding:16, display:'flex', gap:14, alignItems:'flex-start',
+        }}>
+          <div style={{
+            width:44, height:44, borderRadius:999, background:'var(--amber)',
+            display:'flex', alignItems:'center', justifyContent:'center', color:'var(--ink)', flexShrink:0,
+          }}>
+            <MIcon name="map-pin" size={22} sw={2}/>
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontFamily:'var(--font-body)', fontSize:10, fontWeight:600, color:'#92400E', letterSpacing:'0.08em', textTransform:'uppercase' }}>Meeting point</div>
+            <div style={{ fontFamily:'var(--font-display)', fontSize:20, fontWeight:800, color:'var(--ink)', marginTop:4 }}>Exit 4 · Arrivals</div>
+            <div style={{ fontFamily:'var(--font-body)', fontSize:13, color:'#92400E', marginTop:4, lineHeight:1.45 }}>Ground floor · Taxi sharing stand · Look for the FLOT sign</div>
+            <span style={{
+              display:'inline-flex', alignItems:'center', gap:4, marginTop:8,
+              padding:'4px 10px', borderRadius:999,
+              background:'rgba(245,158,11,0.15)',
+              fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'#92400E',
+            }}>
+              <MIcon name="timer" size={12} color="#92400E"/>
+              ~8 min walk
+            </span>
+          </div>
+        </div>
+
+        {/* SAVINGS ROW */}
+        <div style={{
+          margin:'12px 20px 0', background:'var(--surface-1)', border:'1px solid var(--hairline)',
+          borderRadius:16, padding:'14px 16px', display:'flex', alignItems:'center', gap:12,
+        }}>
+          <div style={{
+            width:36, height:36, borderRadius:999, background:'var(--success-soft)',
+            display:'flex', alignItems:'center', justifyContent:'center', color:'var(--success)', flexShrink:0,
+          }}>
+            <MIcon name="sparkles" size={18} sw={2}/>
+          </div>
+          <div style={{ flex:1 }}>
+            <div style={{ fontFamily:'var(--font-body)', fontSize:14, fontWeight:600, color:'var(--ink)' }}>You save €60.00 on this ride</div>
+            <div style={{ fontFamily:'var(--font-body)', fontSize:12, color:'var(--ink-muted)', marginTop:2 }}>Your share: €60.00 · Full fare: €120.00</div>
+          </div>
+          <div style={{ fontFamily:'var(--font-display)', fontSize:22, fontWeight:800, color:'var(--success)', fontFeatureSettings:'"tnum" 1' }}>€60<span style={{ fontSize:16 }}>.00</span></div>
+        </div>
+
+        {/* ACTION BAR */}
+        <div style={{ margin:'14px 20px 0', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+          <button className="pressable" style={{
+            height:56, borderRadius:20, background:'var(--ink)', color:'#fff', border:'none',
+            display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+            fontFamily:'var(--font-body)', fontSize:15, fontWeight:600, cursor:'pointer',
+          }}>
+            <MIcon name="phone" size={20}/> Call Marco
+          </button>
+          <button className="pressable" style={{
+            height:56, borderRadius:20, background:'var(--surface-1)', color:'var(--ink)',
+            border:'1.5px solid var(--ink)',
+            display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+            fontFamily:'var(--font-body)', fontSize:15, fontWeight:600, cursor:'pointer',
+          }}>
+            <MIcon name="message-circle" size={20}/> Send message
+          </button>
+        </div>
+
+        {/* PRIMARY CTA */}
+        <button className="pressable" style={{
+          margin:'12px 20px 0', width:'calc(100% - 40px)', height:56, borderRadius:24,
+          background:'var(--amber)', color:'var(--ink)', border:'none',
+          fontFamily:'var(--font-body)', fontSize:16, fontWeight:600,
+          display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+          boxShadow:'0 1px 3px rgba(245,158,11,0.25), 0 4px 16px rgba(245,158,11,0.20)',
+          cursor:'pointer',
+        }}>
+          <MIcon name="navigation" size={20}/> I'm on my way
+        </button>
+
+        {/* FINE PRINT */}
+        <div style={{
+          margin:'10px 20px 20px', textAlign:'center',
+          fontFamily:'var(--font-body)', fontSize:11, color:'var(--ink-subtle)', lineHeight:1.5,
+        }}>
+          Sharing this ride means you agree to FLOT's<br/>passenger guidelines. Have a great trip.
+        </div>
+      </div>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Connection/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLOT — No Match Found</title>
+<link rel="stylesheet" href="colors_and_type.css"/>
+<style>
+  body {
+    margin: 0; min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+    background: #E8E8ED; font-family: var(--font-body);
+  }
+  .phone {
+    width: 375px; height: 812px; background: var(--surface-0);
+    border-radius: 44px; border: 1.5px solid var(--hairline-strong);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+    animation: screenIn 400ms cubic-bezier(0.22,0.61,0.36,1) forwards;
+  }
+  .pressable { transition: transform 120ms var(--ease-out); cursor: pointer; }
+  .pressable:active { transform: scale(0.97); }
+  @keyframes screenIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="MalpensaComponents.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const ClockIcon = ({ size = 32 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="var(--ink-subtle)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+  </svg>
+);
+
+const NoMatch = () => (
+  <div className="phone">
+    <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', display:'flex', flexDirection:'column' }}>
+
+      {/* TOP NAV */}
+      <div style={{ padding:'16px 20px 0', display:'flex', alignItems:'center' }}>
+        <div style={{ display:'flex', alignItems:'center', gap:6 }}>
+          <div style={{ width:8, height:8, borderRadius:999, background:'var(--amber)' }}></div>
+          <span style={{ fontFamily:'var(--font-display)', fontSize:20, fontWeight:800, color:'var(--ink)' }}>FLOT</span>
+        </div>
+      </div>
+
+      {/* HERO */}
+      <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', padding:'0 20px' }}>
+        <div style={{
+          width:96, height:96, borderRadius:999, background:'var(--surface-2)',
+          display:'flex', alignItems:'center', justifyContent:'center',
+        }}>
+          <div style={{
+            width:72, height:72, borderRadius:999, background:'var(--surface-1)',
+            border:'1px solid var(--hairline)', boxShadow:'var(--shadow-card)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+          }}>
+            <ClockIcon/>
+          </div>
+        </div>
+        <h2 style={{
+          fontFamily:'var(--font-display)', fontSize:28, fontWeight:800, color:'var(--ink)',
+          textAlign:'center', letterSpacing:'-0.02em', lineHeight:1.1, marginTop:24, marginBottom:0,
+        }}>No partners found this time.</h2>
+        <p style={{
+          fontFamily:'var(--font-body)', fontSize:14, color:'var(--ink-muted)',
+          textAlign:'center', lineHeight:1.55, marginTop:10, maxWidth:300,
+        }}>We scanned Terminal 1 for 5 minutes but couldn't find anyone heading your way right now.</p>
+      </div>
+
+      {/* GUARANTEE */}
+      <div style={{
+        margin:'0 20px', padding:'16px 18px',
+        background:'var(--success-soft)', border:'1px solid rgba(22,163,74,0.20)',
+        borderRadius:20, display:'flex', alignItems:'center', gap:14,
+      }}>
+        <div style={{
+          width:44, height:44, borderRadius:999, background:'rgba(22,163,74,0.15)',
+          display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+        }}>
+          <MIcon name="shield" size={22} color="var(--success)" sw={2}/>
+        </div>
+        <div>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:15, fontWeight:600, color:'var(--success)' }}>You haven't been charged.</div>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:13, color:'#15803D', marginTop:3, lineHeight:1.4 }}>Your €5.00 hold has been fully released.</div>
+        </div>
+      </div>
+
+      {/* WHY */}
+      <div style={{
+        margin:'16px 20px 0', padding:'16px 18px',
+        background:'var(--surface-1)', border:'1px solid var(--hairline)',
+        borderRadius:20, boxShadow:'var(--shadow-card)',
+      }}>
+        <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:12 }}>
+          <MIcon name="info" size={16} color="var(--ink-subtle)"/>
+          <span style={{ fontFamily:'var(--font-body)', fontSize:13, fontWeight:600, color:'var(--ink)' }}>Why this happens</span>
+        </div>
+        {[
+          'Fewer travelers on this route at this time.',
+          'Your destination zone had low demand.',
+          'Try again — matches improve with more users.',
+        ].map((t, i, a) => (
+          <div key={i} style={{
+            display:'flex', gap:10, padding:'8px 0',
+            borderBottom: i < a.length - 1 ? '1px solid var(--surface-2)' : 'none',
+          }}>
+            <div style={{ width:6, height:6, borderRadius:999, background:'var(--ink-subtle)', flexShrink:0, marginTop:5 }}></div>
+            <span style={{ fontFamily:'var(--font-body)', fontSize:13, color:'var(--ink-muted)', lineHeight:1.4 }}>{t}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* NEXT FLIGHT HINT */}
+      <div style={{
+        margin:'12px 20px 0', padding:'12px 14px',
+        background:'var(--surface-1)', border:'1px solid var(--hairline)',
+        borderRadius:16, display:'flex', alignItems:'center', gap:10,
+      }}>
+        <div style={{
+          width:32, height:32, borderRadius:999, background:'var(--amber-soft)',
+          display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0,
+        }}>
+          <MIcon name="zap" size={16} color="#92400E"/>
+        </div>
+        <div>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:13, fontWeight:600, color:'var(--ink)' }}>More travelers arrive at 11:30 and 14:15.</div>
+          <div style={{ fontFamily:'var(--font-body)', fontSize:12, color:'var(--ink-muted)', marginTop:2 }}>Try again then for a better chance of matching.</div>
+        </div>
+      </div>
+
+      {/* spacer */}
+      <div style={{ height:140 }}></div>
+    </div>
+
+    {/* ACTION AREA */}
+    <div style={{
+      position:'absolute', bottom:0, left:0, right:0,
+      padding:'12px 20px 28px',
+      background:'linear-gradient(transparent, #FAFAFA 24px)',
+    }}>
+      <MBtn variant="primary" icon="search">Try again</MBtn>
+      <button className="pressable" style={{
+        marginTop:10, width:'100%', height:48, borderRadius:20,
+        background:'transparent', color:'var(--ink-muted)',
+        border:'1px solid var(--hairline)',
+        fontFamily:'var(--font-body)', fontSize:15, fontWeight:500,
+        cursor:'pointer',
+      }}>Back to home</button>
+      <div style={{
+        marginTop:12, textAlign:'center',
+        fontFamily:'var(--font-body)', fontSize:11, color:'var(--ink-subtle)',
+      }}>FLOT never charges for unmatched searches.</div>
+    </div>
+  </div>
+);
+
+ReactDOM.createRoot(document.getElementById('root')).render(<NoMatch/>);
+</script>
+</body>
+</html>

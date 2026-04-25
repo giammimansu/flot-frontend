@@ -1,0 +1,18 @@
+.root {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: var(--space-4) var(--space-5) calc(var(--space-4) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(
+    to top,
+    var(--surface-0) 60%,
+    transparent
+  );
+  pointer-events: none;
+}
+
+.inner {
+  pointer-events: auto;
+}

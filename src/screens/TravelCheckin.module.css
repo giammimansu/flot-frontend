@@ -1,0 +1,279 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--bg-1);
+}
+
+.scrollable {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Hero */
+.hero {
+  padding: var(--space-5) var(--space-5) 0;
+}
+
+.heroTitle {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ink);
+  margin: 0;
+}
+
+.heroSub {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  line-height: var(--lh-relaxed);
+  color: var(--ink-muted);
+  margin: 6px 0 0;
+}
+
+/* Section label */
+.sectionLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink-subtle);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: var(--space-2);
+}
+
+/* Form sections */
+.formSection {
+  margin-top: var(--space-5);
+  padding: 0 var(--space-5);
+}
+
+.formSectionSm {
+  margin-top: var(--space-4);
+  padding: 0 var(--space-5);
+}
+
+/* Stepper grid */
+.stepperGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stepperCard {
+  padding: var(--space-4);
+  background: var(--surface-2);
+  border-radius: 20px;
+}
+
+.stepperHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink-muted);
+  margin-bottom: 10px;
+}
+
+.stepperLabel {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
+
+/* Savings card */
+.savingsCard {
+  margin: 14px var(--space-5) 0;
+  padding: 14px var(--space-4);
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.savingsIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--success-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #15803D;
+  flex-shrink: 0;
+}
+
+.savingsText {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+
+.savingsAmount {
+  color: var(--success);
+}
+
+.savingsNote {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+/* CTA spacer (so scroll doesn't hide content behind fixed CTA) */
+.ctaSpacer {
+  height: 100px;
+}
+
+/* TopNav override for check-in: back + FLOT + avatar */
+.navCenter {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+
+/* ───────────────────────────────────
+   Destination Sheet
+   ─────────────────────────────────── */
+.sheetHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-3);
+}
+
+.sheetTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: var(--fw-bold);
+  color: var(--ink);
+  margin: 0;
+}
+
+.closeBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--ink-muted);
+}
+
+/* Search input */
+.searchBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: var(--space-3) 14px;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.searchInput {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--ink);
+}
+
+.searchInput::placeholder {
+  color: var(--ink-subtle);
+}
+
+/* Destination list item */
+.destItem {
+  width: 100%;
+  text-align: left;
+  padding: 14px 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.destItem:not(:last-child) {
+  border-bottom: 1px solid var(--surface-2);
+}
+
+.destItemIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-muted);
+  flex-shrink: 0;
+}
+
+.destItemName {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+
+.destItemSub {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--ink-subtle);
+  margin-top: 2px;
+}
+
+.destItemZone {
+  margin-left: auto;
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-2);
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--ink-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Empty search */
+.emptySearch {
+  text-align: center;
+  padding: var(--space-8) 0;
+  color: var(--ink-subtle);
+  font-size: var(--fs-14);
+}

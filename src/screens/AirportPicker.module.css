@@ -1,0 +1,108 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--bg-1);
+}
+
+.content {
+  flex: 1;
+  padding: var(--space-5) var(--space-5) var(--space-9);
+}
+
+.headline {
+  font-family: var(--font-display);
+  font-size: var(--fs-24);
+  font-weight: 800;
+  line-height: var(--lh-snug);
+  letter-spacing: var(--tracking-tight);
+  color: var(--ink);
+  margin: 0 0 var(--space-2);
+}
+
+.subtitle {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  line-height: var(--lh-relaxed);
+  color: var(--ink-muted);
+  margin: 0 0 var(--space-6);
+}
+
+/* Airport card */
+.airportCard {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: var(--space-4) 18px;
+  background: var(--surface-1);
+  border: 1.5px solid var(--hairline);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+  margin-bottom: var(--space-3);
+  width: 100%;
+  text-align: left;
+}
+
+.airportCard:active {
+  transform: scale(0.98);
+}
+
+.airportCard:hover {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-glow), var(--shadow-card);
+}
+
+.airportIconWrap {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-md);
+  background: var(--amber-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #92400E;
+  flex-shrink: 0;
+}
+
+.airportName {
+  font-family: var(--font-display);
+  font-size: var(--fs-18);
+  font-weight: var(--fw-bold);
+  color: var(--ink);
+}
+
+.airportCity {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.chevron {
+  margin-left: auto;
+  color: var(--ink-subtle);
+  flex-shrink: 0;
+}
+
+/* Loading skeleton */
+.skeleton {
+  height: 80px;
+  background: var(--surface-2);
+  border-radius: 20px;
+  margin-bottom: var(--space-3);
+  animation: pulse 1.4s infinite;
+}
+
+/* Error state */
+.errorBox {
+  padding: var(--space-4);
+  background: var(--error-soft);
+  border-radius: var(--radius-md);
+  color: #B91C1C;
+  font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  text-align: center;
+}

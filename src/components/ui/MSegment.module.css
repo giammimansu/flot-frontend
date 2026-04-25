@@ -1,0 +1,30 @@
+.root {
+  display: flex;
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  padding: var(--space-1);
+  gap: var(--space-1);
+}
+
+.option {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: var(--fw-medium);
+  color: var(--ink-muted);
+  background: transparent;
+  box-shadow: none;
+  transition: all var(--dur-base) var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.active {
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  background: var(--surface-1);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}

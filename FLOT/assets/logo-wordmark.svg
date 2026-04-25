@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 64" fill="none">
+  
+  <g fill="#0F172A" font-family="&#39;Bricolage Grotesque&#39;, sans-serif" font-weight="800" letter-spacing="-0.03em">
+    <text x="0" y="46" font-size="44">FLOT</text>
+  </g>
+  
+  <g>
+    <circle cx="170" cy="20" r="8" fill="#F59E0B"></circle>
+    <path d="M 130 20 Q 150 20 162 20" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" opacity="0.35"></path>
+    <path d="M 145 20 Q 156 20 162 20" stroke="#F59E0B" stroke-width="3" stroke-linecap="round" opacity="0.65"></path>
+  </g>
+</svg>
