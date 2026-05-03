@@ -42,7 +42,7 @@
 /* Headline */
 .headline {
   font-family: var(--font-display);
-  font-size: var(--fs-32);
+  font-size: clamp(27px, 7vw, 32px);
   font-weight: 800;
   line-height: var(--lh-tight);
   letter-spacing: -0.025em;
@@ -50,8 +50,14 @@
   margin: 0;
 }
 
-.amberAccent {
-  color: var(--amber);
+/* Hero savings line */
+.heroSavings {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--success);
+  margin-top: 6px;
+  margin-bottom: 0;
 }
 
 /* Subtitle */
@@ -64,10 +70,10 @@
   text-wrap: pretty;
 }
 
-/* Savings card */
+/* ── Live Savings Counter ── */
 .savingsCard {
   margin: var(--space-5) var(--space-5) 0;
-  padding: var(--space-4) 18px;
+  padding: 16px 18px;
   background: var(--surface-1);
   border: 1px solid var(--hairline);
   border-radius: 20px;
@@ -75,9 +81,15 @@
   display: flex;
   align-items: center;
   gap: 14px;
+  animation: countUp 400ms var(--ease-out);
 }
 
-.savingsIcon {
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.savingsIconWrap {
   width: 42px;
   height: 42px;
   border-radius: var(--radius-pill);
@@ -89,57 +101,365 @@
   flex-shrink: 0;
 }
 
+.savingsBody {
+  flex: 1;
+  min-width: 0;
+}
+
 .savingsLabel {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: 10px;
   font-weight: var(--fw-semibold);
   color: var(--ink-subtle);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  margin-bottom: var(--space-1);
+  margin-bottom: 2px;
+}
+
+.savingsRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .savingsAmount {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 28px;
   font-weight: 800;
   color: var(--success);
   line-height: 1;
   font-feature-settings: "tnum" 1;
 }
 
+.savingsPulseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--amber);
+  animation: pulse 1.4s infinite;
+  flex-shrink: 0;
+}
+
 .savingsNote {
   font-family: var(--font-body);
-  font-size: var(--fs-12);
+  font-size: 12px;
   color: var(--ink-muted);
-  margin-top: var(--space-1);
+  margin-top: 2px;
 }
 
-/* Divider */
-.dividerRow {
+.weeklyMatches {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  margin-top: 4px;
+}
+
+/* ── How it works ── */
+.howCard {
+  margin: var(--space-5) var(--space-5) 0;
+  padding: 14px 16px;
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+}
+
+.howLabel {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink-subtle);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.howStep {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.howIconAmber {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--amber-soft);
   display: flex;
   align-items: center;
-  gap: var(--space-3);
-  padding: 0 var(--space-5);
-  margin: 22px 0 18px;
+  justify-content: center;
+  color: #92400E;
+  flex-shrink: 0;
 }
 
-.dividerLine {
+.howIconSuccess {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: var(--success-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #15803D;
+  flex-shrink: 0;
+}
+
+.howContent {
   flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.howTitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  line-height: 1.3;
+}
+
+.howSub {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.howGuide {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--success);
+  margin-top: 4px;
+}
+
+.stepConnector {
+  width: 1px;
+  height: 18px;
+  background: var(--hairline);
+  margin: 3px 0 3px 17px;
+}
+
+/* ── Match Carousel ── */
+.carouselOuter {
+  margin: var(--space-4) var(--space-5) 0;
+}
+
+.carouselWrapper {
+  position: relative;
+  overflow: hidden;
+  border-radius: 20px;
+}
+
+.cardSlot {
+  width: 100%;
+}
+
+.matchCard {
+  background: var(--surface-1);
+  border: 1.5px solid var(--hairline);
+  border-radius: 20px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow-card);
+  width: 100%;
+}
+
+.matchKicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.matchKickerLeft {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 600;
+  color: #92400E;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.matchIndicator {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--ink-subtle);
+}
+
+.matchRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.matchAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  filter: blur(5px);
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.matchInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.matchName {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.matchZone {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-muted);
+  margin-top: 1px;
+}
+
+.matchTerminal {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: #92400E;
+  margin-top: 2px;
+}
+
+.matchLiveDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--amber);
+  animation: pulse 1.4s infinite;
+  flex-shrink: 0;
+}
+
+.matchDivider {
   height: 1px;
   background: var(--hairline);
+  margin: 12px 0;
 }
 
-.dividerLabel {
-  font-size: 11px;
-  font-weight: var(--fw-medium);
+.matchLock {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
   color: var(--ink-subtle);
-  white-space: nowrap;
 }
 
-/* Auth section */
+.matchLockLine1 {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.matchLockLine2 {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink-muted);
+}
+
+/* Dot indicator */
+.dots {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--hairline);
+  transition: background 300ms, width 300ms;
+}
+
+.dotActive {
+  background: var(--amber);
+  width: 14px;
+}
+
+/* ── Pricing hook ── */
+.pricingHook {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-muted);
+  text-align: center;
+  margin: var(--space-4) var(--space-5) 0;
+  padding: 0 var(--space-3);
+}
+
+.strikethrough {
+  text-decoration: line-through;
+  color: var(--ink-subtle);
+}
+
+.savingsHighlight {
+  color: var(--success);
+  font-weight: 700;
+}
+
+/* ── Guarantee banner ── */
+.guaranteeBanner {
+  margin: var(--space-4) var(--space-5) 0;
+  padding: 14px 16px;
+  background: var(--success-soft);
+  border: 1px solid rgba(22, 163, 74, 0.20);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.guaranteeIcon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  background: rgba(22, 163, 74, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #16A34A;
+  flex-shrink: 0;
+}
+
+.guaranteeTitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--success);
+  line-height: 1.3;
+}
+
+.guaranteeSub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  color: #16A34A;
+  margin-top: 2px;
+}
+
+/* ── Auth section ── */
 .authSection {
-  padding: 0 var(--space-5);
+  padding: var(--space-4) var(--space-5) 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -181,6 +501,21 @@
   color: var(--ink-inverse);
 }
 
+/* Privacy note */
+.privacyNote {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--ink-subtle);
+  text-align: center;
+}
+
 /* Terms */
 .terms {
   margin-top: 14px;
@@ -208,7 +543,11 @@
   cursor: pointer;
 }
 
-/* Push home indicator to bottom */
 .spacer {
   flex: 1;
+}
+
+.tabBarSpacer {
+  height: 90px;
+  flex-shrink: 0;
 }

@@ -1,0 +1,258 @@
+@keyframes radarPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes dotBlink0 { 0%, 100% { opacity: 0; } 35%, 65% { opacity: 1; } }
+@keyframes dotBlink1 { 0%, 100% { opacity: 0; } 25%, 55% { opacity: 1; } }
+@keyframes dotBlink2 { 0%, 100% { opacity: 0; } 40%, 70% { opacity: 1; } }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.25); }
+}
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--surface-0);
+  padding-top: env(safe-area-inset-top);
+}
+
+.topNav {
+  padding: var(--space-4) var(--space-5) 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand { display: flex; align-items: center; gap: 6px; }
+.brandDot { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--amber); }
+.brandText {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: 800;
+  color: var(--ink);
+}
+
+.statusPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--amber-soft);
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: #92400E;
+}
+.statusDot {
+  width: 6px; height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--amber);
+  animation: livePulse 1.4s infinite;
+}
+
+.routeCard {
+  margin: var(--space-3) var(--space-5) 0;
+  padding: var(--space-3) 14px;
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-md);
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+}
+.routeCol { flex: 1; }
+.routeLabel {
+  font-size: 10px;
+  font-family: var(--font-body);
+  font-weight: var(--fw-semibold);
+  color: var(--ink-subtle);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.routeValue {
+  font-size: var(--fs-14);
+  font-family: var(--font-body);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  margin-top: 2px;
+}
+.routeDivider {
+  width: 1px;
+  height: 32px;
+  background: var(--hairline);
+  align-self: center;
+}
+
+.radarWrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  min-height: 280px;
+}
+.radar {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  background: radial-gradient(circle at center, rgba(254, 243, 199, 0.8) 0%, rgba(250, 250, 250, 0) 68%);
+}
+.radarRing {
+  position: absolute;
+  inset: 0;
+  border: 1.5px solid var(--amber);
+  border-radius: var(--radius-pill);
+}
+.radarCore {
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-pill);
+  background: var(--amber);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 12px rgba(245, 158, 11, 0.12), 0 12px 32px rgba(245, 158, 11, 0.30);
+  position: relative;
+  z-index: 2;
+}
+.dot {
+  position: absolute;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-1);
+  border: 2px solid var(--hairline);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  z-index: 3;
+}
+
+.statusBlock {
+  padding: 0 var(--space-5);
+  text-align: center;
+}
+.statusTitle {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: var(--fw-bold);
+  color: var(--ink);
+  margin: 0;
+  letter-spacing: var(--tracking-snug);
+}
+.statusMsg {
+  margin-top: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  color: var(--ink-muted);
+  min-height: 20px;
+  animation: fadeUp var(--dur-base) var(--ease-out);
+}
+
+.guarantee {
+  margin: var(--space-4) var(--space-5) 0;
+  padding: 14px var(--space-4);
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: 20px;
+  box-shadow: var(--shadow-card);
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.guaranteeIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: #EFF6FF;
+  color: #3B82F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.guaranteeTitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+.guaranteeBody {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--ink-muted);
+  margin-top: 2px;
+  line-height: 1.45;
+}
+
+.proTeaser {
+  margin: 10px var(--space-5) 0;
+  padding: 14px var(--space-4);
+  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+  border: 1px solid #FDE68A;
+  border-radius: 20px;
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  cursor: pointer;
+  transition: transform var(--dur-press) var(--ease-out);
+}
+.proTeaser:active { transform: scale(0.97); }
+.proTeaserIcon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  background: var(--amber);
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.proTeaserContent { flex: 1; min-width: 0; }
+.proTeaserTitle {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+.proTeaserCopy {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: #92400E;
+  margin-top: 1px;
+}
+
+.cancelWrap {
+  padding: 14px var(--space-5) calc(28px + env(safe-area-inset-bottom));
+  text-align: center;
+}
+.cancelBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-medium);
+  color: var(--ink-subtle);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

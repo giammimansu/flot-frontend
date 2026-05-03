@@ -12,10 +12,13 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^2.0.2",
     "@hookform/resolvers": "^3.9.1",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^5.8.0",
+    "@types/google.maps": "^3.64.0",
     "aws-amplify": "^6.16.4",
+    "firebase": "^12.12.1",
     "framer-motion": "^11.18.2",
     "i18next": "^24.2.3",
     "ky": "^1.7.5",

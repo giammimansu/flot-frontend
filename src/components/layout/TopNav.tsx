@@ -1,7 +1,9 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MIcon } from '../ui';
 import type { IconName } from '../ui';
+import { useAuthStore } from '../../stores/authStore';
+import { ProfileMenu } from './ProfileMenu';
 import styles from './TopNav.module.css';
 
 interface TopNavAction {
@@ -21,6 +23,8 @@ interface TopNavProps {
   actions?: TopNavAction[];
   /** Override right-side with custom content */
   right?: ReactNode;
+  /** Show the user avatar that opens ProfileMenu (default true when user is authenticated) */
+  showAvatar?: boolean;
 }
 
 export function TopNav({
@@ -29,8 +33,15 @@ export function TopNav({
   title,
   actions,
   right,
+  showAvatar = true,
 }: TopNavProps) {
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const user = useAuthStore((s) => s.user);
+  const hasPhoto = Boolean(user?.photoUrl);
+  const initials = user
+    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
+    : '?';
 
   return (
     <nav className={styles.root} aria-label="Top navigation">
@@ -69,7 +80,28 @@ export function TopNav({
             <MIcon name={action.icon} size={18} />
           </button>
         ))}
+        {showAvatar && (
+          <button
+            className={styles.avatarBtn}
+            onClick={() => setMenuOpen(true)}
+            aria-label="Apri menu profilo"
+            aria-haspopup="dialog"
+            aria-expanded={menuOpen}
+          >
+            {hasPhoto ? (
+              <img
+                src={user!.photoUrl!}
+                alt={user?.firstName ?? 'Profilo'}
+                className={styles.avatarImg}
+              />
+            ) : (
+              <span className={styles.avatarInitials}>{initials}</span>
+            )}
+          </button>
+        )}
       </div>
+
+      <ProfileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
     </nav>
   );
 }

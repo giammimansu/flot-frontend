@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FLOT — My Trips</title>
+<link rel="stylesheet" href="colors_and_type.css"/>
+<style>
+  body {
+    margin: 0; min-height: 100dvh;
+    display: flex; align-items: center; justify-content: center;
+    background: #E8E8ED; font-family: var(--font-body);
+  }
+  .phone {
+    width: 375px; height: 812px; background: var(--surface-0);
+    border-radius: 44px; border: 1.5px solid var(--hairline-strong);
+    overflow: hidden; position: relative; display: flex; flex-direction: column;
+    box-shadow: 0 40px 80px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04);
+  }
+  .pressable { transition: transform 120ms var(--ease-out); cursor: pointer; }
+  .pressable:active { transform: scale(0.97); }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes livePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.3)} }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+<script type="text/babel" src="MalpensaComponents.jsx"></script>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+
+const statusConfig = {
+  scheduled: { label:'Programmato', bg:'var(--amber-soft)', color:'#92400E', dot:true },
+  matched:   { label:'Match trovato', bg:'var(--success-soft)', color:'#15803D', dot:true },
+  unlocked:  { label:'Sbloccato', bg:'#EFF6FF', color:'#1D4ED8' },
+  completed: { label:'Completato', bg:'var(--surface-2)', color:'var(--ink-muted)', icon:'check' },
+  expired:   { label:'Scaduto', bg:'var(--error-soft)', color:'#DC2626' },
+};
+
+const activeTrips = [
+  { id:'FLT-2026-04301', from:'Terminal 1', to:'Milano Centrale', date:'Mer 30 Apr', time:'14:30', status:'matched', savings:60, partner:'Marco A.' },
+  { id:'FLT-2026-05021', from:'Terminal 2', to:'Milano Duomo', date:'Sab 2 Mag', time:'09:15', status:'scheduled', savings:60, partner:null },
+  { id:'FLT-2026-05051', from:'Terminal 1', to:'Bergamo', date:'Mar 5 Mag', time:'18:00', status:'scheduled', savings:40, partner:null },
+];
+
+const pastTrips = [
+  { id:'FLT-2026-04251', from:'Terminal 1', to:'Milano Centrale', date:'Ven 25 Apr', time:'11:00', status:'completed', savings:60, partner:'Laura B.' },
+  { id:'FLT-2026-04201', from:'Terminal 2', to:'Navigli', date:'Dom 20 Apr', time:'16:45', status:'completed', savings:60, partner:'Sofia M.' },
+  { id:'FLT-2026-04151', from:'Terminal 1', to:'Monza Centro', date:'Mar 15 Apr', time:'08:30', status:'expired', savings:0, partner:null },
+  { id:'FLT-2026-04101', from:'Terminal 1', to:'Milano Porta Garibaldi', date:'Gio 10 Apr', time:'12:15', status:'completed', savings:60, partner:'Luca R.' },
+];
+
+const StatusBadge = ({ status }) => {
+  const c = statusConfig[status];
+  return (
+    <span style={{
+      display:'inline-flex', alignItems:'center', gap:5,
+      padding:'4px 10px', borderRadius:999,
+      background:c.bg, fontFamily:'var(--font-body)',
+      fontSize:11, fontWeight:600, color:c.color,
+    }}>
+      {c.dot && <span style={{ width:6, height:6, borderRadius:999, background:c.color, animation: status !== 'completed' ? 'livePulse 1.4s infinite' : 'none' }}/>}
+      {c.icon === 'check' && <MIcon name="check" size={12} sw={2.5}/>}
+      {c.label}
+    </span>
+  );
+};
+
+const TripCard = ({ trip, idx, past }) => (
+  <div className="pressable" style={{
+    background:'var(--surface-1)', border:'1px solid var(--hairline)',
+    borderRadius:22, padding:16, boxShadow:'var(--shadow-card)',
+    animation:`fadeUp 300ms cubic-bezier(0.22,0.61,0.36,1) both`,
+    opacity: past && trip.status === 'expired' ? 0.7 : 1,
+  }}>
+    {/* Top row */}
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:12 }}>
+      <StatusBadge status={trip.status}/>
+      <span style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:500, color:'var(--ink-subtle)', fontFeatureSettings:'"tnum" 1' }}>{trip.id}</span>
+    </div>
+
+    {/* Route */}
+    <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+      <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:1, flexShrink:0 }}>
+        <div style={{ width:8, height:8, borderRadius:999, border:'2px solid var(--amber)' }}/>
+        <div style={{ width:1.5, height:18, background:'var(--hairline)' }}/>
+        <div style={{ width:8, height:8, borderRadius:999, background:'var(--amber)' }}/>
+      </div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontFamily:'var(--font-body)', fontSize:14, fontWeight:600, color:'var(--ink)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{trip.from}</div>
+        <div style={{ height:6 }}/>
+        <div style={{ fontFamily:'var(--font-body)', fontSize:14, fontWeight:600, color:'var(--ink)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{trip.to}</div>
+      </div>
+      {/* Right column: date/time */}
+      <div style={{ textAlign:'right', flexShrink:0 }}>
+        <div style={{ fontFamily:'var(--font-body)', fontSize:13, fontWeight:600, color:'var(--ink)' }}>{trip.date}</div>
+        <div style={{ fontFamily:'var(--font-body)', fontSize:12, color:'var(--ink-muted)', marginTop:4, fontFeatureSettings:'"tnum" 1' }}>{trip.time}</div>
+      </div>
+    </div>
+
+    {/* Footer */}
+    <div style={{ height:1, background:'var(--hairline)', margin:'12px 0' }}/>
+    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+        {trip.partner ? (
+          <>
+            <div style={{
+              width:24, height:24, borderRadius:999,
+              background: trip.status === 'completed' ? 'var(--surface-2)' : 'linear-gradient(135deg, #BFDBFE, #93C5FD)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              fontFamily:'var(--font-display)', fontSize:9, fontWeight:700,
+              color: trip.status === 'completed' ? 'var(--ink-muted)' : '#1E40AF',
+            }}>{trip.partner.split(' ').map(n => n[0]).join('')}</div>
+            <span style={{ fontFamily:'var(--font-body)', fontSize:13, fontWeight:500, color:'var(--ink-muted)' }}>con {trip.partner}</span>
+          </>
+        ) : (
+          <span style={{ fontFamily:'var(--font-body)', fontSize:13, fontWeight:500, color:'var(--ink-subtle)' }}>In attesa di match…</span>
+        )}
+      </div>
+      {trip.savings > 0 && (
+        <span style={{
+          fontFamily:'var(--font-display)', fontSize:15, fontWeight:700,
+          color: trip.status === 'completed' ? 'var(--ink-muted)' : 'var(--success)',
+          fontFeatureSettings:'"tnum" 1',
+        }}>
+          {trip.status === 'completed' ? '' : '~'}−€{trip.savings}
+        </span>
+      )}
+    </div>
+  </div>
+);
+
+const EmptyState = () => (
+  <div style={{ padding:'48px 20px', textAlign:'center' }}>
+    <div style={{
+      width:64, height:64, borderRadius:999, background:'var(--surface-2)',
+      display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px',
+    }}>
+      <MIcon name="search" size={28} color="var(--ink-subtle)" sw={1.5}/>
+    </div>
+    <div style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:700, color:'var(--ink)' }}>Nessun viaggio qui</div>
+    <p style={{ fontFamily:'var(--font-body)', fontSize:14, color:'var(--ink-muted)', marginTop:6 }}>I tuoi viaggi passati appariranno qui una volta completati.</p>
+  </div>
+);
+
+const MyTrips = () => {
+  const [tab, setTab] = React.useState('active');
+  const trips = tab === 'active' ? activeTrips : pastTrips;
+
+  // Stats
+  const totalSaved = pastTrips.filter(t => t.status === 'completed').reduce((s, t) => s + t.savings, 0);
+  const totalTrips = pastTrips.filter(t => t.status === 'completed').length;
+
+  return (
+    <div className="phone">
+      <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch', display:'flex', flexDirection:'column' }}>
+
+        {/* HEADER */}
+        <div style={{ padding:'16px 20px 0', display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+          <div>
+            <div style={{ fontFamily:'var(--font-body)', fontSize:13, fontWeight:500, color:'var(--ink-muted)' }}>Ciao, Alessandro 👋</div>
+            <h1 style={{ fontFamily:'var(--font-display)', fontSize:28, fontWeight:800, color:'var(--ink)', letterSpacing:'-0.02em', margin:'4px 0 0' }}>I miei viaggi</h1>
+          </div>
+          <div style={{
+            width:40, height:40, borderRadius:999, background:'var(--surface-2)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            fontFamily:'var(--font-body)', fontSize:14, fontWeight:600, color:'var(--ink)',
+          }}>AL</div>
+        </div>
+
+        {/* STATS STRIP */}
+        <div style={{
+          margin:'14px 20px 0', display:'flex', gap:10,
+        }}>
+          <div style={{
+            flex:1, padding:'12px 14px', background:'var(--success-soft)', borderRadius:16,
+            display:'flex', alignItems:'center', gap:10,
+          }}>
+            <MIcon name="sparkles" size={16} color="var(--success)" sw={2}/>
+            <div>
+              <div style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:800, color:'var(--success)', fontFeatureSettings:'"tnum" 1' }}>€{totalSaved}</div>
+              <div style={{ fontFamily:'var(--font-body)', fontSize:11, color:'#15803D', fontWeight:500 }}>risparmiati</div>
+            </div>
+          </div>
+          <div style={{
+            flex:1, padding:'12px 14px', background:'var(--surface-2)', borderRadius:16,
+            display:'flex', alignItems:'center', gap:10,
+          }}>
+            <MIcon name="check" size={16} color="var(--ink-muted)" sw={2}/>
+            <div>
+              <div style={{ fontFamily:'var(--font-display)', fontSize:18, fontWeight:800, color:'var(--ink)', fontFeatureSettings:'"tnum" 1' }}>{totalTrips}</div>
+              <div style={{ fontFamily:'var(--font-body)', fontSize:11, color:'var(--ink-muted)', fontWeight:500 }}>completati</div>
+            </div>
+          </div>
+        </div>
+
+        {/* TABS */}
+        <div style={{ margin:'18px 20px 0' }}>
+          <MSegment
+            options={['Attivi (' + activeTrips.length + ')','Passati (' + pastTrips.length + ')']}
+            value={tab === 'active' ? 'Attivi (' + activeTrips.length + ')' : 'Passati (' + pastTrips.length + ')'}
+            onChange={v => setTab(v.startsWith('Attivi') ? 'active' : 'past')}
+          />
+        </div>
+
+        {/* TRIP LIST */}
+        <div style={{ padding:'14px 20px 100px', display:'flex', flexDirection:'column', gap:12 }}>
+          {trips.length === 0 ? <EmptyState/> : trips.map((t, i) => (
+            <TripCard key={t.id} trip={t} idx={i} past={tab === 'past'}/>
+          ))}
+        </div>
+      </div>
+
+      {/* FAB */}
+      <button className="pressable" style={{
+        position:'absolute', bottom:28, right:20,
+        width:56, height:56, borderRadius:999,
+        background:'var(--amber)', color:'var(--ink)', border:'none',
+        boxShadow:'0 4px 16px rgba(245,158,11,0.35), 0 1px 3px rgba(245,158,11,0.20)',
+        display:'flex', alignItems:'center', justifyContent:'center',
+        cursor:'pointer', zIndex:10,
+      }}>
+        <MIcon name="plus" size={26} sw={2.5}/>
+      </button>
+    </div>
+  );
+};
+
+ReactDOM.createRoot(document.getElementById('root')).render(<MyTrips/>);
+</script>
+</body>
+</html>

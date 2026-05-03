@@ -3,7 +3,9 @@
    ============================================================ */
 
 import { create } from 'zustand';
-import type { TripStatus } from '../types/domain';
+import { persist } from 'zustand/middleware';
+import type { TripStatus, TripMode, Trip } from '../types/domain';
+import type { TripDestination } from '../types/domain';
 import type { CreateTripRequest, CreateTripResponse } from '../types/api';
 import { createTrip } from '../services/trips';
 
@@ -11,41 +13,135 @@ interface TripState {
   tripId: string | null;
   status: TripStatus;
   error: string | null;
+  terminal: string | null;
+  destination: string | null;
+  draftDestination: TripDestination | null;
 
-  /** Submit a new trip */
+  /** Full trip object from POST /trips response */
+  currentTrip: Trip | null;
+
+  /** List of user trips */
+  myTrips: import('../types/api').MyTripsResponse['trips'];
+  isLoadingMyTrips: boolean;
+
+  /** Persisted across sessions — used as default mode in Check-in */
+  preferredMode: TripMode;
+
   submitTrip: (data: CreateTripRequest) => Promise<CreateTripResponse | null>;
-  /** Set status manually */
+  fetchMyTrips: () => Promise<void>;
+  deleteTrip: (tripId: string) => Promise<boolean>;
+  setDraftDestination: (dest: TripDestination | null) => void;
   setStatus: (status: TripStatus) => void;
-  /** Reset */
+  setCurrentTrip: (trip: Trip) => void;
+  setPreferredMode: (mode: TripMode) => void;
+  clearTrip: () => void;
   reset: () => void;
 }
 
-export const useTripStore = create<TripState>((set) => ({
-  tripId: null,
-  status: 'idle',
-  error: null,
+export const useTripStore = create<TripState>()(
+  persist(
+    (set) => ({
+      tripId: null,
+      status: 'idle',
+      error: null,
+      terminal: null,
+      destination: null,
+      draftDestination: null,
+      currentTrip: null,
+      myTrips: [],
+      isLoadingMyTrips: false,
+      preferredMode: 'scheduled',
 
-  submitTrip: async (data) => {
-    set({ status: 'creating', error: null });
-    try {
-      const response = await createTrip(data);
-      set({
-        tripId: response.tripId,
-        status: 'searching',
-      });
-      return response;
-    } catch (err) {
-      set({
-        status: 'error',
-        error: err instanceof Error ? err.message : 'Failed to create trip',
-      });
-      return null;
-    }
-  },
+      submitTrip: async (data) => {
+        set({ status: 'creating', error: null });
+        try {
+          const response = await createTrip(data);
+          const trip: Trip = {
+            tripId: response.tripId,
+            airportCode: response.airportCode,
+            mode: response.mode,
+            status: response.status,
+            matchId: response.matchId,
+            flightTime: response.flightTime,
+            expiresAt: response.expiresAt,
+            createdAt: response.createdAt,
+          };
+          set({
+            tripId: response.tripId,
+            status: 'searching',
+            terminal: data.terminal,
+            destination: data.destination,
+            currentTrip: trip,
+            preferredMode: data.mode,
+          });
+          return response;
+        } catch (err) {
+          set({
+            status: 'error',
+            error: err instanceof Error ? err.message : 'Failed to create trip',
+          });
+          return null;
+        }
+      },
 
-  setStatus: (status) =>
-    set({ status }),
+      fetchMyTrips: async () => {
+        set({ isLoadingMyTrips: true });
+        try {
+          const res = await import('../services/trips').then(m => m.getMyTrips());
+          set({ myTrips: res.trips, isLoadingMyTrips: false });
+        } catch (err) {
+          console.error('Failed to fetch my trips', err);
+          set({ isLoadingMyTrips: false });
+        }
+      },
 
-  reset: () =>
-    set({ tripId: null, status: 'idle', error: null }),
-}));
+      deleteTrip: async (tripId) => {
+        try {
+          await import('../services/trips').then(m => m.cancelTrip(tripId));
+          set((state) => ({
+            myTrips: state.myTrips.map(t => t.tripId === tripId ? { ...t, status: 'cancelled' } : t),
+            ...(state.tripId === tripId ? { status: 'cancelled' as TripStatus } : {})
+          }));
+          return true;
+        } catch (err) {
+          console.error('Failed to cancel trip', err);
+          return false;
+        }
+      },
+
+      setDraftDestination: (dest) => set({ draftDestination: dest }),
+
+      setStatus: (status) => set({ status }),
+
+      setCurrentTrip: (trip) => set({ currentTrip: trip }),
+
+      setPreferredMode: (mode) => set({ preferredMode: mode }),
+
+      clearTrip: () =>
+        set({
+          tripId: null,
+          status: 'idle',
+          error: null,
+          terminal: null,
+          destination: null,
+          draftDestination: null,
+          currentTrip: null,
+        }),
+
+      reset: () =>
+        set({
+          tripId: null,
+          status: 'idle',
+          error: null,
+          terminal: null,
+          destination: null,
+          draftDestination: null,
+          currentTrip: null,
+        }),
+    }),
+    {
+      name: 'flot-trip',
+      partialize: (s) => ({ preferredMode: s.preferredMode }),
+    },
+  ),
+);

@@ -1,244 +1,261 @@
-import { useState, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { MIcon, MSegment, MStepper, MBtn, MDestInput, BottomSheet } from '../components/ui';
-import { HomeIndicator } from '../components/layout';
+import { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { MIcon, MSegment, MStepper, MBtn, MDestInput } from '../components/ui';
+import { MDateTimePicker } from '../components/ui/MDateTimePicker';
+import { HomeIndicator, ProfileMenu } from '../components/layout';
 import { useAirportStore } from '../stores/airportStore';
 import { useTripStore } from '../stores/tripStore';
 import { useAuthStore } from '../stores/authStore';
-import { buildDestinations, findZoneForDestination } from '../lib/buildDestinations';
 import { formatCurrency, calcSavings } from '../lib/formatters';
-import { DEFAULT_DIRECTION } from '../lib/constants';
+import type { TripDestination, TripMode } from '../types/domain';
 import styles from './TravelCheckin.module.css';
 
-/**
- * Destination Sheet — search and pick a destination.
- * All destinations come from airport zone config, never hardcoded.
- */
-function DestSheet({
-  onClose,
-  onPick,
-}: {
-  onClose: () => void;
-  onPick: (name: string) => void;
-}) {
-  const [query, setQuery] = useState('');
-  const airport = useAirportStore((s) => s.selectedAirport);
-  const destinations = useMemo(
-    () => (airport ? buildDestinations(airport) : []),
-    [airport],
+// ── Zod schema ───────────────────────────────────────────────
+
+const schema = z
+  .object({
+    mode: z.enum(['live', 'scheduled']),
+    flightTime: z.string().optional(),
+    terminal: z.string().min(1, 'Select a terminal'),
+    destination: z
+      .object({ label: z.string().min(1), lat: z.number(), lng: z.number(), placeId: z.string().min(1) })
+      .nullable()
+      .refine((v) => v !== null, { message: 'Select a destination from the list' }),
+    luggage: z.number().min(0).max(3),
+    paxCount: z.number().min(1).max(4),
+  })
+  .refine(
+    (data) => !(data.mode === 'scheduled' && !data.flightTime),
+    { message: 'Select a flight date and time', path: ['flightTime'] },
   );
 
-  const filtered = query
-    ? destinations.filter((d) =>
-        d.name.toLowerCase().includes(query.toLowerCase()),
-      )
-    : destinations;
+type FormValues = z.infer<typeof schema>;
 
-  return (
-    <>
-      {/* Sheet header */}
-      <div className={styles.sheetHeader}>
-        <h3 className={styles.sheetTitle}>Where are you going?</h3>
-        <button
-          className={styles.closeBtn}
-          onClick={onClose}
-          aria-label="Close"
-        >
-          <MIcon name="x" size={16} sw={2.5} />
-        </button>
-      </div>
+// ── Mode options ─────────────────────────────────────────────
 
-      {/* Search bar */}
-      <div className={styles.searchBar}>
-        <MIcon name="search" size={18} color="var(--ink-subtle)" />
-        <input
-          autoFocus
-          className={styles.searchInput}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search destination…"
-          aria-label="Search destination"
-        />
-      </div>
+const MODE_OPTIONS = [
+  { value: 'scheduled' as TripMode, label: 'Schedule' },
+  { value: 'live' as TripMode, label: 'Search now' },
+] as const;
 
-      {/* Results */}
-      <div>
-        {filtered.length === 0 && (
-          <div className={styles.emptySearch}>No destinations found</div>
-        )}
-        {filtered.map((dest) => (
-          <button
-            key={dest.name}
-            className={styles.destItem}
-            onClick={() => onPick(dest.name)}
-          >
-            <div className={styles.destItemIcon}>
-              <MIcon name="map-pin" size={18} />
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div className={styles.destItemName}>{dest.name}</div>
-              <div className={styles.destItemSub}>{dest.sub}</div>
-            </div>
-            <span className={styles.destItemZone}>{dest.zone}</span>
-          </button>
-        ))}
-      </div>
-    </>
-  );
-}
+// ── Framer motion variants ───────────────────────────────────
 
-/**
- * Travel Check-in screen.
- * - Terminal selection (from airport config)
- * - Destination picker (bottom sheet from airport zones)
- * - Passengers + Luggage steppers
- * - Dynamic savings calculation
- * - POST /trips on submit
- */
+const slideIn = {
+  initial: { opacity: 0, height: 0 },
+  animate: { opacity: 1, height: 'auto' },
+  exit:    { opacity: 0, height: 0 },
+  transition: { duration: 0.2, ease: 'easeInOut' as const },
+};
+
+// ── Component ────────────────────────────────────────────────
+
 export function TravelCheckin() {
   const navigate = useNavigate();
+  const location = useLocation();
   const airport = useAirportStore((s) => s.selectedAirport);
   const submitTrip = useTripStore((s) => s.submitTrip);
   const tripStatus = useTripStore((s) => s.status);
+  const preferredMode = useTripStore((s) => s.preferredMode);
   const user = useAuthStore((s) => s.user);
 
-  // Form state
-  const [terminal, setTerminal] = useState(
-    airport?.terminals[0]?.label ?? 'Terminal 1',
-  );
-  const [destination, setDestination] = useState('');
-  const [passengers, setPassengers] = useState(1);
-  const [luggage, setLuggage] = useState(0);
-  const [sheetOpen, setSheetOpen] = useState(false);
+  const terminalOptions = airport?.terminals.map((t) => t.label) ?? ['Terminal 1', 'Terminal 2'];
 
-  // Dynamic values from airport config
+  const defaultMode: TripMode =
+    (location.state as { defaultMode?: TripMode } | null)?.defaultMode ?? preferredMode;
+
+  const { control, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      mode: defaultMode,
+      flightTime: undefined,
+      terminal: terminalOptions[0],
+      destination: null,
+      luggage: 1,
+      paxCount: 1,
+    },
+  });
+
+  const mode = watch('mode');
+  const destination = watch('destination') as TripDestination | null;
+
   const baseFare = airport?.baseFare ?? 12000;
   const currency = airport?.currency ?? 'EUR';
-  const terminalOptions = airport?.terminals.map((t) => t.label) ?? ['Terminal 1', 'Terminal 2'];
-  const savings = calcSavings(baseFare, passengers);
-  const ready = !!destination;
+  const savings = calcSavings(baseFare, 1);
   const isSubmitting = tripStatus === 'creating';
 
-  // User initials for avatar
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+
   const initials = user
-    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`
-        .toUpperCase()
-        .trim() || '?'
+    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
     : '?';
 
-  const handleSubmit = async () => {
-    if (!airport || !destination) return;
+  const ctaLabel = mode === 'scheduled' ? 'Schedule ride' : 'Find match now';
 
-    // Find terminal code from label
-    const terminalObj = airport.terminals.find((t) => t.label === terminal);
+  const onSubmit = async (data: FormValues) => {
+    if (!airport || !data.destination) return;
+
+    const terminalObj = airport.terminals.find((t) => t.label === data.terminal);
     const terminalCode = terminalObj?.code ?? 'T1';
-
-    // Find zone for destination
-    const destZone = findZoneForDestination(airport, destination) ?? '';
 
     const result = await submitTrip({
       airportCode: airport.code,
       terminal: terminalCode,
-      direction: DEFAULT_DIRECTION,
-      destination,
-      destZone,
-      flightTime: new Date().toISOString(), // TODO: add flight time picker
-      paxCount: passengers,
-      luggage,
+      destination: data.destination.label,
+      destLat: data.destination.lat,
+      destLng: data.destination.lng,
+      destPlaceId: data.destination.placeId,
+      paxCount: data.paxCount,
+      luggage: data.luggage,
+      mode: data.mode,
+      ...(data.mode === 'scheduled' && { flightTime: data.flightTime }),
     });
 
     if (result) {
-      navigate('/search');
+      navigate(data.mode === 'live' ? '/search' : `/trip/${result.tripId}`);
     }
   };
 
   return (
     <div className={styles.screen}>
       <div className={styles.scrollable}>
-        {/* Custom top nav: back + FLOT + avatar */}
-        <div style={{
-          padding: '16px 20px 0',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}>
-          <button
-            className={styles.closeBtn}
-            style={{
-              width: 40,
-              height: 40,
-              border: '1px solid var(--hairline)',
-              background: 'var(--surface-1)',
-              borderRadius: 'var(--radius-pill)',
-            }}
-            onClick={() => navigate(-1)}
-            aria-label="Go back"
-          >
+
+        {/* Top nav */}
+        <div className={styles.topNav}>
+          <button className={styles.backBtn} onClick={() => navigate(-1)} aria-label="Torna indietro">
             <MIcon name="chevron-left" size={20} />
           </button>
           <span className={styles.navCenter}>FLOT</span>
-          <div className={styles.avatar}>{initials}</div>
+          <button
+            className={styles.avatar}
+            onClick={() => setProfileMenuOpen(true)}
+            aria-label="Apri menu profilo"
+          >
+            {user?.photoUrl ? (
+              <img src={user.photoUrl} alt={user.firstName} className={styles.avatarImg} />
+            ) : (
+              initials
+            )}
+          </button>
         </div>
+        <ProfileMenu open={profileMenuOpen} onClose={() => setProfileMenuOpen(false)} />
 
-        {/* Hero copy */}
+        {/* Hero */}
         <div className={styles.hero}>
-          <h2 className={styles.heroTitle}>Where are you headed?</h2>
+          <h2 className={styles.heroTitle}>
+            {mode === 'live' ? 'Find a shared taxi now.' : 'Schedule your shared taxi.'}
+          </h2>
           <p className={styles.heroSub}>
-            Tell us your terminal, destination and party size.
+            Tell us where you're heading — we'll match you with a traveler going your way.
           </p>
         </div>
 
-        {/* Terminal */}
+        {/* 1. Mode */}
         <div className={styles.formSection}>
-          <div className={styles.sectionLabel}>Terminal</div>
-          <MSegment
-            options={terminalOptions}
-            value={terminal}
-            onChange={setTerminal}
-            aria-label="Select terminal"
+          <Controller
+            control={control}
+            name="mode"
+            render={({ field }) => (
+              <MSegment
+                options={MODE_OPTIONS.map((o) => ({ id: o.value, label: o.label }))}
+                value={field.value}
+                onChange={(val) => field.onChange(val)}
+                aria-label="Modalità di ricerca"
+              />
+            )}
           />
         </div>
 
-        {/* Destination */}
+        {/* 2. Slot picker — only scheduled */}
+        <AnimatePresence>
+          {mode === 'scheduled' && (
+            <motion.div
+              key="slot-picker"
+              className={styles.overflowHidden}
+              {...slideIn}
+            >
+              <div className={styles.formSectionSm}>
+                <div className={styles.fieldLabel}>Flight time</div>
+                <Controller
+                  control={control}
+                  name="flightTime"
+                  render={({ field }) => (
+                    <MDateTimePicker
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={!!errors.flightTime}
+                    />
+                  )}
+                />
+                {errors.flightTime && (
+                  <div className={styles.fieldError}>{errors.flightTime.message}</div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 3. Terminal */}
         <div className={styles.formSectionSm}>
-          <div className={styles.sectionLabel}>Destination</div>
-          <MDestInput
-            value={destination}
-            placeholder="Where are you going?"
-            onClick={() => setSheetOpen(true)}
-            aria-label="Select destination"
+          <div className={styles.fieldLabel}>Terminal</div>
+          <Controller
+            control={control}
+            name="terminal"
+            render={({ field }) => (
+              <MSegment
+                options={terminalOptions.map(t => ({ id: t, label: t }))}
+                value={field.value}
+                onChange={field.onChange}
+                aria-label="Select terminal"
+              />
+            )}
           />
         </div>
 
-        {/* Passengers + Luggage */}
+        {/* 4. Destination */}
         <div className={styles.formSectionSm}>
-          <div className={styles.stepperGrid}>
-            <div className={styles.stepperCard}>
-              <div className={styles.stepperHeader}>
-                <MIcon name="users" size={16} />
-                <span className={styles.stepperLabel}>Passengers</span>
-              </div>
-              <MStepper
-                value={passengers}
-                onChange={setPassengers}
-                min={1}
-                max={4}
-                aria-label="Number of passengers"
+          <div className={styles.fieldLabel}>Where to?</div>
+          <Controller
+            control={control}
+            name="destination"
+            render={({ field }) => (
+              <MDestInput
+                value={field.value as TripDestination | null}
+                onChange={field.onChange}
+                placeholder="Search destination…"
+                aria-label="Select destination"
               />
+            )}
+          />
+          {errors.destination && (
+            <div className={styles.fieldError}>{String(errors.destination.message)}</div>
+          )}
+        </div>
+
+        {/* 5. Luggage */}
+        <div className={styles.formSectionSm}>
+          <div className={styles.stepperCard}>
+            <div className={styles.stepperHeader}>
+              <MIcon name="luggage" size={16} />
+              <span className={styles.stepperLabel}>Luggage</span>
             </div>
-            <div className={styles.stepperCard}>
-              <div className={styles.stepperHeader}>
-                <MIcon name="luggage" size={16} />
-                <span className={styles.stepperLabel}>Luggage</span>
-              </div>
-              <MStepper
-                value={luggage}
-                onChange={setLuggage}
-                min={0}
-                max={4}
-                aria-label="Number of luggage items"
-              />
-            </div>
+            <Controller
+              control={control}
+              name="luggage"
+              render={({ field }) => (
+                <MStepper
+                  value={field.value}
+                  onChange={field.onChange}
+                  min={0}
+                  max={3}
+                  aria-label="Number of luggage"
+                />
+              )}
+            />
+            <div className={styles.stepperHint}>Your match will know what to expect</div>
           </div>
         </div>
 
@@ -250,55 +267,28 @@ export function TravelCheckin() {
           <div>
             <div className={styles.savingsText}>
               You could save{' '}
-              <span className={styles.savingsAmount}>
-                ~{formatCurrency(savings, currency)}
-              </span>
+              <span className={styles.savingsAmount}>~{formatCurrency(savings, currency)}</span>
             </div>
             <div className={styles.savingsNote}>
-              Fixed {formatCurrency(baseFare, currency)} fare split in{' '}
-              {passengers + 1}
+              Flat fare {formatCurrency(baseFare, currency)} split in 2
             </div>
           </div>
         </div>
 
-        {/* CTA spacer */}
         <div className={styles.ctaSpacer} />
       </div>
 
-      {/* Floating CTA */}
-      <div style={{
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        padding: '12px 20px 28px',
-        background: 'linear-gradient(transparent, var(--surface-0) 24px)',
-        zIndex: 50,
-      }}>
+      {/* 7. CTA */}
+      <div className={styles.ctaBar}>
         <MBtn
           variant="primary"
-          disabled={!ready || isSubmitting}
-          icon="search"
-          onClick={handleSubmit}
+          disabled={!destination || isSubmitting}
+          icon={mode === 'live' ? 'search' : 'timer'}
+          onClick={handleSubmit(onSubmit)}
         >
-          {isSubmitting ? 'Looking…' : 'Find my ride partner'}
+          {isSubmitting ? 'Attendere…' : ctaLabel}
         </MBtn>
       </div>
-
-      {/* Destination bottom sheet */}
-      <BottomSheet
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        aria-label="Select destination"
-      >
-        <DestSheet
-          onClose={() => setSheetOpen(false)}
-          onPick={(name) => {
-            setDestination(name);
-            setSheetOpen(false);
-          }}
-        />
-      </BottomSheet>
 
       <HomeIndicator />
     </div>

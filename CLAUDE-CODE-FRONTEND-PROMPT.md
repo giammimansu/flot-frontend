@@ -88,20 +88,149 @@ Settings (accessible from nav):
 
 ### Screen Details
 
-#### 1. Entry Point (`/`)
-- **Design**: `Entry Point.html`
-- **Purpose**: Landing + social login
-- **Logic**: If already authenticated → redirect to `/airport` (or `/check-in` if airport already selected in store)
-- **Auth**: Trigger Amplify social sign-in (Google + Apple via Cognito)
-- **Dynamic content**: Hero headline and savings figure come from airport config, not hardcoded
+## Schermate — Specifiche di Design
 
-#### 1b. Airport Picker (`/airport`)
-- **Design**: No mockup — build a minimal list screen consistent with the design system from `colors_and_type.css`
-- **Purpose**: Select the departure airport
-- **Logic**: `GET /airports` → show active airports. If only 1 active → auto-select and skip to `/check-in`. On select → store `airportCode` in `airportStore` → navigate to `/check-in`
+### Screen 1 — Entry Point (`/`) `[CRO UPDATE]` `[v3 UPDATE]`
 
-#### 2. Travel Check-in (`/check-in`)
-- **Design**: `Travel Check-in.html`
+**Obiettivo schermata**: trasmettere il modello di servizio corretto + abbassare l'ansia prima del login. L'utente deve capire cosa fa FLOT entro 5 secondi, prima di toccare qualsiasi bottone.
+
+**Struttura**:
+1. **Top Nav**: logo FLOT sinistra, bottone help destra
+2. **Hero section** (padding 22px 20px 0):
+   - Kicker pill (live): dot amber + "Malpensa · Milano" su sfondo amber-soft
+   - H1 (Bricolage 27–32px/800): **"Find someone to share your taxi. Split the cost."**
+     - ❌ Non usare più: "Split the €120 Malpensa fare." (fa pensare che FLOT venda la corsa)
+     - ✅ Il nuovo headline chiarisce subito che è un servizio di **matching tra persone**
+   - Subtitle (Inter 13–15px/relaxed/ink-muted): **"FLOT finds a traveler heading your way. You meet at the airport and share a standard taxi together — we don't drive you."**
+     - La frase finale "we don't drive you" è obbligatoria. Rimuove l'ambiguità in modo diretto.
+
+3. **Live Savings Counter** `[NUOVO v3]` — elemento tra hero e "How it works":
+   - Card surface-1, bordo hairline, border-radius 20px, padding 16px 18px
+   - Layout: icona sinistra + testo destra
+   - Icona: cerchio 42px, success-soft, icona `sparkles` verde
+   - Contenuto:
+     ```
+     Label uppercase: "TRAVELERS HAVE SAVED"         ← --ink-subtle / 10px / tracking-wide
+     Numero animato:  "€12,847"                       ← Bricolage 28px / 800 / --success / tnum
+     Sub:             "this month at Malpensa"         ← Inter 12px / --ink-muted
+     ```
+   - **Animazione numero** (contatore che sale all'ingresso, JS):
+     ```js
+     // Conta da (target - 200) a target in 1200ms, ease-out
+     // Aggiornamento ogni ~16ms (rAF)
+     // Valore viene dall'API: GET /airports/MXP/stats → { totalSavingsMonth: 1284700 }
+     // Formattato come valuta locale con Intl.NumberFormat
+     ```
+   - **Pulse live**: piccolo dot amber pulsante affianco al numero, segnala che è un dato in tempo reale
+   - ⚠️ Se l'API non risponde entro 2s, nascondere il componente silenziosamente (non mostrare €0 o errori)
+   - ⚠️ In fase early-beta con dati reali bassi: usare il cumulativo dall'inizio ("since launch") invece del mensile, per mostrare numeri credibili
+
+4. **Blocco "How it works"** `[NUOVO CRO]` — card bianca con bordo, padding 14–16px:
+   - Label uppercase "How it works" in `--ink-subtle`
+   - 3 step verticali con icone, linea di connessione tra step e testo:
+     ```
+     Step 1 [icona search, cerchio amber-soft]
+       "Tell us your terminal & destination"
+       sub: "We match on direction and zone — right now"
+
+     Step 2 [icona users, cerchio amber-soft]
+       "We find your ride partner"
+       sub: "Verified traveler, same direction, already landed"
+
+     Step 3 [icona map-pin, cerchio success-soft]
+       "You share a taxi — split cost directly"
+       sub: "Pay the driver together. We don't touch the fare."
+     ```
+   - Linea verticale 1px `--hairline` che collega i cerchi degli step tra loro
+   - Step 3 usa cerchio success-soft (verde) per enfatizzare il risparmio
+   - ⚠️ Il sub dello Step 1 è aggiornato: "right now" sostituisce "same time" — riflette che tutti gli utenti sono già in aeroporto e il match è immediato, non futuro
+
+5. **Guarantee banner** `[SPOSTATO CRO — ora VISIBILE sopra i bottoni login]`:
+   - Card success-soft, bordo `rgba(22,163,74,0.20)`, border-radius 16px
+   - Icona shield verde su cerchio verde-light
+   - **"No match? No charge. Ever."** Inter 13px/600 / `--success`
+   - Sub: "We only connect you — zero taxi risk" Inter 11px / #16A34A
+
+6. **Bottoni Auth** (gap 9–10px):
+   - Google: bianco, bordo hairline, logo SVG Google + "Continue with Google"
+   - Apple: `--ink` scuro, logo Apple SVG bianco + "Continue with Apple"
+   - Altezza: 50–52px, border-radius 16px
+
+7. **Terms + Sign in** (11px/subtle, centrato)
+
+8. **Home Indicator**
+
+**Stili speciali**:
+```css
+/* Linea connettore How it works */
+.step-connector {
+  width: 1px;
+  height: 18px;
+  background: var(--hairline);
+  margin: 3px 0;
+}
+
+/* Divider con label centrale */
+.divider-row { display:flex; align-items:center; gap:12px; margin:14px 0; }
+.divider-row::before, .divider-row::after { content:''; flex:1; height:1px; background:var(--hairline); }
+.divider-row span { font-size:11px; font-weight:500; color:var(--ink-subtle); }
+
+/* Contatore savings — animazione */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.savings-counter { animation: countUp 400ms var(--ease-out); }
+```
+
+---
+
+### Screen 2 — Travel Check-in (`/check-in`) `[v3 UPDATE]`
+
+**Razionale della modifica**: gli utenti sono **già atterrati** quando aprono FLOT. Il campo "flight time" non ha senso: l'utente è fisicamente in aeroporto in quel momento. Il matching temporale usa il `createdAt` del trip come timeBucket — chi cerca nello stesso intervallo di 5–10 minuti è già sul posto. Nessun input orario richiesto all'utente.
+
+**Struttura** (scrollabile):
+1. **Top Nav**: chevron-left, "FLOT" centrato, avatar utente
+2. **Hero copy**:
+   - H2 (Bricolage 24px/700): "You've landed. Let's find your ride partner."
+   - Subtitle (Inter 14px/ink-muted): "Tell us where you're headed — we'll scan Terminal [X] right now."
+   - ⚠️ Il copy riflette la realtà: l'utente è già in aeroporto, il matching è immediato, non programmato
+
+3. **Form sezioni** (gap 20–24px) — **4 campi totali**, nessun orario:
+
+   **3a. Terminal** — label + MSegment
+   ```
+   Label: "Your terminal" (Inter 14px/500)
+   Options: ["Terminal 1", "Terminal 2"]
+   Pre-selezionato: T1 (più frequente a MXP)
+   ```
+
+   **3b. Direction** — label + MSegment
+   ```
+   Label: "Direction" (Inter 14px/500)
+   Options: ["→ To Milan", "← To Airport"]
+   Nota: "To Milan" è default e caso d'uso principale post-landing
+   Sub sotto il segmento (12px/ink-muted): "Heading into the city after landing?"
+   ```
+
+   **3c. Destination** — MDestInput che apre DestSheet
+   ```
+   Label: "Where are you going?" (Inter 14px/500)
+   Placeholder: "Search destination…"
+   Obbligatorio — CTA disabilitato finché non selezionato
+   ```
+
+   **3d. Luggage** — label + MStepper (min 0, max 6)
+   ```
+   Label: "Bags" (Inter 14px/500)
+   Sub: "Helps your partner know what to expect" (12px/ink-muted)
+   Valore default: 1
+   ```
+
+   > **Campo rimosso**: `Passengers` (MStepper) — in questa fase MVP il matching è sempre 1-to-1. Se il prodotto evolve a gruppi, il campo viene reintrodotto.
+   > **Campo rimosso**: `Flight time` (datetime input) — l'orario non serve, il matching è sul timestamp reale della ricerca.
+
+
 - **Purpose**: Create a trip request
 - **Logic**: `POST /trips` (includes `airportCode`) on submit → navigate to `/search`
 - **Dynamic**: Terminal options, destination list, base fare, and direction labels all come from `airportStore.selectedAirport` — never hardcoded
@@ -413,7 +542,7 @@ VITE_CDN_URL=https://cdn.flot.app
 
 Each step is a separate commit.
 
-### Sprint 1 — Foundation
+### Sprint 1 — Foundation [DONE]
 1. Vite + React + TypeScript project scaffold
 2. Copy `colors_and_type.css` from FLOT.zip → `src/styles/design-tokens.css`, import globally
 3. Convert `MalpensaComponents.jsx` → TypeScript: `MIcon`, `MBtn`, `MSegment`, `MStepper`, `MPill`, `MDestInput`
@@ -421,7 +550,7 @@ Each step is a separate commit.
 5. Router setup (React Router v6, lazy routes)
 6. Entry Point screen (static, no auth)
 
-### Sprint 2 — Auth + Check-in
+### Sprint 2 — Auth + Check-in [DONE]
 7. Amplify auth (Cognito Google + Apple)
 8. `authStore` + `useAuth` hook
 9. Entry Point connected to Cognito
@@ -430,7 +559,7 @@ Each step is a separate commit.
 12. Travel Check-in screen (form, destination sheet, validation)
 13. `POST /trips` integration
 
-### Sprint 3 — Search + Match
+### Sprint 3 — Search + Match [DONE]
 14. WebSocket service (connect, reconnect, heartbeat, event dispatch)
 15. `useWebSocket` hook
 16. Active Search screen (countdown, radar, status rotation)

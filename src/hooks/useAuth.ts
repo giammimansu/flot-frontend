@@ -34,13 +34,26 @@ export function useAuth() {
         const token = await getAccessToken();
         if (cancelled) return;
 
+        // Parse idToken claims for name + picture
+        const session = await import('aws-amplify/auth').then((m) =>
+          m.fetchAuthSession()
+        );
+        const idToken = session.tokens?.idToken;
+        const claims = idToken?.payload ?? {};
+        const fullName = String(claims['name'] ?? '');
+        const nameParts = fullName.trim().split(/\s+/);
+        const firstName = nameParts[0] ?? cognitoUser.username ?? '';
+        const lastName = nameParts.slice(1).join(' ');
+        const photoUrl = String(claims['picture'] ?? '');
+        const email = String(claims['email'] ?? '');
+
         setAuthenticated(
           {
             userId: cognitoUser.userId,
-            email: '',
-            firstName: cognitoUser.username ?? '',
-            lastName: '',
-            photoUrl: '',
+            email,
+            firstName,
+            lastName,
+            photoUrl,
             blurredPhotoUrl: '',
             isPro: false,
             verified: false,

@@ -1,7 +1,12 @@
 import styles from './MSegment.module.css';
 
+interface MSegmentOption {
+  id: string;
+  label: string;
+}
+
 interface MSegmentProps {
-  options: string[];
+  options: MSegmentOption[];
   value: string;
   onChange: (value: string) => void;
   'aria-label'?: string;
@@ -16,16 +21,16 @@ export function MSegment({
   return (
     <div className={styles.root} role="tablist" aria-label={ariaLabel}>
       {options.map((opt) => {
-        const active = opt === value;
+        const active = opt.id === value;
         return (
           <button
-            key={opt}
+            key={opt.id}
             className={`${styles.option} ${active ? styles.active : ''}`}
-            onClick={() => onChange(opt)}
+            onClick={() => onChange(opt.id)}
             role="tab"
             aria-selected={active}
           >
-            {opt}
+            {opt.label}
           </button>
         );
       })}

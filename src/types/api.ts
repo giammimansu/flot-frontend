@@ -29,6 +29,8 @@ export interface Airport {
   zones: Zone[];
   directionLabels: string[];
   searchTimeoutSec: number;
+  scheduledMatchWindowMin: number;
+  scheduledAdvanceDays: number;
   active: boolean;
 }
 
@@ -36,21 +38,43 @@ export interface Airport {
 export interface CreateTripRequest {
   airportCode: string;
   terminal: string;
-  direction: string;
   destination: string;
-  destZone: string;
-  flightTime: string;    // ISO 8601
+  destLat: number;
+  destLng: number;
+  destPlaceId: string;
+  destZone?: string;
   paxCount: number;
   luggage: number;
+  mode: import('./domain').TripMode;
+  flightTime?: string;  // ISO8601, required when mode === 'scheduled'
 }
 
 /** POST /trips response */
 export interface CreateTripResponse {
   tripId: string;
   airportCode: string;
-  status: 'searching' | 'matched' | 'expired' | 'cancelled';
-  timeBucket: string;
+  mode: import('./domain').TripMode;
+  status: 'scheduled' | 'searching' | 'matched' | 'expired' | 'cancelled';
+  matchId?: string;
+  flightTime?: string;
+  expiresAt?: string;
   createdAt: string;
+}
+
+/** GET /trips/my response */
+export interface MyTripsResponse {
+  trips: Array<{
+    tripId: string;
+    airportCode: string;
+    terminal: string;
+    destination: string;
+    mode: import('./domain').TripMode;
+    status: 'scheduled' | 'searching' | 'matched' | 'unlocked' | 'completed' | 'expired' | 'cancelled';
+    flightTime: string;
+    luggage: number;
+    matchId: string | null;
+    createdAt: string;
+  }>;
 }
 
 /** Blurred partner (locked state) */
@@ -136,4 +160,10 @@ export interface User {
 export interface VerifyResponse {
   verificationSessionId: string;
   clientSecret: string;
+}
+
+/** GET /airports/:code/stats */
+export interface AirportStats {
+  totalSavingsMonth: number; // cents
+  weeklyMatches: number;
 }

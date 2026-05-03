@@ -29,8 +29,13 @@ export const useAirportStore = create<AirportState>((set, get) => ({
   loadAirports: async () => {
     set({ loading: true, error: null });
     try {
-      const airports = await fetchAirports();
-      const active = airports.filter((a) => a.active);
+      const raw = await fetchAirports();
+      // Unpack if result is an object containing airports or data array
+      const airportsArray = Array.isArray(raw)
+        ? raw
+        : (raw as any).airports || (raw as any).data || [];
+
+      const active = airportsArray.filter((a: Airport) => a.active !== false);
       set({ airports: active, loading: false });
 
       // Auto-select if only one active airport

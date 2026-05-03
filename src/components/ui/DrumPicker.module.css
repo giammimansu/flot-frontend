@@ -1,0 +1,96 @@
+/* ── Container ─────────────────────────────────────────────── */
+.picker {
+  display: flex;
+  height: 132px; /* VISIBLE(3) × ITEM_H(44) */
+  background: var(--surface-2);
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--hairline);
+}
+
+/* ── Column wrapper ───────────────────────────────────────── */
+.colWrap {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.colWrap + .colWrap {
+  border-left: 1px solid var(--hairline);
+}
+
+/* ── Scrollable list ──────────────────────────────────────── */
+.col {
+  height: 100%;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  overscroll-behavior-y: contain;
+  box-sizing: border-box;
+  outline: none;
+}
+.col::-webkit-scrollbar { display: none; }
+
+/* ── Item ─────────────────────────────────────────────────── */
+.item {
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  scroll-snap-align: center;
+  font-family: var(--font-body);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-medium);
+  color: var(--ink);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 150ms var(--ease-out), font-weight 150ms var(--ease-out);
+}
+
+.item[data-selected='false'] {
+  opacity: 0.35;
+  font-weight: 400;
+}
+
+.item[data-selected='true'] {
+  opacity: 1;
+  font-weight: var(--fw-semibold);
+  font-size: 17px;
+}
+
+/* ── Selection band ───────────────────────────────────────── */
+.selBand {
+  position: absolute;
+  top: calc(50% - 22px); /* center of container - half item height */
+  left: 12px;
+  right: 12px;
+  height: 44px;
+  border-top: 0.5px solid var(--hairline-strong, rgba(15,23,42,0.18));
+  border-bottom: 0.5px solid var(--hairline-strong, rgba(15,23,42,0.18));
+  border-radius: 8px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* ── Gradient fades — 1×ITEM_H each side ─────────────────── */
+.fadeTop,
+.fadeBottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 44px;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.fadeTop {
+  top: 0;
+  background: linear-gradient(to bottom, var(--surface-2) 0%, rgba(0,0,0,0) 100%);
+}
+
+.fadeBottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--surface-2) 0%, rgba(0,0,0,0) 100%);
+}
