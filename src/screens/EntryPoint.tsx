@@ -379,6 +379,7 @@ export function EntryPoint() {
       ) : (
         <>
           <div className={styles.authSection}>
+            <div className={styles.authLabel}>Get started — it's free</div>
             <button
               id="btn-google-login"
               className={styles.googleBtn}
@@ -420,8 +421,8 @@ export function EntryPoint() {
       )}
 
       <div className={styles.spacer} />
-      <div className={styles.tabBarSpacer} />
-      <TabBar />
+      {isAuthenticated && <div className={styles.tabBarSpacer} />}
+      {isAuthenticated && <TabBar />}
       <HomeIndicator />
     </div>
   );

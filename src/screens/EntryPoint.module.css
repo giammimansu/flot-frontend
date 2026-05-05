@@ -459,15 +459,26 @@
 
 /* â”€â”€ Auth section â”€â”€ */
 .authSection {
-  padding: var(--space-4) var(--space-5) 0;
+  padding: var(--space-5) var(--space-5) 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
+}
+
+.authLabel {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: var(--fw-semibold);
+  color: var(--ink-subtle);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
 }
 
 .socialBtn {
   width: 100%;
-  height: 52px;
+  height: 58px;
   border-radius: var(--radius-md);
   display: flex;
   align-items: center;
@@ -476,9 +487,9 @@
   padding: 0;
   cursor: pointer;
   font-family: var(--font-body);
-  font-size: 15px;
+  font-size: 16px;
   font-weight: var(--fw-semibold);
-  transition: transform var(--dur-press) var(--ease-out);
+  transition: transform var(--dur-press) var(--ease-out), box-shadow var(--dur-press) var(--ease-out);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -488,9 +499,9 @@
 
 .googleBtn {
   composes: socialBtn;
-  border: 1px solid var(--hairline);
+  border: 1.5px solid var(--hairline);
   background: var(--surface-1);
-  box-shadow: var(--shadow-card);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.10), var(--shadow-card);
   color: var(--ink);
 }
 
@@ -499,6 +510,7 @@
   border: none;
   background: var(--ink);
   color: var(--ink-inverse);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.22);
 }
 
 /* Privacy note */
