@@ -176,12 +176,12 @@
 /* CTA bar */
 .ctaBar {
   position: fixed;
-  bottom: 0;
+  bottom: 80px;
   left: 0;
   right: 0;
-  padding: 12px 20px 28px;
+  padding: 12px 20px 16px;
   background: linear-gradient(transparent, var(--surface-0) 24px);
-  z-index: 50;
+  z-index: 110;
 }
 
 /* TopNav override for check-in: back + FLOT + avatar */

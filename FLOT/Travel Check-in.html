@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>FLOT — Travel Check-in</title>
+<title>FLOT — Travel Check-in (Scheduled-First)</title>
 <link rel="stylesheet" href="colors_and_type.css"/>
 <style>
   body {
@@ -24,6 +24,48 @@
   @keyframes fadeIn { from{opacity:0} to{opacity:1} }
   @keyframes sheetUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
   @keyframes fadeUp { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+  .section-label {
+    font-family: var(--font-body); font-size: 11px; font-weight: 600;
+    color: var(--ink-subtle); letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+  .flight-input {
+    width: 100%; border: 1.5px solid var(--hairline); background: var(--surface-1);
+    border-radius: 16px; padding: 14px 16px; font-family: var(--font-body);
+    font-size: 16px; font-weight: 600; color: var(--ink);
+    letter-spacing: 0.06em; text-transform: uppercase; outline: none;
+    transition: border-color 180ms, box-shadow 180ms;
+  }
+  .flight-input::placeholder {
+    font-weight: 400; text-transform: none; letter-spacing: 0;
+    color: var(--ink-subtle);
+  }
+  .flight-input:focus {
+    border-color: var(--amber); box-shadow: 0 0 0 3px var(--amber-glow);
+  }
+  .time-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; margin-top: 8px;
+  }
+  .time-chip {
+    height: 40px; border: 1.5px solid var(--hairline); border-radius: 12px;
+    background: var(--surface-1); font-family: var(--font-body); font-size: 14px;
+    font-weight: 500; color: var(--ink-muted); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 160ms var(--ease-out);
+  }
+  .time-chip:hover { border-color: var(--hairline-strong); }
+  .time-chip.active {
+    background: var(--ink); color: var(--ink-inverse); border-color: var(--ink);
+    font-weight: 600;
+  }
+  .note-text {
+    font-family: var(--font-body); font-size: 12px; color: var(--ink-subtle);
+    line-height: 1.4; margin-top: 6px;
+  }
+  .footer-info {
+    font-family: var(--font-body); font-size: 12px; color: var(--ink-subtle);
+    text-align: center; margin-top: 8px; line-height: 1.4;
+  }
 </style>
 <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
@@ -43,6 +85,17 @@ const places = [
   { name:'Monza Centro', sub:'Via V. Emanuele · 35 min', zone:'Brianza' },
   { name:'Bergamo', sub:'Città Alta · 65 min', zone:'Bergamo' },
 ];
+
+/* Generate time slots in 15-min increments starting ~now rounded up */
+const generateTimeSlots = () => {
+  const now = new Date();
+  const base = new Date(now);
+  base.setMinutes(Math.ceil(now.getMinutes() / 15) * 15 + 15, 0, 0);
+  return Array.from({ length: 9 }, (_, i) => {
+    const t = new Date(base.getTime() + i * 15 * 60000);
+    return t.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+  });
+};
 
 const DestSheet = ({ onClose, onPick }) => {
   const [q, setQ] = React.useState('');
@@ -95,18 +148,23 @@ const DestSheet = ({ onClose, onPick }) => {
 };
 
 const TravelCheckin = () => {
-  const [terminal, setTerminal] = React.useState('Terminal 1');
+  const [mode, setMode] = React.useState('schedule'); // 'schedule' | 'live'
+  const [terminal, setTerminal] = React.useState('T1');
   const [destination, setDestination] = React.useState('');
   const [passengers, setPassengers] = React.useState(1);
   const [luggage, setLuggage] = React.useState(0);
   const [sheet, setSheet] = React.useState(false);
+  const [flightCode, setFlightCode] = React.useState('');
+  const [selectedTime, setSelectedTime] = React.useState('');
 
+  const isSchedule = mode === 'schedule';
+  const timeSlots = React.useMemo(generateTimeSlots, []);
+  const hasFlightOrTime = isSchedule ? (flightCode.length >= 3 || !!selectedTime) : true;
   const savings = 120 - Math.round(120 / (passengers + 1));
-  const ready = !!destination;
+  const ready = !!destination && hasFlightOrTime;
 
   return (
     <div className="phone">
-      {/* scrollable content */}
       <div style={{ flex:1, overflowY:'auto', WebkitOverflowScrolling:'touch' }}>
 
         {/* TOP NAV */}
@@ -126,32 +184,91 @@ const TravelCheckin = () => {
           }}>AL</div>
         </div>
 
-        {/* HERO COPY */}
-        <div style={{ padding:'20px 20px 0' }}>
-          <h2 style={{
-            fontFamily:'var(--font-display)', fontSize:28, fontWeight:800,
-            lineHeight:1.1, letterSpacing:'-0.025em', color:'var(--ink)', margin:0,
-          }}>Where are you headed?</h2>
-          <p style={{
-            fontFamily:'var(--font-body)', fontSize:14, lineHeight:1.5,
-            color:'var(--ink-muted)', margin:'6px 0 0',
-          }}>Tell us your terminal, destination and party size.</p>
+        {/* MODE TOGGLE */}
+        <div style={{ padding:'16px 20px 0' }}>
+          <MSegment
+            options={['📅 Schedule', '📍 I\'m here now']}
+            value={isSchedule ? '📅 Schedule' : '📍 I\'m here now'}
+            onChange={v => setMode(v.includes('Schedule') ? 'schedule' : 'live')}
+          />
         </div>
 
+        {/* HERO COPY */}
+        <div style={{ padding:'18px 20px 0' }}>
+          <h2 style={{
+            fontFamily:'var(--font-display)', fontSize:26, fontWeight:800,
+            lineHeight:1.1, letterSpacing:'-0.025em', color:'var(--ink)', margin:0,
+          }}>When are you landing?</h2>
+          <p style={{
+            fontFamily:'var(--font-body)', fontSize:13, lineHeight:1.5,
+            color:'var(--ink-muted)', margin:'5px 0 0',
+          }}>{isSchedule
+            ? 'Schedule up to 7 days ahead — we monitor delays for you.'
+            : 'We\'ll find someone at your terminal right now.'
+          }</p>
+        </div>
+
+        {/* FLIGHT CODE & TIME — only in Schedule mode */}
+        {isSchedule && (
+          <div style={{ padding:'16px 20px 0', animation:'fadeUp 200ms' }}>
+            <div className="section-label">Flight code</div>
+            <div style={{ position:'relative' }}>
+              <input
+                className="flight-input"
+                value={flightCode}
+                onChange={e => setFlightCode(e.target.value.toUpperCase().slice(0, 7))}
+                placeholder="e.g. AZ613"
+                maxLength={7}
+              />
+              {flightCode.length >= 4 && (
+                <div style={{
+                  position:'absolute', right:14, top:'50%', transform:'translateY(-50%)',
+                  display:'flex', alignItems:'center', gap:4,
+                  animation:'fadeIn 200ms',
+                }}>
+                  <div style={{ width:6, height:6, borderRadius:999, background:'var(--success)' }}></div>
+                  <span style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'var(--success)' }}>Tracked</span>
+                </div>
+              )}
+            </div>
+            <p className="note-text" style={{ marginTop:8 }}>
+              We'll use the flight code to track delays and extend your matching window (up to landing + 2h).
+            </p>
+
+            {/* MANUAL TIME FALLBACK */}
+            <div style={{ marginTop:14 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6, marginBottom:6 }}>
+                <div style={{ height:1, flex:1, background:'var(--hairline)' }}></div>
+                <span style={{ fontFamily:'var(--font-body)', fontSize:11, color:'var(--ink-subtle)', fontWeight:500 }}>or pick a time</span>
+                <div style={{ height:1, flex:1, background:'var(--hairline)' }}></div>
+              </div>
+              <div className="time-grid">
+                {timeSlots.map(t => (
+                  <button
+                    key={t}
+                    className={`time-chip${selectedTime === t ? ' active' : ''}`}
+                    onClick={() => setSelectedTime(selectedTime === t ? '' : t)}
+                  >{t}</button>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* TERMINAL */}
-        <div style={{ marginTop:20, padding:'0 20px' }}>
-          <div style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'var(--ink-subtle)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:8 }}>Terminal</div>
-          <MSegment options={['Terminal 1','Terminal 2']} value={terminal} onChange={setTerminal}/>
+        <div style={{ marginTop:16, padding:'0 20px' }}>
+          <div className="section-label">Terminal</div>
+          <MSegment options={['T1','T2']} value={terminal} onChange={setTerminal}/>
         </div>
 
         {/* DESTINATION */}
-        <div style={{ marginTop:16, padding:'0 20px' }}>
-          <div style={{ fontFamily:'var(--font-body)', fontSize:11, fontWeight:600, color:'var(--ink-subtle)', letterSpacing:'0.08em', textTransform:'uppercase', marginBottom:8 }}>Destination</div>
+        <div style={{ marginTop:14, padding:'0 20px' }}>
+          <div className="section-label">Destination</div>
           <MDestInput value={destination} placeholder="Where are you going?" onClick={() => setSheet(true)} focused={false}/>
         </div>
 
         {/* PASSENGERS + LUGGAGE */}
-        <div style={{ marginTop:16, padding:'0 20px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <div style={{ marginTop:14, padding:'0 20px', display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
           <div style={{ padding:16, background:'var(--surface-2)', borderRadius:20 }}>
             <div style={{ display:'flex', alignItems:'center', gap:6, color:'var(--ink-muted)', marginBottom:10 }}>
               <MIcon name="users" size={16}/>
@@ -167,10 +284,13 @@ const TravelCheckin = () => {
             <MStepper value={luggage} onChange={setLuggage} min={0} max={4}/>
           </div>
         </div>
+        <p className="note-text" style={{ padding:'0 20px', marginTop:6 }}>
+          Helps your partner know if you'll fit in a standard car.
+        </p>
 
         {/* SAVINGS CARD */}
         <div style={{
-          margin:'14px 20px 0', padding:'14px 16px',
+          margin:'12px 20px 0', padding:'14px 16px',
           background:'var(--surface-1)', border:'1px solid var(--hairline)', borderRadius:20,
           boxShadow:'var(--shadow-card)',
           display:'flex', alignItems:'center', gap:12,
@@ -183,25 +303,30 @@ const TravelCheckin = () => {
           </div>
           <div style={{ flex:1 }}>
             <div style={{ fontFamily:'var(--font-body)', fontSize:14, fontWeight:600, color:'var(--ink)' }}>
-              You could save <span style={{ color:'var(--success)' }}>~€{savings}.00</span>
+              Save <span style={{ color:'var(--success)' }}>~€{savings}.00</span> on the fixed €120 fare
             </div>
             <div style={{ fontFamily:'var(--font-body)', fontSize:12, color:'var(--ink-muted)', marginTop:2 }}>
-              Fixed €120 fare split in {passengers + 1}
+              €120 split {passengers + 1} ways = €{Math.round(120 / (passengers + 1))} each
             </div>
           </div>
         </div>
 
         {/* spacer for CTA */}
-        <div style={{ height:100 }}/>
+        <div style={{ height:110 }}/>
       </div>
 
       {/* CTA */}
       <div style={{
         position:'absolute', bottom:0, left:0, right:0,
-        padding:'12px 20px 28px',
-        background:'linear-gradient(transparent, #FAFAFA 24px)',
+        padding:'12px 20px 20px',
+        background:'linear-gradient(transparent, var(--surface-0) 24px)',
       }}>
-        <MBtn variant="primary" disabled={!ready} icon="search">Find my ride partner</MBtn>
+        <MBtn variant="primary" disabled={!ready} icon={isSchedule ? 'timer' : 'search'}>
+          {isSchedule ? 'Schedule my ride share' : 'Find my partner now'}
+        </MBtn>
+        <p className="footer-info">
+          Free to schedule · <strong>€0.99</strong> only if matched
+        </p>
       </div>
 
       {/* SHEET */}
