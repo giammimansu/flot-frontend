@@ -21,8 +21,8 @@ export function configureAuth() {
           oauth: {
             domain: import.meta.env.VITE_COGNITO_DOMAIN,
             scopes: ['openid', 'email', 'profile'],
-            redirectSignIn: [window.location.origin],
-            redirectSignOut: [window.location.origin],
+            redirectSignIn: [`${window.location.origin}/auth/callback`],
+            redirectSignOut: [`${window.location.origin}`],
             responseType: 'code',
             providers: [{ custom: 'Google' }, { custom: 'SignInWithApple' }],
           },
