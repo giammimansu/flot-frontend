@@ -23,7 +23,26 @@ export async function patchTrip(tripId: string, patch: Partial<Pick<Trip, 'statu
 
 /** GET /trips/my */
 export async function getMyTrips(): Promise<import('../types/api').MyTripsResponse> {
-  return api.get('trips/my').json<import('../types/api').MyTripsResponse>();
+  const raw = await api.get('trips/my').json<{ trips: Record<string, unknown>[] }>();
+  // Normalize: backend returns some numeric fields as strings
+  const trips = raw.trips.map((t) => ({
+    tripId: String(t.tripId ?? ''),
+    airportCode: String(t.airportCode ?? ''),
+    terminal: String(t.terminal ?? ''),
+    destination: String(t.destination ?? ''),
+    direction: String(t.direction ?? ''),
+    mode: (t.mode as import('../types/domain').TripMode) ?? 'scheduled',
+    status: (t.status as import('../types/api').MyTripsResponse['trips'][0]['status']) ?? 'scheduled',
+    flightTime: String(t.flightTime ?? t.timeBucket ?? ''),
+    flightNumber: t.flightNumber ? String(t.flightNumber) : undefined,
+    flightDate: t.flightDate ? String(t.flightDate) : undefined,
+    luggage: Number(t.luggage ?? 0),
+    paxCount: Number(t.paxCount ?? 1),
+    matchId: (t.matchId as string | null) ?? (t.tentativeMatchId as string | null) ?? null,
+    createdAt: String(t.createdAt ?? ''),
+    expiresAt: t.expiresAt ? String(t.expiresAt) : undefined,
+  }));
+  return { trips };
 }
 
 /** DELETE /trips/:tripId */

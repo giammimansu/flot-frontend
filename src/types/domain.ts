@@ -31,10 +31,17 @@ export type TripMode = 'live' | 'scheduled';
 export interface Trip {
   tripId: string;
   airportCode: string;
+  terminal?: string;
+  destination?: string;
+  direction?: string;
   mode: TripMode;
   status: 'scheduled' | 'searching' | 'matched' | 'unlocked' | 'completed' | 'cancelled' | 'expired';
   matchId?: string;
   flightTime?: string;
+  flightNumber?: string;
+  flightDate?: string;
+  luggage?: number;
+  paxCount?: number;
   expiresAt?: string;
   createdAt: string;
 }

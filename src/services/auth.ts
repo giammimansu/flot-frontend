@@ -54,8 +54,14 @@ export async function getAuthUser() {
 /** Get JWT for API calls */
 export async function getAccessToken(): Promise<string | null> {
   try {
+    // First attempt — use cached session
     const session = await fetchAuthSession();
-    return session.tokens?.idToken?.toString() ?? null;
+    const idToken = session.tokens?.idToken?.toString() ?? null;
+    if (idToken) return idToken;
+
+    // Second attempt — force a token refresh
+    const refreshed = await fetchAuthSession({ forceRefresh: true });
+    return refreshed.tokens?.idToken?.toString() ?? null;
   } catch {
     return null;
   }

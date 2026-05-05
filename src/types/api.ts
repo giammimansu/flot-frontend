@@ -38,6 +38,7 @@ export interface Airport {
 export interface CreateTripRequest {
   airportCode: string;
   terminal: string;
+  direction: string;
   destination: string;
   destLat: number;
   destLng: number;
@@ -46,7 +47,8 @@ export interface CreateTripRequest {
   paxCount: number;
   luggage: number;
   mode: import('./domain').TripMode;
-  flightTime?: string;  // ISO8601, required when mode === 'scheduled'
+  flightNumber: string;
+  flightDate: string;   // YYYY-MM-DD
 }
 
 /** POST /trips response */
@@ -68,12 +70,17 @@ export interface MyTripsResponse {
     airportCode: string;
     terminal: string;
     destination: string;
+    direction: string;
     mode: import('./domain').TripMode;
     status: 'scheduled' | 'searching' | 'matched' | 'unlocked' | 'completed' | 'expired' | 'cancelled';
     flightTime: string;
+    flightNumber?: string;
+    flightDate?: string;
     luggage: number;
+    paxCount: number;
     matchId: string | null;
     createdAt: string;
+    expiresAt?: string;
   }>;
 }
 

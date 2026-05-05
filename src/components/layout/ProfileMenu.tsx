@@ -50,11 +50,11 @@ export function ProfileMenu({ open, onClose }: ProfileMenuProps) {
   }, [onClose, reset, navigate]);
 
   const menuItems: MenuItem[] = [
-    { label: 'Profilo', icon: 'user', path: '/profile' },
-    { label: 'Verifica identità', icon: 'badge-check', path: '/verify' },
-    { label: 'Abbonamento PRO', icon: 'crown', path: '/pro' },
-    { label: 'Impostazioni', icon: 'settings', path: '/settings' },
-    { label: 'Esci', icon: 'log-out', action: handleLogout, danger: true },
+    { label: 'Profile', icon: 'user', path: '/profile' },
+    { label: 'Verify identity', icon: 'badge-check', path: '/verify' },
+    { label: 'PRO subscription', icon: 'crown', path: '/pro' },
+    { label: 'Settings', icon: 'settings', path: '/settings' },
+    { label: 'Sign out', icon: 'log-out', action: handleLogout, danger: true },
   ];
 
   const handleItem = (item: MenuItem) => {
@@ -67,7 +67,7 @@ export function ProfileMenu({ open, onClose }: ProfileMenuProps) {
   };
 
   const initials = user?.firstName?.[0]?.toUpperCase() ?? '?';
-  const hasPhoto = Boolean(user?.photoUrl);
+
 
   return createPortal(
     <AnimatePresence>
@@ -92,7 +92,7 @@ export function ProfileMenu({ open, onClose }: ProfileMenuProps) {
             onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
-            aria-label="Menu profilo"
+            aria-label="Profile menu"
           >
             {/* Handle */}
             <div className={styles.handle}>
@@ -102,15 +102,7 @@ export function ProfileMenu({ open, onClose }: ProfileMenuProps) {
             {/* User header */}
             <div className={styles.userHeader}>
               <div className={styles.avatarLarge}>
-                {hasPhoto ? (
-                  <img
-                    src={user!.photoUrl!}
-                    alt={user?.firstName ?? 'Profilo'}
-                    className={styles.avatarImg}
-                  />
-                ) : (
-                  <span className={styles.avatarInitials}>{initials}</span>
-                )}
+                <span className={styles.avatarInitials}>{initials}</span>
               </div>
               <div className={styles.userInfo}>
                 <span className={styles.userName}>
@@ -124,7 +116,7 @@ export function ProfileMenu({ open, onClose }: ProfileMenuProps) {
             <div className={styles.divider} />
 
             {/* Menu items */}
-            <nav role="menu" aria-label="Menu profilo" className={styles.menu}>
+            <nav role="menu" aria-label="Profile menu" className={styles.menu}>
               {menuItems.map((item) => (
                 <button
                   key={item.label}

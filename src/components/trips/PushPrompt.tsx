@@ -19,9 +19,9 @@ export function PushPrompt({ onDismiss }: PushPromptProps) {
             <MIcon name="bell" size={20} sw={2} />
           </div>
           <div className={styles.textWrap}>
-            <div className={styles.title}>Riceverai un'email</div>
+            <div className={styles.title}>You'll get an email</div>
             <div className={styles.subtitle}>
-              Il tuo browser non supporta le notifiche. Ti invieremo un'email appena troviamo un match.
+              Your browser doesn't support notifications. We'll email you as soon as we find a match.
             </div>
           </div>
         </div>
@@ -37,9 +37,9 @@ export function PushPrompt({ onDismiss }: PushPromptProps) {
             <MIcon name="check" size={20} sw={2.5} />
           </div>
           <div className={styles.textWrap}>
-            <div className={styles.title}>Notifiche attive</div>
+            <div className={styles.title}>Notifications enabled</div>
             <div className={styles.subtitle}>
-              Ti avviseremo appena troviamo un compagno per il tuo viaggio.
+              We'll notify you as soon as we find a companion for your trip.
             </div>
           </div>
         </div>
@@ -56,22 +56,22 @@ export function PushPrompt({ onDismiss }: PushPromptProps) {
           <MIcon name="bell" size={20} sw={2} />
         </div>
         <div className={styles.textWrap}>
-          <div className={styles.title}>Attiva le notifiche</div>
+          <div className={styles.title}>Enable notifications</div>
           <div className={styles.subtitle}>
-            Ti avviseremo appena troviamo un compagno e quando sarà ora di partire.
+            We'll alert you when we find a companion and when it's time to leave.
           </div>
         </div>
       </div>
       <div className={styles.actions}>
         <button className={styles.primaryBtn} onClick={() => requestPermission()}>
           <MIcon name="bell" size={16} sw={2} />
-          Attiva
+          Enable
         </button>
         <button className={styles.secondaryBtn} onClick={() => {
           setDismissed(true);
           onDismiss?.();
         }}>
-          Non ora
+          Not now
         </button>
       </div>
     </div>

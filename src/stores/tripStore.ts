@@ -146,7 +146,14 @@ export const useTripStore = create<TripState>()(
     }),
     {
       name: 'flot-trip',
-      partialize: (s) => ({ preferredMode: s.preferredMode }),
+      partialize: (s) => ({
+        preferredMode: s.preferredMode,
+        tripId: s.tripId,
+        terminal: s.terminal,
+        destination: s.destination,
+        luggage: s.luggage,
+        currentTrip: s.currentTrip,
+      }),
     },
   ),
 );

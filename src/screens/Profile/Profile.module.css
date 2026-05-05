@@ -39,15 +39,16 @@
 .avatarInitials {
   width: 64px;
   height: 64px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #BFDBFE, #93C5FD);
+  border-radius: var(--radius-pill);
+  background: var(--amber-soft);
+  border: 2px solid var(--hairline);
   display: flex;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
   font-size: var(--fs-22);
   font-weight: var(--fw-bold);
-  color: #1E40AF;
+  color: var(--amber-pressed);
 }
 .editBadge {
   position: absolute;

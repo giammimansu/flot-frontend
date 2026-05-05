@@ -93,18 +93,14 @@ export function Profile() {
 
   return (
     <div className={styles.root}>
-      <TopNav showLogo={false} title="Profilo" showBack={false} showAvatar={false} />
+      <TopNav showLogo={false} title="Profile" showBack={false} showAvatar={false} />
 
       <div className={styles.scrollArea}>
         {/* Profile card */}
         <div className={styles.profileCard}>
           <div className={styles.avatarWrap}>
-            {user?.photoUrl ? (
-              <img src={user.photoUrl} alt={fullName} className={styles.avatar} />
-            ) : (
-              <div className={styles.avatarInitials}>{initials}</div>
-            )}
-            <button className={styles.editBadge} aria-label="Modifica foto" type="button">
+            <div className={styles.avatarInitials}>{initials}</div>
+            <button className={styles.editBadge} aria-label="Edit photo" type="button">
               ✎
             </button>
           </div>
@@ -113,18 +109,18 @@ export function Profile() {
           <div className={styles.profileEmail}>{user?.email ?? ''}</div>
 
           {user?.verified && (
-            <span className={styles.verifiedBadge}>✓ Verificato</span>
+            <span className={styles.verifiedBadge}>✓ Verified</span>
           )}
 
           <div className={styles.statsStrip}>
             <div className={styles.statItem}>
               <div className={styles.statValue}>—</div>
-              <div className={styles.statLabel}>Viaggi</div>
+              <div className={styles.statLabel}>Trips</div>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.statItem}>
               <div className={styles.statValue}>—</div>
-              <div className={styles.statLabel}>Risparmiati</div>
+              <div className={styles.statLabel}>Saved</div>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.statItem}>
@@ -135,22 +131,22 @@ export function Profile() {
         </div>
 
         {/* Notifications */}
-        <div className={styles.sectionLabel}>Notifiche</div>
+        <div className={styles.sectionLabel}>Notifications</div>
         <div className={styles.section}>
           <Row
             icon="🔔"
-            label="Match trovato"
-            right={<Toggle checked={notifMatch} onChange={setNotifMatch} label="Match trovato" />}
+            label="Match found"
+            right={<Toggle checked={notifMatch} onChange={setNotifMatch} label="Match found" />}
           />
           <Row
             icon="✈️"
-            label="Promemoria viaggio"
-            right={<Toggle checked={notifReminder} onChange={setNotifReminder} label="Promemoria viaggio" />}
+            label="Trip reminder"
+            right={<Toggle checked={notifReminder} onChange={setNotifReminder} label="Trip reminder" />}
           />
           <Row
             icon="🎁"
-            label="Offerte speciali"
-            right={<Toggle checked={notifOffers} onChange={setNotifOffers} label="Offerte speciali" />}
+            label="Special offers"
+            right={<Toggle checked={notifOffers} onChange={setNotifOffers} label="Special offers" />}
           />
         </div>
 
@@ -159,46 +155,46 @@ export function Profile() {
         <div className={styles.section}>
           <Row
             icon="🪪"
-            label="Verifica identità"
-            sub={user?.verified ? 'Verificato' : 'Ottieni il badge verificato'}
+            label="Verify identity"
+            sub={user?.verified ? 'Verified' : 'Get the verified badge'}
             onClick={() => navigate('/verify')}
           />
           <Row
             icon="💳"
-            label="Metodo di pagamento"
+            label="Payment method"
           />
           <Row
             icon="🌍"
-            label="Lingua"
-            sub={user?.lang ? user.lang.toUpperCase() : 'IT'}
+            label="Language"
+            sub={user?.lang ? user.lang.toUpperCase() : 'EN'}
           />
           <Row
             icon="🔒"
-            label="Privacy e sicurezza"
+            label="Privacy & security"
           />
         </div>
 
         {/* Support */}
-        <div className={styles.sectionLabel}>Supporto</div>
+        <div className={styles.sectionLabel}>Support</div>
         <div className={styles.section}>
           <Row
             icon="❓"
-            label="Centro assistenza"
+            label="Help center"
             onClick={() => window.open('https://flot.app/help', '_blank', 'noopener,noreferrer')}
           />
           <Row
             icon="📄"
-            label="Termini di servizio"
+            label="Terms of service"
             onClick={() => window.open('https://flot.app/terms', '_blank', 'noopener,noreferrer')}
           />
         </div>
 
         {/* Logout */}
         <div className={styles.section}>
-          <Row icon="🚪" label="Esci" onClick={handleLogout} danger />
+          <Row icon="🚪" label="Sign out" onClick={handleLogout} danger />
         </div>
 
-        <div className={styles.version}>FLOT v1.0.0-beta · Made in Milano</div>
+        <div className={styles.version}>FLOT v1.0.0-beta · Made in Milan</div>
 
         <HomeIndicator />
       </div>

@@ -1,25 +1,28 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { MIcon, MSegment, MStepper, MBtn, MDestInput } from '../components/ui';
-import { MDateTimePicker } from '../components/ui/MDateTimePicker';
 import { HomeIndicator, ProfileMenu } from '../components/layout';
 import { useAirportStore } from '../stores/airportStore';
 import { useTripStore } from '../stores/tripStore';
 import { useAuthStore } from '../stores/authStore';
+import { useNotificationStore } from '../stores/notificationStore';
 import { formatCurrency, calcSavings } from '../lib/formatters';
 import type { TripDestination, TripMode } from '../types/domain';
 import styles from './TravelCheckin.module.css';
 
 // ── Zod schema ───────────────────────────────────────────────
 
+const FLIGHT_NUMBER_RE = /^[A-Z0-9]{2,3}\s?\d{1,4}[A-Z]?$/i;
+
 const schema = z
   .object({
     mode: z.enum(['live', 'scheduled']),
-    flightTime: z.string().optional(),
+    flightNumber: z.string().optional(),
+    flightDate: z.string().optional(),
     terminal: z.string().min(1, 'Select a terminal'),
     destination: z
       .object({ label: z.string().min(1), lat: z.number(), lng: z.number(), placeId: z.string().min(1) })
@@ -29,8 +32,16 @@ const schema = z
     paxCount: z.number().min(1).max(4),
   })
   .refine(
-    (data) => !(data.mode === 'scheduled' && !data.flightTime),
-    { message: 'Select a flight date and time', path: ['flightTime'] },
+    (d) => d.mode !== 'scheduled' || (!!d.flightNumber && d.flightNumber.length >= 3),
+    { message: 'Enter a valid flight number', path: ['flightNumber'] },
+  )
+  .refine(
+    (d) => d.mode !== 'scheduled' || FLIGHT_NUMBER_RE.test(d.flightNumber ?? ''),
+    { message: 'Format: AZ1234 or FR 9001', path: ['flightNumber'] },
+  )
+  .refine(
+    (d) => d.mode !== 'scheduled' || !!d.flightDate,
+    { message: 'Select a flight date', path: ['flightDate'] },
   );
 
 type FormValues = z.infer<typeof schema>;
@@ -42,14 +53,6 @@ const MODE_OPTIONS = [
   { value: 'live' as TripMode, label: 'Search now' },
 ] as const;
 
-// ── Framer motion variants ───────────────────────────────────
-
-const slideIn = {
-  initial: { opacity: 0, height: 0 },
-  animate: { opacity: 1, height: 'auto' },
-  exit:    { opacity: 0, height: 0 },
-  transition: { duration: 0.2, ease: 'easeInOut' as const },
-};
 
 // ── Component ────────────────────────────────────────────────
 
@@ -57,10 +60,28 @@ export function TravelCheckin() {
   const navigate = useNavigate();
   const location = useLocation();
   const airport = useAirportStore((s) => s.selectedAirport);
+  const loadAirports = useAirportStore((s) => s.loadAirports);
+  const airports = useAirportStore((s) => s.airports);
+  const selectAirport = useAirportStore((s) => s.selectAirport);
   const submitTrip = useTripStore((s) => s.submitTrip);
   const tripStatus = useTripStore((s) => s.status);
   const preferredMode = useTripStore((s) => s.preferredMode);
   const user = useAuthStore((s) => s.user);
+
+  // If airport is missing (e.g. after a page refresh), re-fetch and auto-select
+  useEffect(() => {
+    if (!airport) {
+      loadAirports();
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!airport && airports.length === 1) {
+      selectAirport(airports[0].code);
+    } else if (!airport && airports.length > 1) {
+      navigate('/airport', { replace: true });
+    }
+  }, [airports, airport]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const terminalOptions = airport?.terminals.map((t) => t.label) ?? ['Terminal 1', 'Terminal 2'];
 
@@ -71,7 +92,8 @@ export function TravelCheckin() {
     resolver: zodResolver(schema),
     defaultValues: {
       mode: defaultMode,
-      flightTime: undefined,
+      flightNumber: '',
+      flightDate: '',
       terminal: terminalOptions[0],
       destination: null,
       luggage: 1,
@@ -80,12 +102,12 @@ export function TravelCheckin() {
   });
 
   const mode = watch('mode');
-  const destination = watch('destination') as TripDestination | null;
 
   const baseFare = airport?.baseFare ?? 12000;
   const currency = airport?.currency ?? 'EUR';
   const savings = calcSavings(baseFare, 1);
   const isSubmitting = tripStatus === 'creating';
+  const showToast = useNotificationStore((s) => s.showToast);
 
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
 
@@ -95,8 +117,17 @@ export function TravelCheckin() {
 
   const ctaLabel = mode === 'scheduled' ? 'Schedule ride' : 'Find match now';
 
+  const onError = (errs: object) => {
+    const first = Object.values(errs)[0] as { message?: string } | undefined;
+    showToast({ title: 'Check your fields', body: first?.message ?? 'Please fill in all required fields.' });
+  };
+
   const onSubmit = async (data: FormValues) => {
-    if (!airport || !data.destination) return;
+    if (!airport) {
+      showToast({ title: 'Error', body: 'No airport selected.' });
+      return;
+    }
+    if (!data.destination) return;
 
     const terminalObj = airport.terminals.find((t) => t.label === data.terminal);
     const terminalCode = terminalObj?.code ?? 'T1';
@@ -104,6 +135,7 @@ export function TravelCheckin() {
     const result = await submitTrip({
       airportCode: airport.code,
       terminal: terminalCode,
+      direction: airport.directionLabels[0] ?? 'TO_CITY',
       destination: data.destination.label,
       destLat: data.destination.lat,
       destLng: data.destination.lng,
@@ -111,12 +143,20 @@ export function TravelCheckin() {
       paxCount: data.paxCount,
       luggage: data.luggage,
       mode: data.mode,
-      ...(data.mode === 'scheduled' && { flightTime: data.flightTime }),
+      flightNumber: (data.flightNumber ?? '').replace(/\s/g, ''),
+      flightDate: data.flightDate ?? '',
     });
 
-    if (result) {
-      navigate(data.mode === 'live' ? '/search' : `/trip/${result.tripId}`);
+    if (!result) {
+      const tripError = useTripStore.getState().error;
+      if (tripError === 'AUTH_REQUIRED') {
+        navigate('/', { replace: true });
+        return;
+      }
+      showToast({ title: 'Error', body: tripError ?? 'Could not create the trip. Please try again.' });
+      return;
     }
+    navigate(data.mode === 'live' ? '/search' : `/trip/${result.tripId}`);
   };
 
   return (
@@ -125,20 +165,16 @@ export function TravelCheckin() {
 
         {/* Top nav */}
         <div className={styles.topNav}>
-          <button className={styles.backBtn} onClick={() => navigate(-1)} aria-label="Torna indietro">
+          <button className={styles.backBtn} onClick={() => navigate(-1)} aria-label="Go back">
             <MIcon name="chevron-left" size={20} />
           </button>
           <span className={styles.navCenter}>FLOT</span>
           <button
             className={styles.avatar}
             onClick={() => setProfileMenuOpen(true)}
-            aria-label="Apri menu profilo"
+            aria-label="Open profile menu"
           >
-            {user?.photoUrl ? (
-              <img src={user.photoUrl} alt={user.firstName} className={styles.avatarImg} />
-            ) : (
-              initials
-            )}
+            {initials}
           </button>
         </div>
         <ProfileMenu open={profileMenuOpen} onClose={() => setProfileMenuOpen(false)} />
@@ -163,39 +199,72 @@ export function TravelCheckin() {
                 options={MODE_OPTIONS.map((o) => ({ id: o.value, label: o.label }))}
                 value={field.value}
                 onChange={(val) => field.onChange(val)}
-                aria-label="Modalità di ricerca"
+                aria-label="Search mode"
               />
             )}
           />
         </div>
 
-        {/* 2. Slot picker — only scheduled */}
+        {/* 2. Flight info — only scheduled */}
         <AnimatePresence>
-          {mode === 'scheduled' && (
-            <motion.div
-              key="slot-picker"
-              className={styles.overflowHidden}
-              {...slideIn}
-            >
-              <div className={styles.formSectionSm}>
-                <div className={styles.fieldLabel}>Flight time</div>
-                <Controller
-                  control={control}
-                  name="flightTime"
-                  render={({ field }) => (
-                    <MDateTimePicker
-                      value={field.value}
-                      onChange={field.onChange}
-                      error={!!errors.flightTime}
-                    />
-                  )}
-                />
-                {errors.flightTime && (
-                  <div className={styles.fieldError}>{errors.flightTime.message}</div>
-                )}
-              </div>
-            </motion.div>
+        {mode === 'scheduled' && (
+        <motion.div
+          key="flight-info"
+          className={styles.overflowHidden}
+          initial={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          exit={{ opacity: 0, height: 0 }}
+          transition={{ duration: 0.2, ease: 'easeInOut' }}
+        >
+        <div className={styles.formSectionSm}>
+          <div className={styles.fieldLabel}>Flight info</div>
+          <div className={styles.flightRow}>
+            <Controller
+              control={control}
+              name="flightNumber"
+              render={({ field }) => (
+                <div className={`${styles.textInputWrapper} ${errors.flightNumber ? styles.textInputError : ''}`}>
+                  <MIcon name="plane-landing" size={18} className={styles.textInputIcon} />
+                  <input
+                    className={styles.textInput}
+                    type="text"
+                    placeholder="AZ 1234"
+                    autoCapitalize="characters"
+                    autoCorrect="off"
+                    spellCheck={false}
+                    maxLength={8}
+                    value={field.value}
+                    onChange={(e) => field.onChange(e.target.value.toUpperCase())}
+                    aria-label="Flight number"
+                  />
+                </div>
+              )}
+            />
+            <Controller
+              control={control}
+              name="flightDate"
+              render={({ field }) => (
+                <div className={`${styles.textInputWrapper} ${errors.flightDate ? styles.textInputError : ''}`}>
+                  <MIcon name="calendar" size={18} className={styles.textInputIcon} />
+                  <input
+                    className={styles.textInput}
+                    type="date"
+                    value={field.value}
+                    onChange={field.onChange}
+                    aria-label="Flight date"
+                  />
+                </div>
+              )}
+            />
+          </div>
+          {(errors.flightNumber || errors.flightDate) && (
+            <div className={styles.fieldError}>
+              {errors.flightNumber?.message ?? errors.flightDate?.message}
+            </div>
           )}
+        </div>
+        </motion.div>
+        )}
         </AnimatePresence>
 
         {/* 3. Terminal */}
@@ -282,11 +351,11 @@ export function TravelCheckin() {
       <div className={styles.ctaBar}>
         <MBtn
           variant="primary"
-          disabled={!destination || isSubmitting}
+          disabled={isSubmitting}
           icon={mode === 'live' ? 'search' : 'timer'}
-          onClick={handleSubmit(onSubmit)}
+          onClick={handleSubmit(onSubmit, onError)}
         >
-          {isSubmitting ? 'Attendere…' : ctaLabel}
+          {isSubmitting ? 'Please wait…' : ctaLabel}
         </MBtn>
       </div>
 

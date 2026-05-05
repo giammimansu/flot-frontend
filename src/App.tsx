@@ -1,7 +1,7 @@
 import { lazy, Suspense, type ReactNode } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import { useAuth } from './hooks/useAuth';
+import { useAuth, useAuthInit } from './hooks/useAuth';
 import { Toast } from './components/ui';
 import { TabBar } from './components/layout/TabBar';
 import styles from './App.module.css';
@@ -69,7 +69,7 @@ function wrap(node: ReactNode) {
 }
 
 function AuthInit() {
-  useAuth();
+  useAuthInit();
   return null;
 }
 
@@ -93,14 +93,14 @@ export function App() {
           <Routes>
             <Route path="/" element={wrap(<EntryPoint />)} />
             <Route path="/airport" element={wrap(<AirportPicker />)} />
-            <Route path="/check-in" element={wrap(<TravelCheckin />)} />
-            <Route path="/search" element={wrap(<ActiveSearch />)} />
-            <Route path="/trip/:tripId" element={wrap(<TripScheduled />)} />
-            <Route path="/match/:matchId" element={wrap(<MatchLocked />)} />
+            <Route path="/check-in" element={wrap(<ProtectedRoute><TravelCheckin /></ProtectedRoute>)} />
+            <Route path="/search" element={wrap(<ProtectedRoute><ActiveSearch /></ProtectedRoute>)} />
+            <Route path="/trip/:tripId" element={wrap(<ProtectedRoute><TripScheduled /></ProtectedRoute>)} />
+            <Route path="/match/:matchId" element={wrap(<ProtectedRoute><MatchLocked /></ProtectedRoute>)} />
             <Route path="/connection/:matchId" element={wrap(<ProtectedRoute><ConnectionUnlocked /></ProtectedRoute>)} />
-            <Route path="/no-match" element={wrap(<NoMatchFound />)} />
+            <Route path="/no-match" element={wrap(<ProtectedRoute><NoMatchFound /></ProtectedRoute>)} />
             <Route path="/verify" element={wrap(<ProtectedRoute><IdentityVerification /></ProtectedRoute>)} />
-            <Route path="/my-trips" element={wrap(<MyTrips />)} />
+            <Route path="/my-trips" element={wrap(<ProtectedRoute><MyTrips /></ProtectedRoute>)} />
             <Route path="/profile" element={wrap(<ProtectedRoute><Profile /></ProtectedRoute>)} />
           </Routes>
         </Suspense>

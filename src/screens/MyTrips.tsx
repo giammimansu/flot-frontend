@@ -14,17 +14,20 @@ export function MyTrips() {
   const { user } = useAuth();
   const airport = useAirportStore((s) => s.selectedAirport);
   const [trips, setTrips] = useState<MyTripsResponse['trips']>([]);
-  const [tab, setTab] = useState<'attivi' | 'passati'>('attivi');
+  const [tab, setTab] = useState<'active' | 'past'>('active');
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   const fetchTrips = async () => {
+    setFetchError(null);
     try {
       const data = await getMyTrips();
       // Sort desc by createdAt
       const sorted = data.trips.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setTrips(sorted);
-    } catch {
-      // Silent fail — show empty state
+    } catch (err) {
+      console.error('getMyTrips failed:', err);
+      setFetchError('Could not load trips. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -35,21 +38,21 @@ export function MyTrips() {
   }, []);
 
   const handleCancel = async (tripId: string) => {
-    if (!window.confirm('Vuoi cancellare questa prenotazione?')) return;
+    if (!window.confirm('Cancel this booking?')) return;
     try {
       await cancelTrip(tripId);
       // Refresh list
       fetchTrips();
     } catch {
-      alert('Impossibile cancellare il viaggio.');
+      alert('Could not cancel the trip.');
     }
   };
 
   const activeStatuses = ['scheduled', 'searching', 'matched', 'unlocked'];
   const pastStatuses = ['completed', 'expired', 'cancelled'];
 
-  const displayedTrips = trips.filter(t => 
-    tab === 'attivi' ? activeStatuses.includes(t.status) : pastStatuses.includes(t.status)
+  const displayedTrips = trips.filter(t =>
+    tab === 'active' ? activeStatuses.includes(t.status) : pastStatuses.includes(t.status)
   );
 
   const totalSaved = trips
@@ -57,14 +60,16 @@ export function MyTrips() {
     .length * Math.round((airport?.baseFare ?? 12000) / 2 / 100);
   const totalCompleted = trips.filter(t => t.status === 'completed').length;
 
-  const initials = user?.firstName ? user.firstName[0].toUpperCase() : 'U';
+  const initials = user
+    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
+    : '?';
 
   return (
     <div className={styles.screen}>
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <div className={styles.greeting}>Ciao, {user?.firstName || 'Viaggiatore'} 👋</div>
-          <h1 className={styles.title}>I miei viaggi</h1>
+          <div className={styles.greeting}>Hey, {user?.firstName || 'Traveler'} 👋</div>
+          <h1 className={styles.title}>My trips</h1>
         </div>
         <div className={styles.avatar}>{initials}</div>
       </header>
@@ -75,14 +80,14 @@ export function MyTrips() {
             <MIcon name="sparkles" size={18} sw={2} />
             €{totalSaved}
           </div>
-          <div className={styles.statLabel}>risparmiati</div>
+          <div className={styles.statLabel}>saved</div>
         </div>
         <div className={`${styles.statCard} ${styles.surface}`}>
           <div className={styles.statValue}>
             <MIcon name="check" size={18} sw={2} />
             {totalCompleted}
           </div>
-          <div className={styles.statLabel}>completati</div>
+          <div className={styles.statLabel}>completed</div>
         </div>
       </div>
 
@@ -93,17 +98,28 @@ export function MyTrips() {
       <div className={styles.tabs}>
         <MSegment
           options={[
-            { id: 'attivi', label: `Attivi (${trips.filter(t => activeStatuses.includes(t.status)).length})` },
-            { id: 'passati', label: `Passati (${trips.filter(t => pastStatuses.includes(t.status)).length})` },
+            { id: 'active', label: `Active (${trips.filter(t => activeStatuses.includes(t.status)).length})` },
+            { id: 'past', label: `Past (${trips.filter(t => pastStatuses.includes(t.status)).length})` },
           ]}
           value={tab}
-          onChange={(v) => setTab(v as 'attivi' | 'passati')}
+          onChange={(v) => setTab(v as 'active' | 'past')}
         />
       </div>
 
       <div className={styles.list}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: 'var(--ink-muted)' }}>Caricamento...</div>
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--ink-muted)' }}>Loading...</div>
+        ) : fetchError ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyCircle}>
+              <MIcon name="x" size={28} sw={2} />
+            </div>
+            <div className={styles.emptyTitle}>Network error</div>
+            <div className={styles.emptySub}>{fetchError}</div>
+            <MBtn variant="primary" onClick={() => { setLoading(true); fetchTrips(); }}>
+              Retry
+            </MBtn>
+          </div>
         ) : displayedTrips.length > 0 ? (
           displayedTrips.map(trip => (
             <TripCard key={trip.tripId} trip={trip} onCancelClick={handleCancel} />
@@ -113,10 +129,10 @@ export function MyTrips() {
             <div className={styles.emptyCircle}>
               <MIcon name="search" size={28} sw={2} />
             </div>
-            <div className={styles.emptyTitle}>Nessun viaggio qui</div>
-            <div className={styles.emptySub}>I tuoi viaggi appariranno qui</div>
+            <div className={styles.emptyTitle}>No trips here</div>
+            <div className={styles.emptySub}>Your trips will appear here</div>
             <MBtn variant="primary" onClick={() => navigate('/check-in')}>
-              Prenota un viaggio
+              Book a trip
             </MBtn>
           </div>
         )}

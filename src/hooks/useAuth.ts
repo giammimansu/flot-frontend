@@ -15,26 +15,22 @@ import {
 } from '../services/auth';
 import type { SocialProvider } from '../services/auth';
 
-export function useAuth() {
-  const { status, user, setAuthenticated, setUnauthenticated, setLoading, reset } =
-    useAuthStore();
-  const navigate = useNavigate();
+/** Call this ONCE at app boot (in AuthInit). Runs the Cognito session check. */
+export function useAuthInit() {
+  const { setAuthenticated, setUnauthenticated, setLoading } = useAuthStore();
 
-  /** Check auth status on mount */
   useEffect(() => {
     let cancelled = false;
 
     async function checkAuth() {
       setLoading();
       const cognitoUser = await getAuthUser();
-
       if (cancelled) return;
 
       if (cognitoUser) {
         const token = await getAccessToken();
         if (cancelled) return;
 
-        // Parse idToken claims for name + picture
         const session = await import('aws-amplify/auth').then((m) =>
           m.fetchAuthSession()
         );
@@ -68,10 +64,13 @@ export function useAuth() {
     }
 
     checkAuth();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [setAuthenticated, setUnauthenticated, setLoading]);
+}
+
+export function useAuth() {
+  const { status, user, reset } = useAuthStore();
+  const navigate = useNavigate();
 
   /** Trigger social login */
   const login = useCallback(async (provider: SocialProvider) => {

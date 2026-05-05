@@ -38,7 +38,6 @@ export function TopNav({
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
-  const hasPhoto = Boolean(user?.photoUrl);
   const initials = user
     ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
     : '?';
@@ -84,19 +83,11 @@ export function TopNav({
           <button
             className={styles.avatarBtn}
             onClick={() => setMenuOpen(true)}
-            aria-label="Apri menu profilo"
+            aria-label="Open profile menu"
             aria-haspopup="dialog"
             aria-expanded={menuOpen}
           >
-            {hasPhoto ? (
-              <img
-                src={user!.photoUrl!}
-                alt={user?.firstName ?? 'Profilo'}
-                className={styles.avatarImg}
-              />
-            ) : (
-              <span className={styles.avatarInitials}>{initials}</span>
-            )}
+            <span className={styles.avatarInitials}>{initials}</span>
           </button>
         )}
       </div>
