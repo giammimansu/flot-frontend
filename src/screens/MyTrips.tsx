@@ -4,6 +4,7 @@ import { MIcon, MSegment, MBtn } from '../components/ui';
 import { TripCard } from '../components/trips/TripCard';
 import { PushPrompt } from '../components/trips/PushPrompt';
 import { useAuth } from '../hooks/useAuth';
+import { useAirportStore } from '../stores/airportStore';
 import { getMyTrips, cancelTrip } from '../services/trips';
 import type { MyTripsResponse } from '../types/api';
 import styles from './MyTrips.module.css';
@@ -11,6 +12,7 @@ import styles from './MyTrips.module.css';
 export function MyTrips() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const airport = useAirportStore((s) => s.selectedAirport);
   const [trips, setTrips] = useState<MyTripsResponse['trips']>([]);
   const [tab, setTab] = useState<'attivi' | 'passati'>('attivi');
   const [loading, setLoading] = useState(true);
@@ -21,8 +23,8 @@ export function MyTrips() {
       // Sort desc by createdAt
       const sorted = data.trips.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
       setTrips(sorted);
-    } catch (e) {
-      console.error(e);
+    } catch {
+      // Silent fail — show empty state
     } finally {
       setLoading(false);
     }
@@ -38,8 +40,7 @@ export function MyTrips() {
       await cancelTrip(tripId);
       // Refresh list
       fetchTrips();
-    } catch (e) {
-      console.error('Failed to cancel', e);
+    } catch {
       alert('Impossibile cancellare il viaggio.');
     }
   };
@@ -51,7 +52,9 @@ export function MyTrips() {
     tab === 'attivi' ? activeStatuses.includes(t.status) : pastStatuses.includes(t.status)
   );
 
-  const totalSaved = trips.filter(t => t.status === 'completed' || t.status === 'unlocked').length * 60; // Mock calculation
+  const totalSaved = trips
+    .filter(t => t.status === 'completed' || t.status === 'unlocked')
+    .length * Math.round((airport?.baseFare ?? 12000) / 2 / 100);
   const totalCompleted = trips.filter(t => t.status === 'completed').length;
 
   const initials = user?.firstName ? user.firstName[0].toUpperCase() : 'U';

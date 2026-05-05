@@ -1,5 +1,5 @@
 import { lazy, Suspense, type ReactNode } from 'react';
-import { HashRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth } from './hooks/useAuth';
 import { Toast } from './components/ui';
@@ -30,10 +30,15 @@ const TripScheduled = lazy(() =>
 const MyTrips = lazy(() =>
   import('./screens/MyTrips').then((m) => ({ default: m.MyTrips }))
 );
-
-function Placeholder({ label }: { label: string }) {
-  return <div className={styles.placeholder}>{label}</div>;
-}
+const ConnectionUnlocked = lazy(() =>
+  import('./screens/ConnectionUnlocked').then((m) => ({ default: m.ConnectionUnlocked }))
+);
+const Profile = lazy(() =>
+  import('./screens/Profile').then((m) => ({ default: m.Profile }))
+);
+const IdentityVerification = lazy(() =>
+  import('./screens/IdentityVerification').then((m) => ({ default: m.IdentityVerification }))
+);
 
 function ScreenLoader() {
   return (
@@ -41,6 +46,22 @@ function ScreenLoader() {
       <div className={styles.loaderDot} />
     </div>
   );
+}
+
+function ProtectedRoute({ children }: { children: ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+  if (isLoading) {
+    return (
+      <div className={styles.loader}>
+        <div className={styles.loaderDot} />
+      </div>
+    );
+  }
+  if (!isAuthenticated) {
+    return <Navigate to="/" state={{ from: location }} replace />;
+  }
+  return <>{children}</>;
 }
 
 function wrap(node: ReactNode) {
@@ -76,11 +97,11 @@ export function App() {
             <Route path="/search" element={wrap(<ActiveSearch />)} />
             <Route path="/trip/:tripId" element={wrap(<TripScheduled />)} />
             <Route path="/match/:matchId" element={wrap(<MatchLocked />)} />
-            <Route path="/connection/:matchId" element={wrap(<Placeholder label="Connection Unlocked" />)} />
+            <Route path="/connection/:matchId" element={wrap(<ProtectedRoute><ConnectionUnlocked /></ProtectedRoute>)} />
             <Route path="/no-match" element={wrap(<NoMatchFound />)} />
-            <Route path="/verify" element={wrap(<Placeholder label="Identity Verification" />)} />
+            <Route path="/verify" element={wrap(<ProtectedRoute><IdentityVerification /></ProtectedRoute>)} />
             <Route path="/my-trips" element={wrap(<MyTrips />)} />
-            <Route path="/profile" element={wrap(<Placeholder label="Profile" />)} />
+            <Route path="/profile" element={wrap(<ProtectedRoute><Profile /></ProtectedRoute>)} />
           </Routes>
         </Suspense>
         <TabBarContainer />

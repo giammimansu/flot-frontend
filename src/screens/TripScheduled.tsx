@@ -34,14 +34,21 @@ export function TripScheduled() {
       await cancelTrip(tripStore.tripId);
       tripStore.reset();
       navigate('/my-trips');
-    } catch (e) {
-      console.error(e);
+    } catch {
       alert('Impossibile cancellare il viaggio.');
     }
   };
 
   const fromLabel = airport?.terminals.find((t) => t.code === tripStore.terminal)?.label || tripStore.terminal || 'Terminal';
   const toLabel = tripStore.destination || 'Destination';
+
+  const halfFareEur = Math.round((airport?.baseFare ?? 12000) / 2 / 100);
+  const savingsDisplay = new Intl.NumberFormat('it-IT', {
+    style: 'currency',
+    currency: airport?.currency ?? 'EUR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(halfFareEur);
 
   return (
     <div className={styles.screen}>
@@ -109,7 +116,7 @@ export function TripScheduled() {
             </div>
             <div className={styles.detailItem}>
               <div className={styles.detailIcon}><MIcon name="luggage" size={14} sw={2} /></div>
-              1 Bagaglio
+              {tripStore.luggage ?? 1} {(tripStore.luggage ?? 1) === 1 ? 'Bagaglio' : 'Bagagli'}
             </div>
           </div>
           <div className={styles.savingsStrip}>
@@ -117,7 +124,7 @@ export function TripScheduled() {
               <MIcon name="sparkles" size={16} sw={2} />
               Risparmio stimato
             </div>
-            <div className={styles.savingsValue}>~€60</div>
+            <div className={styles.savingsValue}>~{savingsDisplay}</div>
           </div>
         </div>
 

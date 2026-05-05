@@ -37,6 +37,7 @@ export function ActiveSearch() {
     ?.live_search_timeout_sec ?? airport?.searchTimeoutSec ?? 180;
   const [mi, setMi] = useState(0);
   const [proModalOpen, setProModalOpen] = useState(false);
+  const [wsError, setWsError] = useState(false);
 
   const onCountdownComplete = useCallback(() => {
     // Trip stays in pool (live_pool_ttl_sec) — only hide UI
@@ -59,7 +60,7 @@ export function ActiveSearch() {
 
   // WebSocket: navigate on match_found
   useEffect(() => {
-    ws.on('match_found', (data) => {
+    const unsub = ws.on('match_found', (data) => {
       setMatch({
         matchId: data.matchId,
         status: 'pending',
@@ -70,6 +71,15 @@ export function ActiveSearch() {
       });
       navigate(`/match/${data.matchId}`, { replace: true });
     });
+    return unsub;
+    // ws is a stable singleton reference
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Surface WebSocket connection errors so user isn’t stuck on spinning radar
+  useEffect(() => {
+    const unsub = ws.on('error' as never, () => setWsError(true));
+    return unsub;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -92,6 +102,28 @@ export function ActiveSearch() {
 
   const fromLabel = tripTerminal ?? airport?.name ?? 'Airport';
   const toLabel = tripDestination ?? airport?.city ?? 'Destination';
+
+  if (wsError) {
+    return (
+      <div className={styles.screen}>
+        <div className={styles.topNav}>
+          <div className={styles.brand}>
+            <div className={styles.brandDot} />
+            <span className={styles.brandText}>FLOT</span>
+          </div>
+        </div>
+        <div className={styles.statusBlock} style={{ marginTop: '80px' }}>
+          <h2 className={styles.statusTitle}>Connection lost</h2>
+          <p className={styles.statusMsg}>We couldn't connect to the matching service.</p>
+        </div>
+        <div className={styles.cancelWrap}>
+          <button type="button" className={styles.cancelBtn} onClick={handleCancel}>
+            Go back
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.screen}>

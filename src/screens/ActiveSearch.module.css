@@ -106,7 +106,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-pill);
-  background: radial-gradient(circle at center, rgba(254, 243, 199, 0.8) 0%, rgba(250, 250, 250, 0) 68%);
+  background: radial-gradient(circle at center, rgba(254, 243, 199, 0.8) 0%, transparent 68%);
 }
 .radarRing {
   position: absolute;
@@ -123,7 +123,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 0 12px rgba(245, 158, 11, 0.12), 0 12px 32px rgba(245, 158, 11, 0.30);
+  box-shadow: 0 0 0 12px rgba(245, 158, 11, 0.12), 0 12px 32px var(--amber-glow);
   position: relative;
   z-index: 2;
 }
@@ -182,8 +182,8 @@
   width: 32px;
   height: 32px;
   border-radius: var(--radius-pill);
-  background: #EFF6FF;
-  color: #3B82F6;
+  background: var(--success-soft);
+  color: var(--success);
   display: flex;
   align-items: center;
   justify-content: center;

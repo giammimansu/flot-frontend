@@ -1,4 +1,4 @@
-.screen {
+﻿.screen {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
@@ -36,7 +36,7 @@
 .kickerText {
   font-size: 13px;
   font-weight: var(--fw-semibold);
-  color: #92400E;
+  color: var(--amber-pressed);
 }
 
 /* Headline */
@@ -70,7 +70,7 @@
   text-wrap: pretty;
 }
 
-/* ── Live Savings Counter ── */
+/* â”€â”€ Live Savings Counter â”€â”€ */
 .savingsCard {
   margin: var(--space-5) var(--space-5) 0;
   padding: 16px 18px;
@@ -97,7 +97,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #15803D;
+  color: var(--success);
   flex-shrink: 0;
 }
 
@@ -155,7 +155,7 @@
   margin-top: 4px;
 }
 
-/* ── How it works ── */
+/* â”€â”€ How it works â”€â”€ */
 .howCard {
   margin: var(--space-5) var(--space-5) 0;
   padding: 14px 16px;
@@ -188,7 +188,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #92400E;
+  color: var(--amber-pressed);
   flex-shrink: 0;
 }
 
@@ -200,7 +200,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #15803D;
+  color: var(--success);
   flex-shrink: 0;
 }
 
@@ -243,7 +243,7 @@
   margin: 3px 0 3px 17px;
 }
 
-/* ── Match Carousel ── */
+/* â”€â”€ Match Carousel â”€â”€ */
 .carouselOuter {
   margin: var(--space-4) var(--space-5) 0;
 }
@@ -281,7 +281,7 @@
   font-family: var(--font-body);
   font-size: 10px;
   font-weight: 600;
-  color: #92400E;
+  color: var(--amber-pressed);
   letter-spacing: 0.07em;
   text-transform: uppercase;
 }
@@ -335,7 +335,7 @@
   font-family: var(--font-body);
   font-size: 12px;
   font-weight: 500;
-  color: #92400E;
+  color: var(--amber-pressed);
   margin-top: 2px;
 }
 
@@ -397,7 +397,7 @@
   width: 14px;
 }
 
-/* ── Pricing hook ── */
+/* â”€â”€ Pricing hook â”€â”€ */
 .pricingHook {
   font-family: var(--font-body);
   font-size: 12px;
@@ -418,7 +418,7 @@
   font-weight: 700;
 }
 
-/* ── Guarantee banner ── */
+/* â”€â”€ Guarantee banner â”€â”€ */
 .guaranteeBanner {
   margin: var(--space-4) var(--space-5) 0;
   padding: 14px 16px;
@@ -457,7 +457,7 @@
   margin-top: 2px;
 }
 
-/* ── Auth section ── */
+/* â”€â”€ Auth section â”€â”€ */
 .authSection {
   padding: var(--space-4) var(--space-5) 0;
   display: flex;

@@ -15,6 +15,7 @@ interface TripState {
   error: string | null;
   terminal: string | null;
   destination: string | null;
+  luggage: number | null;
   draftDestination: TripDestination | null;
 
   /** Full trip object from POST /trips response */
@@ -46,6 +47,7 @@ export const useTripStore = create<TripState>()(
       error: null,
       terminal: null,
       destination: null,
+      luggage: null,
       draftDestination: null,
       currentTrip: null,
       myTrips: [],
@@ -71,6 +73,7 @@ export const useTripStore = create<TripState>()(
             status: 'searching',
             terminal: data.terminal,
             destination: data.destination,
+            luggage: data.luggage,
             currentTrip: trip,
             preferredMode: data.mode,
           });
@@ -124,6 +127,7 @@ export const useTripStore = create<TripState>()(
           error: null,
           terminal: null,
           destination: null,
+          luggage: null,
           draftDestination: null,
           currentTrip: null,
         }),
@@ -135,6 +139,7 @@ export const useTripStore = create<TripState>()(
           error: null,
           terminal: null,
           destination: null,
+          luggage: null,
           draftDestination: null,
           currentTrip: null,
         }),

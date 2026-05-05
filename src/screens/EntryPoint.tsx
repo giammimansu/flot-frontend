@@ -10,7 +10,6 @@ import { useCarousel } from '../hooks/useCarousel';
 import styles from './EntryPoint.module.css';
 
 const isDevBypass = !import.meta.env.VITE_COGNITO_USER_POOL_ID;
-const STATS_AIRPORT = 'MXP';
 const STATS_TIMEOUT_MS = 2000;
 
 function GoogleIcon() {
@@ -224,12 +223,13 @@ export function EntryPoint() {
   const [weeklyMatches, setWeeklyMatches] = useState<number | null>(null);
 
   useEffect(() => {
+    const statsAirport = selectedAirport?.code ?? 'MXP';
     let cancelled = false;
     const timer = setTimeout(() => {
       if (!cancelled) setSavingsCents(null);
     }, STATS_TIMEOUT_MS);
 
-    fetchAirportStats(STATS_AIRPORT)
+    fetchAirportStats(statsAirport)
       .then((stats) => {
         clearTimeout(timer);
         if (!cancelled) {
@@ -245,7 +245,7 @@ export function EntryPoint() {
       cancelled = true;
       clearTimeout(timer);
     };
-  }, []);
+  }, [selectedAirport?.code]);
 
   const handleLogin = useCallback(
     (provider: 'Google' | 'Apple') => {
