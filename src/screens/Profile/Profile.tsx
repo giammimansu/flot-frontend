@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { TopNav } from '../../components/layout/TopNav';
 import { TabBar } from '../../components/layout/TabBar';
 import { HomeIndicator } from '../../components/layout/HomeIndicator';
+import { InstallPrompt } from '../../components/ui/InstallPrompt';
 import { useAuthStore } from '../../stores/authStore';
 import { getMe } from '../../services/users';
 import type { User } from '../../types/api';
@@ -129,6 +130,9 @@ export function Profile() {
             </div>
           </div>
         </div>
+
+        {/* Install prompt */}
+        <InstallPrompt className={styles.installPrompt} />
 
         {/* Notifications */}
         <div className={styles.sectionLabel}>Notifications</div>

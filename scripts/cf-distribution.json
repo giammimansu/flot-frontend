@@ -1,0 +1,53 @@
+{
+  "CallerReference": "flot-frontend-dev-2026",
+  "Comment": "Flot Frontend (dev)",
+  "DefaultRootObject": "index.html",
+  "Origins": {
+    "Quantity": 1,
+    "Items": [
+      {
+        "Id": "S3FrontendOrigin",
+        "DomainName": "flot-frontend-dev.s3.eu-south-1.amazonaws.com",
+        "S3OriginConfig": {
+          "OriginAccessIdentity": ""
+        },
+        "OriginAccessControlId": "E2Q65RH5X68VR8"
+      }
+    ]
+  },
+  "DefaultCacheBehavior": {
+    "TargetOriginId": "S3FrontendOrigin",
+    "ViewerProtocolPolicy": "redirect-to-https",
+    "CachePolicyId": "658327ea-f89d-4fab-a63d-7e88639e58f6",
+    "Compress": true,
+    "AllowedMethods": {
+      "Quantity": 2,
+      "Items": ["HEAD", "GET"],
+      "CachedMethods": {
+        "Quantity": 2,
+        "Items": ["HEAD", "GET"]
+      }
+    }
+  },
+  "CustomErrorResponses": {
+    "Quantity": 2,
+    "Items": [
+      {
+        "ErrorCode": 403,
+        "ResponsePagePath": "/index.html",
+        "ResponseCode": "200",
+        "ErrorCachingMinTTL": 0
+      },
+      {
+        "ErrorCode": 404,
+        "ResponsePagePath": "/index.html",
+        "ResponseCode": "200",
+        "ErrorCachingMinTTL": 0
+      }
+    ]
+  },
+  "HttpVersion": "http2and3",
+  "IsIPV6Enabled": true,
+  "PriceClass": "PriceClass_All",
+  "Enabled": true
+}

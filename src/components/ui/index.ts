@@ -11,3 +11,4 @@ export { DrumPicker } from './DrumPicker';
 export type { DrumPickerProps, DrumPickerColumn } from './DrumPicker';
 export { MDateTimePicker } from './MDateTimePicker';
 export { Toast } from './Toast';
+export { InstallPrompt } from './InstallPrompt';

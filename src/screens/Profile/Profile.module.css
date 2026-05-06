@@ -233,3 +233,5 @@
   color: var(--ink-subtle);
   padding: var(--space-2) 0;
 }
+
+.installPrompt { margin: var(--space-4) var(--space-5) 0; }

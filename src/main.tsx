@@ -15,3 +15,9 @@ createRoot(rootEl).render(
     <App />
   </StrictMode>,
 );
+
+// Remove inline app-shell once React has painted
+requestAnimationFrame(() => {
+  const shell = document.getElementById('app-shell');
+  if (shell) shell.remove();
+});

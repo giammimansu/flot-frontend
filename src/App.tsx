@@ -1,9 +1,11 @@
-import { lazy, Suspense, type ReactNode } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { lazy, Suspense, useEffect, type ReactNode } from 'react';
+import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth, useAuthInit } from './hooks/useAuth';
 import { Toast } from './components/ui';
 import { TabBar } from './components/layout/TabBar';
+import { setupForegroundNotifications } from './services/pushNotifications';
+import { useNotificationStore } from './stores/notificationStore';
 import styles from './App.module.css';
 
 const EntryPoint = lazy(() =>
@@ -73,11 +75,52 @@ function AuthInit() {
   return null;
 }
 
+function ForegroundNotifications() {
+  const { isAuthenticated } = useAuth();
+  const showToast = useNotificationStore((s) => s.showToast);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    // Listen for FCM foreground messages
+    const unsubscribe = setupForegroundNotifications(({ title, body, matchId, tripId }) => {
+      showToast({
+        title,
+        body,
+        onClick: () => {
+          if (matchId) navigate(`/match/${matchId}`);
+          else if (tripId) navigate(`/trip/${tripId}`);
+        },
+      });
+    });
+
+    // Listen for navigation messages from background SW notificationclick
+    function handleSwMessage(event: MessageEvent) {
+      if (event.data?.type === 'NOTIFICATION_CLICK' && event.data.path) {
+        // path is like /#/match/123 — strip hash prefix for navigate()
+        const path = (event.data.path as string).replace(/^\/#/, '');
+        navigate(path);
+      }
+    }
+    navigator.serviceWorker?.addEventListener('message', handleSwMessage);
+
+    return () => {
+      unsubscribe();
+      navigator.serviceWorker?.removeEventListener('message', handleSwMessage);
+    };
+  }, [isAuthenticated, navigate, showToast]);
+
+  return null;
+}
+
 function TabBarContainer() {
   const location = useLocation();
+  const { isAuthenticated } = useAuth();
   const showTabPaths = ['/check-in', '/my-trips', '/profile'];
   const isTrip = location.pathname.startsWith('/trip/');
-  if (showTabPaths.includes(location.pathname) || isTrip) {
+  const isHome = location.pathname === '/' || location.pathname === '';
+  if (showTabPaths.includes(location.pathname) || isTrip || (isHome && isAuthenticated)) {
     return <TabBar />;
   }
   return null;
@@ -88,6 +131,7 @@ export function App() {
     <HashRouter>
       <ErrorBoundary>
         <AuthInit />
+        <ForegroundNotifications />
         <Toast />
         <Suspense fallback={<ScreenLoader />}>
           <Routes>

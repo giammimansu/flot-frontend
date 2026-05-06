@@ -1,0 +1,68 @@
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) 0;
+}
+
+.iconWrap {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--amber-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.iconAmber {
+  color: var(--amber);
+}
+
+.iconSuccess {
+  color: var(--success);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  line-height: var(--lh-normal);
+}
+
+.sub {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--ink-muted);
+  line-height: var(--lh-normal);
+}
+
+.cta {
+  width: 100%;
+}

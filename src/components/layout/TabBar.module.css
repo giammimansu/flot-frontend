@@ -3,13 +3,13 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 80px;
+  height: 64px;
   background-color: var(--surface-0);
   border-top: 1px solid var(--border-subtle);
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding-bottom: env(safe-area-inset-bottom, 16px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   z-index: 100;
 }
 
@@ -22,8 +22,8 @@
   text-decoration: none;
   width: 33%;
   height: 100%;
-  transition: color 0.2s;
-  gap: 4px;
+  gap: 3px;
+  transition: color 0.15s;
 }
 
 .tab:hover {
@@ -35,7 +35,8 @@
 }
 
 .label {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 600;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
 }

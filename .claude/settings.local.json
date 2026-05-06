@@ -8,7 +8,10 @@
       "Bash(npm ls *)",
       "Bash(node -e \"const {Loader} = require\\('@googlemaps/js-api-loader'\\); const l = new Loader\\({apiKey:'test',version:'weekly'}\\); console.log\\(Object.getOwnPropertyNames\\(Object.getPrototypeOf\\(l\\)\\).join\\(','\\)\\)\")",
       "Bash(node -e \"const pkg = require\\('@googlemaps/js-api-loader'\\); console.log\\(Object.keys\\(pkg\\)\\)\")",
-      "WebFetch(domain:api.anthropic.com)"
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(node -e \"require\\('sharp'\\)\")",
+      "Bash(node scripts/generate-icons.mjs)",
+      "Bash(node -e ' *)"
     ]
   }
 }

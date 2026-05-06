@@ -244,7 +244,7 @@ export function EntryPoint() {
   }
 
   return (
-    <div className={styles.screen}>
+    <div className={`${styles.screen} ${isAuthenticated ? styles.screenWithTabBar : ''}`}>
       {/* ── NAV ── */}
       <nav className={styles.nav}>
         <div className={`${styles.wrap} ${styles.navInner}`}>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>FLOT — No Connection</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <style>
+    /* Inlined design tokens — standalone page, no Vite build */
+    :root {
+      --surface-0: #FAFAFA;
+      --surface-1: #FFFFFF;
+      --surface-2: #F1F5F9;
+      --ink: #0F172A;
+      --ink-muted: #475569;
+      --ink-subtle: #94A3B8;
+      --hairline: #E2E8F0;
+      --amber: #F59E0B;
+      --amber-soft: #FEF3C7;
+      --success: #16A34A;
+      --success-soft: #DCFCE7;
+      --font-display: 'Bricolage Grotesque', 'Inter', system-ui, -apple-system, sans-serif;
+      --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-pill: 999px;
+      --shadow-card: 0 1px 2px rgba(15,23,42,0.04), 0 4px 12px rgba(15,23,42,0.06);
+      --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: var(--font-body);
+      background: var(--surface-0);
+      color: var(--ink);
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 20px env(safe-area-inset-bottom, 0px);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 390px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      animation: fadeUp 400ms var(--ease-out) both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Logo */
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--amber);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.85); }
+    }
+    .logo-wordmark {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: -0.02em;
+    }
+
+    /* Icon circle */
+    .icon-wrap {
+      width: 88px;
+      height: 88px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-wrap svg {
+      color: var(--ink-subtle);
+    }
+
+    /* Text */
+    h1 {
+      font-family: var(--font-display);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--ink);
+      margin: 0;
+      text-align: center;
+    }
+    .subtitle {
+      font-size: 14px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+      text-align: center;
+      margin: 0;
+    }
+
+    /* Card */
+    .card {
+      width: 100%;
+      background: var(--surface-1);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      box-shadow: var(--shadow-card);
+    }
+    .card-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--ink-subtle);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .tip-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .tip-row:last-child { border-bottom: none; }
+    .tip-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--surface-2);
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--ink-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .tip-text {
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.4;
+    }
+
+    /* CTA button */
+    .btn {
+      width: 100%;
+      height: 52px;
+      border-radius: var(--radius-md);
+      background: var(--amber);
+      border: none;
+      color: #FFFFFF;
+      font-family: var(--font-body);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 120ms ease, transform 120ms ease;
+    }
+    .btn:active {
+      background: #D97706;
+      transform: scale(0.98);
+    }
+
+    /* Version */
+    .version {
+      font-size: 11px;
+      color: var(--ink-subtle);
+      text-align: center;
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="container">
+
+    <div class="logo">
+      <div class="logo-dot"></div>
+      <span class="logo-wordmark">FLOT</span>
+    </div>
+
+    <div class="icon-wrap">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="1" y1="1" x2="23" y2="23"/>
+        <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/>
+        <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/>
+        <path d="M10.71 5.05A16 16 0 0 1 22.56 9"/>
+        <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"/>
+        <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+        <line x1="12" y1="20" x2="12.01" y2="20"/>
+      </svg>
+    </div>
+
+    <h1>You're offline</h1>
+    <p class="subtitle">
+      No internet connection detected. FLOT needs a connection to find your ride partner.
+    </p>
+
+    <div class="card">
+      <div class="card-label">What you can do</div>
+      <div class="tip-row">
+        <div class="tip-num">1</div>
+        <div class="tip-text">Check your Wi-Fi or mobile data</div>
+      </div>
+      <div class="tip-row">
+        <div class="tip-num">2</div>
+        <div class="tip-text">Move to an area with better signal</div>
+      </div>
+      <div class="tip-row">
+        <div class="tip-num">3</div>
+        <div class="tip-text">Tap retry once connected — your trip details are saved</div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="window.location.reload()">
+      Try again
+    </button>
+
+    <div class="version">FLOT · Made in Milano</div>
+
+  </div>
+</body>
+</html>

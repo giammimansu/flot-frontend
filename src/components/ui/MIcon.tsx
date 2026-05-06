@@ -1,6 +1,7 @@
 import type { JSX } from 'react';
 
 export type IconName =
+  | 'home'
   | 'plane-landing'
   | 'users'
   | 'luggage'
@@ -44,6 +45,12 @@ interface MIconProps {
 }
 
 const iconPaths: Record<IconName, JSX.Element> = {
+  home: (
+    <g>
+      <path d="M3 9.5 12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1z" />
+      <path d="M9 21V12h6v9" />
+    </g>
+  ),
   'plane-landing': (
     <g>
       <path d="M2 22h20" />

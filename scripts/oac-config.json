@@ -1,0 +1,7 @@
+{
+  "Name": "flot-frontend-oac",
+  "Description": "OAC for Flot Frontend",
+  "OriginAccessControlOriginType": "s3",
+  "SigningBehavior": "always",
+  "SigningProtocol": "sigv4"
+}

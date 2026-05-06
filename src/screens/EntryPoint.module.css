@@ -7,6 +7,10 @@
   -webkit-font-smoothing: antialiased;
 }
 
+.screenWithTabBar {
+  padding-bottom: 64px;
+}
+
 .wrap {
   max-width: 1280px;
   margin: 0 auto;
