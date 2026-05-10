@@ -8,7 +8,7 @@
 }
 
 .screenWithTabBar {
-  padding-bottom: 64px;
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
 }
 
 .wrap {

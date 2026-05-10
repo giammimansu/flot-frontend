@@ -3,12 +3,15 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { MIcon, ComingSoonModal } from '../components/ui';
+import { TopNav } from '../components/layout/TopNav';
 import { useAirportStore } from '../stores/airportStore';
 import { useTripStore } from '../stores/tripStore';
 import { useMatchStore } from '../stores/matchStore';
-import { fetchMatch, unlockTrip } from '../services/matches';
+import { useAuthStore } from '../stores/authStore';
+import { fetchMatch, unlockTrip, declineMatch } from '../services/matches';
+import { fetchUser } from '../services/users';
 import { formatCurrency } from '../lib/formatters';
-import type { LockedMatch, MatchResponse } from '../types/api';
+import type { LockedMatch, MatchResponse, PublicUser } from '../types/api';
 import styles from './MatchLocked.module.css';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY as string);
@@ -83,14 +86,17 @@ export function MatchLocked() {
   const tripId = useTripStore((s) => s.tripId);
   const cachedMatch = useMatchStore((s) => s.currentMatch);
   const setMatch = useMatchStore((s) => s.setMatch);
+  const currentUser = useAuthStore((s) => s.user);
 
   const [match, setLocalMatch] = useState<MatchResponse | null>(
     cachedMatch && cachedMatch.matchId === matchId ? cachedMatch : null,
   );
+  const [partner, setPartner] = useState<PublicUser | null>(null);
   const [loading, setLoading] = useState(!match);
   const [error, setError] = useState<string | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
+  const [declining, setDeclining] = useState(false);
   const [paymentData, setPaymentData] = useState<{ clientSecret: string; amount: number; currency: string } | null>(null);
 
   // Fetch match
@@ -111,9 +117,17 @@ export function MatchLocked() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [matchId]);
 
+  // Fetch partner profile — runs whenever match or currentUser resolves
+  useEffect(() => {
+    if (!match || match.status !== 'pending' || !currentUser) return;
+    const partnerUserId = match.userId1 === currentUser.userId ? match.userId2 : match.userId1;
+    fetchUser(partnerUserId)
+      .then(setPartner)
+      .catch(() => { /* non-blocking */ });
+  }, [match, currentUser]);
+
   const currency = airport?.currency ?? 'EUR';
-  const unlockFeeCents = airport?.unlockFee ?? 99;
-  const savingsCents = isLocked(match) ? Math.round(match.savings * 100) : 0;
+  const savingsCents = isLocked(match) && match.savings ? Math.round(match.savings * 100) : 0;
 
   const handleUnlock = async () => {
     if (!matchId || !tripId || unlocking) return;
@@ -138,6 +152,18 @@ export function MatchLocked() {
     }
   };
 
+  const handleDecline = async () => {
+    if (!matchId || declining) return;
+    setDeclining(true);
+    try {
+      await declineMatch(matchId);
+      navigate('/my-trips', { replace: true });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Decline failed');
+      setDeclining(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className={styles.screen}>
@@ -150,12 +176,7 @@ export function MatchLocked() {
   if (error && !match) {
     return (
       <div className={styles.screen}>
-        <div className={styles.topNav}>
-          <div className={styles.brand}>
-            <div className={styles.brandDot} />
-            <span className={styles.brandText}>FLOT</span>
-          </div>
-        </div>
+        <TopNav showLogo showBack />
         <div className={styles.errorBox}>{error}</div>
       </div>
     );
@@ -167,21 +188,22 @@ export function MatchLocked() {
     return null;
   }
 
-  const partner = match.partner;
-  const initial = partner.firstName?.[0]?.toUpperCase() ?? '?';
+  // Derive partner trip from match structure
+  const partnerTrip = currentUser
+    ? (match.userId1 === currentUser.userId ? match.trip2 : match.trip1)
+    : match.trip2;
+  const partnerFirstName = partner?.firstName ?? '?';
+  const initial = partnerFirstName[0]?.toUpperCase() ?? '?';
+  const partnerDestination = partnerTrip?.destination ?? '—';
 
   return (
     <div className={styles.screen}>
-      <div className={styles.topNav}>
-        <div className={styles.brand}>
-          <div className={styles.brandDot} />
-          <span className={styles.brandText}>FLOT</span>
-        </div>
+      <TopNav showLogo showBack right={
         <span className={styles.foundPill}>
           <span className={styles.foundDot} />
           Match found
         </span>
-      </div>
+      } />
 
       <div className={styles.glow}>
         <div className={styles.glowOuter}>
@@ -204,14 +226,16 @@ export function MatchLocked() {
         <div className={styles.valueGrid}>
           <div className={styles.valueTile}>
             <div className={styles.valueLabel}>Destination</div>
-            <div className={styles.valueDest}>{partner.destination}</div>
+            <div className={styles.valueDest}>{partnerDestination}</div>
           </div>
-          <div className={styles.valueTileSavings}>
-            <div className={styles.valueLabelSavings}>You save</div>
-            <div className={styles.valueSavings}>
-              {formatCurrency(savingsCents, currency)}
+          {savingsCents > 0 && (
+            <div className={styles.valueTileSavings}>
+              <div className={styles.valueLabelSavings}>You save</div>
+              <div className={styles.valueSavings}>
+                {formatCurrency(savingsCents, currency)}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className={styles.partnerCard}>
@@ -222,13 +246,15 @@ export function MatchLocked() {
             </div>
           </div>
           <div className={styles.partnerInfo}>
-            <div className={styles.partnerName}>{partner.firstName}</div>
+            <div className={styles.partnerName}>{partnerFirstName}</div>
             <div className={styles.partnerDest}>
-              Heading to {partner.destination}
+              Heading to {partnerDestination}
             </div>
-            <span className={styles.partnerSavings}>
-              Saves {formatCurrency(savingsCents, currency)} together
-            </span>
+            {savingsCents > 0 && (
+              <span className={styles.partnerSavings}>
+                Saves {formatCurrency(savingsCents, currency)} together
+              </span>
+            )}
           </div>
           <div className={styles.lockBadge}>
             <MIcon name="eye" size={16} sw={2} />
@@ -242,7 +268,7 @@ export function MatchLocked() {
           disabled={unlocking}
         >
           <MIcon name="zap" size={20} sw={2} />
-          {unlocking ? 'Unlocking…' : `Unlock for ${formatCurrency(unlockFeeCents, currency)}`}
+          {unlocking ? 'Unlocking…' : 'Unlock for €0.99'}
         </button>
 
         {error && <div className={styles.errorBox}>{error}</div>}
@@ -250,6 +276,15 @@ export function MatchLocked() {
         <div className={styles.unlockNote}>
           One-time unlock · no subscription required
         </div>
+
+        <button
+          type="button"
+          className={styles.declineBtn}
+          onClick={handleDecline}
+          disabled={declining || unlocking}
+        >
+          {declining ? 'Declining…' : 'Decline match'}
+        </button>
       </div>
 
       <ComingSoonModal

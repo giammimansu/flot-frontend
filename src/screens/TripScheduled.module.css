@@ -374,3 +374,25 @@
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+
+.cancelSheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  padding-bottom: calc(88px + var(--space-5) + env(safe-area-inset-bottom, 0px));
+}
+
+.cancelTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink-default);
+  margin: 0;
+}
+
+.cancelSub {
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+  margin: 0 0 var(--space-2);
+}

@@ -119,8 +119,9 @@ function TabBarContainer() {
   const { isAuthenticated } = useAuth();
   const showTabPaths = ['/check-in', '/my-trips', '/profile'];
   const isTrip = location.pathname.startsWith('/trip/');
+  const isMatch = location.pathname.startsWith('/match/') || location.pathname.startsWith('/connection/');
   const isHome = location.pathname === '/' || location.pathname === '';
-  if (showTabPaths.includes(location.pathname) || isTrip || (isHome && isAuthenticated)) {
+  if (showTabPaths.includes(location.pathname) || isTrip || isMatch || (isHome && isAuthenticated)) {
     return <TabBar />;
   }
   return null;

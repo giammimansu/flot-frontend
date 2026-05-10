@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { MIcon, MSegment, MBtn } from '../components/ui';
+import { BottomSheet } from '../components/ui/BottomSheet';
 import { TripCard } from '../components/trips/TripCard';
 import { PushPrompt } from '../components/trips/PushPrompt';
 import { useAuth } from '../hooks/useAuth';
@@ -11,12 +12,16 @@ import styles from './MyTrips.module.css';
 
 export function MyTrips() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const cancelledTripId = (location.state as { cancelledTripId?: string } | null)?.cancelledTripId;
   const { user } = useAuth();
   const airport = useAirportStore((s) => s.selectedAirport);
   const [trips, setTrips] = useState<MyTripsResponse['trips']>([]);
   const [tab, setTab] = useState<'active' | 'past'>('active');
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [cancelTripId, setCancelTripId] = useState<string | null>(null);
+  const [cancelling, setCancelling] = useState(false);
 
   const fetchTrips = async () => {
     setFetchError(null);
@@ -24,7 +29,10 @@ export function MyTrips() {
       const data = await getMyTrips();
       // Sort desc by createdAt
       const sorted = data.trips.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-      setTrips(sorted);
+      const patched = cancelledTripId
+        ? sorted.map(t => t.tripId === cancelledTripId ? { ...t, status: 'cancelled' as const } : t)
+        : sorted;
+      setTrips(patched);
     } catch (err) {
       console.error('getMyTrips failed:', err);
       setFetchError('Could not load trips. Please try again.');
@@ -37,14 +45,23 @@ export function MyTrips() {
     fetchTrips();
   }, []);
 
-  const handleCancel = async (tripId: string) => {
-    if (!window.confirm('Cancel this booking?')) return;
+  const handleCancel = (tripId: string) => {
+    setCancelTripId(tripId);
+  };
+
+  const confirmCancel = async () => {
+    if (!cancelTripId) return;
+    const idToCancel = cancelTripId;
+    setCancelling(true);
     try {
-      await cancelTrip(tripId);
-      // Refresh list
+      await cancelTrip(idToCancel);
+      setTrips(prev => prev.map(t => t.tripId === idToCancel ? { ...t, status: 'cancelled' } : t));
+      setCancelTripId(null);
       fetchTrips();
     } catch {
-      alert('Could not cancel the trip.');
+      setCancelTripId(null);
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -141,6 +158,22 @@ export function MyTrips() {
       <button className={styles.fab} onClick={() => navigate('/check-in')}>
         <MIcon name="plus" size={26} sw={2.5} />
       </button>
+
+      <BottomSheet
+        open={!!cancelTripId}
+        onClose={() => setCancelTripId(null)}
+        aria-label="Cancel booking"
+      >
+        <div className={styles.cancelSheet}>
+          <h2 className={styles.cancelTitle}>Vuoi davvero cancellare il viaggio?</h2>
+          <MBtn variant="dark" onClick={confirmCancel} loading={cancelling}>
+            Sì
+          </MBtn>
+          <MBtn variant="secondary" onClick={() => setCancelTripId(null)} disabled={cancelling}>
+            No
+          </MBtn>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

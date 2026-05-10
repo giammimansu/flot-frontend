@@ -29,6 +29,7 @@ export function TripCard({ trip, onCancelClick }: TripCardProps) {
   const isMatched = trip.status === 'matched';
   const isUnlocked = trip.status === 'unlocked';
   const isScheduled = trip.status === 'scheduled';
+  const isCancelled = trip.status === 'cancelled';
 
   // For MVP, hardcode ~ savings or pull from stats if unlocked/completed
   const savingsAmount = isCompleted || isUnlocked ? '€60' : '~€60';
@@ -52,49 +53,51 @@ export function TripCard({ trip, onCancelClick }: TripCardProps) {
         </div>
       </div>
 
-      <div className={styles.divider} />
+      {!isCancelled && <>
+        <div className={styles.divider} />
 
-      <div className={styles.footerRow}>
-        <div className={styles.partnerInfo}>
-          {(isMatched || isUnlocked || isCompleted) ? (
+        <div className={styles.footerRow}>
+          <div className={styles.partnerInfo}>
+            {(isMatched || isUnlocked || isCompleted) ? (
+              <>
+                <div className={styles.partnerAvatar}>P</div>
+                <div className={styles.partnerText}>Match {isUnlocked ? 'Sbloccato' : 'Trovato'}</div>
+              </>
+            ) : (
+              <>
+                <div className={styles.partnerAvatar}>?</div>
+                <div className={styles.partnerText}>In attesa di match...</div>
+              </>
+            )}
+          </div>
+          <div className={`${styles.savings} ${!isMatched && !isUnlocked && !isCompleted ? styles.empty : ''}`}>
+            {isMatched || isUnlocked || isCompleted ? `-${savingsAmount}` : '---'}
+          </div>
+        </div>
+
+        <div className={styles.ctaRow}>
+          {isScheduled && onCancelClick && (
             <>
-              <div className={styles.partnerAvatar}>P</div>
-              <div className={styles.partnerText}>Match {isUnlocked ? 'Sbloccato' : 'Trovato'}</div>
-            </>
-          ) : (
-            <>
-              <div className={styles.partnerAvatar}>?</div>
-              <div className={styles.partnerText}>In attesa di match...</div>
+              <MBtn variant="ghost" small onClick={() => onCancelClick(trip.tripId)}>
+                Cancella
+              </MBtn>
+              <MBtn variant="outline" small onClick={() => navigate(`/trip/${trip.tripId}`)} icon="arrow-right">
+                Dettagli
+              </MBtn>
             </>
           )}
-        </div>
-        <div className={`${styles.savings} ${!isMatched && !isUnlocked && !isCompleted ? styles.empty : ''}`}>
-          {isMatched || isUnlocked || isCompleted ? `-${savingsAmount}` : '---'}
-        </div>
-      </div>
-
-      <div className={styles.ctaRow}>
-        {isScheduled && onCancelClick && (
-          <>
-            <MBtn variant="ghost" small onClick={() => onCancelClick(trip.tripId)}>
-              Cancella
+          {isMatched && trip.matchId && (
+            <MBtn variant="primary" small onClick={() => handleViewMatch()} icon="arrow-right">
+              Vedi match
             </MBtn>
-            <MBtn variant="outline" small onClick={() => navigate(`/trip/${trip.tripId}`)} icon="arrow-right">
-              Dettagli
+          )}
+          {isUnlocked && (
+            <MBtn variant="primary" small onClick={() => handleOpenChat()} icon="message-circle">
+              Apri chat
             </MBtn>
-          </>
-        )}
-        {isMatched && (
-          <MBtn variant="primary" small onClick={() => handleViewMatch()} icon="arrow-right">
-            Vedi match
-          </MBtn>
-        )}
-        {isUnlocked && (
-          <MBtn variant="primary" small onClick={() => handleOpenChat()} icon="message-circle">
-            Apri chat
-          </MBtn>
-        )}
-      </div>
+          )}
+        </div>
+      </>}
     </div>
   );
 }

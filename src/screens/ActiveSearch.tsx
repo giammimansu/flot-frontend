@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { MIcon, ComingSoonModal } from '../components/ui';
 import { useAirportStore } from '../stores/airportStore';
 import { useTripStore } from '../stores/tripStore';
-import { useMatchStore } from '../stores/matchStore';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useCountdown } from '../hooks/useCountdown';
 import { patchTrip } from '../services/trips';
@@ -30,7 +29,6 @@ export function ActiveSearch() {
   const tripTerminal = useTripStore((s) => s.terminal);
   const tripDestination = useTripStore((s) => s.destination);
   const resetTrip = useTripStore((s) => s.reset);
-  const setMatch = useMatchStore((s) => s.setMatch);
   const ws = useWebSocket();
 
   const timeoutSec = (airport as (typeof airport & { live_search_timeout_sec?: number }) | null)
@@ -61,14 +59,8 @@ export function ActiveSearch() {
   // WebSocket: navigate on match_found
   useEffect(() => {
     const unsub = ws.on('match_found', (data) => {
-      setMatch({
-        matchId: data.matchId,
-        status: 'pending',
-        score: 0,
-        savings: 0,
-        partner: data.partner,
-        unlockedBy: [],
-      });
+      // Navigate immediately — MatchLocked fetches full data from API
+
       navigate(`/match/${data.matchId}`, { replace: true });
     });
     return unsub;

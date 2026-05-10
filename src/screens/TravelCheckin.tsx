@@ -307,9 +307,12 @@ export function TravelCheckin() {
         {/* 5. Luggage */}
         <div className={styles.formSectionSm}>
           <div className={styles.stepperCard}>
-            <div className={styles.stepperHeader}>
-              <MIcon name="luggage" size={16} />
-              <span className={styles.stepperLabel}>Luggage</span>
+            <div className={styles.stepperCardLeft}>
+              <div className={styles.stepperHeader}>
+                <MIcon name="luggage" size={16} />
+                <span className={styles.stepperLabel}>Luggage</span>
+              </div>
+              <div className={styles.stepperHint}>Match will know what to expect</div>
             </div>
             <Controller
               control={control}
@@ -324,7 +327,6 @@ export function TravelCheckin() {
                 />
               )}
             />
-            <div className={styles.stepperHint}>Your match will know what to expect</div>
           </div>
         </div>
 
@@ -333,14 +335,8 @@ export function TravelCheckin() {
           <div className={styles.savingsIcon}>
             <MIcon name="sparkles" size={18} sw={2} />
           </div>
-          <div>
-            <div className={styles.savingsText}>
-              You could save{' '}
-              <span className={styles.savingsAmount}>~{formatCurrency(savings, currency)}</span>
-            </div>
-            <div className={styles.savingsNote}>
-              Flat fare {formatCurrency(baseFare, currency)} split in 2
-            </div>
+          <div className={styles.savingsText}>
+            Risparmia <span className={styles.savingsAmount}>~{formatCurrency(savings, currency)}</span>
           </div>
         </div>
 

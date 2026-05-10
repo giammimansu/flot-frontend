@@ -1,7 +1,7 @@
 .screen {
   min-height: 100dvh;
   background-color: var(--bg-default);
-  padding-bottom: 80px; /* Space for TabBar */
+  padding-bottom: calc(88px + env(safe-area-inset-bottom, 0px)); /* Space for TabBar */
 }
 
 .header {
@@ -143,7 +143,7 @@
 
 .fab {
   position: fixed;
-  bottom: 84px;
+  bottom: calc(72px + env(safe-area-inset-bottom, 0px) + 16px);
   right: 20px;
   width: 56px;
   height: 56px;
@@ -161,4 +161,25 @@
 
 .pushPromptWrap {
   padding: 14px 20px 0;
+}
+
+.cancelSheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-top: var(--space-2);
+  padding-bottom: calc(88px + var(--space-5) + env(safe-area-inset-bottom, 0px));
+}
+
+.cancelTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--ink-default);
+  margin: 0;
+}
+
+.cancelSub {
+  font-size: 0.9rem;
+  color: var(--ink-muted);
+  margin: 0 0 var(--space-2);
 }

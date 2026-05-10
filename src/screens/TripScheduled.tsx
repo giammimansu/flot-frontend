@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { MIcon, MBtn } from '../components/ui';
+import { BottomSheet } from '../components/ui/BottomSheet';
 import { PushPrompt } from '../components/trips/PushPrompt';
 import { useTripStore } from '../stores/tripStore';
 import { useAirportStore } from '../stores/airportStore';
@@ -20,6 +21,8 @@ export function TripScheduled() {
   const selectAirport = useAirportStore((s) => s.selectAirport);
   const ws = useWebSocket();
   const [fetchedTrip, setFetchedTrip] = useState<Trip | null>(null);
+  const [showCancelSheet, setShowCancelSheet] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   // Fetch from API when store data doesn't match URL (refresh / direct link)
   useEffect(() => {
@@ -64,15 +67,22 @@ export function TripScheduled() {
   const resolvedDestination = (tripStore.tripId === urlTripId ? tripStore.destination : null) ?? trip?.destination ?? null;
   const resolvedLuggage = (tripStore.tripId === urlTripId ? tripStore.luggage : null) ?? trip?.luggage ?? 1;
 
-  const handleCancel = async () => {
+  const handleCancel = () => {
+    setShowCancelSheet(true);
+  };
+
+  const confirmCancel = async () => {
     if (!resolvedTripId) return;
-    if (!window.confirm('Cancel this booking?')) return;
+    setCancelling(true);
     try {
       await cancelTrip(resolvedTripId);
+      setShowCancelSheet(false);
       tripStore.reset();
-      navigate('/my-trips');
+      navigate('/my-trips', { state: { cancelledTripId: resolvedTripId } });
     } catch {
-      alert('Could not cancel the trip.');
+      setShowCancelSheet(false);
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -203,6 +213,22 @@ export function TripScheduled() {
           Cancel booking
         </button>
       </div>
+
+      <BottomSheet
+        open={showCancelSheet}
+        onClose={() => setShowCancelSheet(false)}
+        aria-label="Cancel booking"
+      >
+        <div className={styles.cancelSheet}>
+          <h2 className={styles.cancelTitle}>Vuoi davvero cancellare il viaggio?</h2>
+          <MBtn variant="dark" onClick={confirmCancel} loading={cancelling}>
+            Sì
+          </MBtn>
+          <MBtn variant="secondary" onClick={() => setShowCancelSheet(false)} disabled={cancelling}>
+            No
+          </MBtn>
+        </div>
+      </BottomSheet>
     </div>
   );
 }

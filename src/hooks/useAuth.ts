@@ -47,6 +47,7 @@ export function useAuthInit() {
           {
             userId: cognitoUser.userId,
             email,
+            name: fullName || firstName,
             firstName,
             lastName,
             photoUrl,

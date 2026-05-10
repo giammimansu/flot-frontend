@@ -11,7 +11,14 @@
       "WebFetch(domain:api.anthropic.com)",
       "Bash(node -e \"require\\('sharp'\\)\")",
       "Bash(node scripts/generate-icons.mjs)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(aws s3 *)",
+      "Bash(aws cloudfront *)",
+      "Bash(aws logs *)",
+      "Bash(sam build *)",
+      "Bash(sam deploy *)",
+      "Bash(aws lambda get-function-configuration *)",
+      "Bash(xargs grep -l \"first_name\\\\|last_name\\\\|firstName\\\\|lastName\")"
     ]
   }
 }

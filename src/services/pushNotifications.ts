@@ -5,7 +5,7 @@ import { api } from './api';
 
 let swRegistration: ServiceWorkerRegistration | null = null;
 
-async function getSwRegistration(): Promise<ServiceWorkerRegistration | null> {
+export async function getSwRegistration(): Promise<ServiceWorkerRegistration | null> {
   if (!('serviceWorker' in navigator)) return null;
   if (swRegistration) return swRegistration;
 

@@ -150,19 +150,23 @@ function SavingsCounter({ targetCents }: { targetCents: number }) {
 const FAQ_ITEMS = [
   {
     q: 'E se il mio volo è in ritardo?',
-    a: 'Flot considera finestre temporali di ±60 minuti. Se i piani saltano, puoi cancellare gratuitamente prima dell\'incontro.',
+    a: 'Non c’è bisogno di preoccuparsi. Monitoriamo in tempo reale lo stato del tuo volo: se il tuo arrivo cambia e il match originale non è più compatibile, il nostro algoritmo si metterà subito al lavoro per trovarti automaticamente un nuovo compagno di viaggio per il tuo nuovo orario di atterraggio.',
   },
   {
-    q: 'I tassisti si arrabbiano?',
-    a: 'No. Il tassista riceve la sua intera tariffa (es. €120), semplicemente la pagate in due. Siamo alleati dei taxi, non competitor.',
+    q: 'Come faccio a trovare il mio compagno di viaggio?',
+    a: 'Una volta confermato il match, Flot vi suggerirà un punto di ritrovo specifico in aeroporto. Usate la chat interna per darvi un riferimento visivo (es. "ho una valigia rossa") e incontrarvi in pochi minuti.',
+  },
+  {
+    q: 'È sicuro viaggiare con uno sconosciuto?',
+    a: 'Flot ti connette solo con viaggiatori che erano sul tuo volo o su voli vicini al tuo. L’incontro avviene sempre in aeroporto, un luogo pubblico e sicuro. Inoltre, puoi contare sul nostro sistema di recensioni: dopo ogni viaggio, gli utenti si valutano a vicenda, permettendoti di viaggiare solo con persone affidabili e puntuali.',
+  },
+  {
+    q: 'I tassisti accettano la divisione della spesa?',
+    a: 'Certamente. Il tassista riceve l’intera tariffa ufficiale (es. €50), semplicemente la pagate in due (o più). Per loro è un normale servizio, noi siamo alleati dei taxi ufficiali.',
   },
   {
     q: 'Quanto costa il servizio?',
-    a: '€0,99 una tantum solo se il match viene trovato e tu lo sblocchi. Zero costi in caso contrario. Mai.',
-  },
-  {
-    q: 'Come funziona la verifica dell\'identità?',
-    a: 'Tramite Stripe Identity — lo stesso sistema usato dalle banche. Veloce, sicuro, richiesto prima di ogni primo match.',
+    a: 'Sbloccare un match trovato costa solo €0,99. Se non troviamo nessuno per te o se non decidi di sbloccare il profilo, il servizio è totalmente gratuito. Sempre.',
   },
 ];
 
@@ -287,7 +291,7 @@ export function EntryPoint() {
             </h1>
 
             <p className={styles.heroSub}>
-              Inserisci il tuo volo in anticipo. Flot ti connette con un viaggiatore verificato diretto nella tua stessa zona di Milano. Viaggiate insieme, pagate il tassista a metà, e risparmiate fino a €60.
+              Inserisci il tuo volo in anticipo. Flot ti connette con un viaggiatore diretto nella tua stessa zona di Milano. Viaggiate insieme, pagate il tassista a metà, e risparmiate fino a €60.
             </p>
 
             {/* Savings counter */}
@@ -347,15 +351,15 @@ export function EntryPoint() {
               <div className={styles.stepLine} />
               <div className={styles.stepBody}>
                 <h3>Pianifica in anticipo</h3>
-                <p>Dicci quando atterri — fino a 7 giorni prima. Più prenoti in anticipo, più crescono le probabilità di trovare il compagno perfetto nella nostra rete.</p>
+                <p>Dicci quando atterri. Più prenoti in anticipo, più crescono le probabilità di trovare il compagno perfetto nella nostra rete.</p>
               </div>
             </div>
             <div className={styles.step}>
-              <div className={styles.stepIcon}>🛡️</div>
+              <div className={styles.stepIcon}>📱</div>
               <div className={styles.stepLine} />
               <div className={styles.stepBody}>
-                <h3>Match verificato</h3>
-                <p>Ti connettiamo solo con membri la cui identità è verificata tramite Stripe Identity — obbligatoria prima di sbloccare ogni match.</p>
+                <h3>Ricevi un Match</h3>
+                <p>Coordinatevi tramite la <strong>chat in-app</strong> e raggiungete il <strong>punto di ritrovo</strong> che vi suggeriremo. Prendete un taxi insieme e dividete la spesa direttamente con il tassista.</p>
               </div>
             </div>
             <div className={styles.step}>
@@ -375,12 +379,12 @@ export function EntryPoint() {
           <h2 className={styles.sectionH2}>Perché scegliere Flot</h2>
           <div className={styles.whyGrid}>
             <div className={styles.whyCard}>
-              <h3>Sicurezza</h3>
-              <p>Profili verificati tramite Stripe Identity, recensioni della community e supporto dedicato per ogni viaggio.</p>
+              <h3>Community Reale</h3>
+              <p>Connettiti con persone che sono dirette verso la tua stessa zona. Coordinatevi in sicurezza tramite la chat interna prima di incontrarvi.</p>
             </div>
             <div className={styles.whyCard}>
-              <h3>Efficienza</h3>
-              <p>Zero imbarazzo alla coda dei taxi. Sai già con chi dividerai la spesa prima ancora di atterrare.</p>
+              <h3>Zero Stress</h3>
+        <p>Evita l'imbarazzo e le attese alla coda dei taxi. Sai già con chi viaggerai e dove trovarvi prima ancora di atterrare.</p>
             </div>
             <div className={styles.whyCard}>
               <h3>Logica di rete</h3>

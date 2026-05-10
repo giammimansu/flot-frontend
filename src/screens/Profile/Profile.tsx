@@ -11,6 +11,7 @@ import { HomeIndicator } from '../../components/layout/HomeIndicator';
 import { InstallPrompt } from '../../components/ui/InstallPrompt';
 import { useAuthStore } from '../../stores/authStore';
 import { getMe } from '../../services/users';
+import { usePushNotifications } from '../../hooks/usePushNotifications';
 import type { User } from '../../types/api';
 import styles from './Profile.module.css';
 
@@ -75,7 +76,7 @@ export function Profile() {
   const [user, setUser] = useState<User | null>(authUser);
   const [notifMatch, setNotifMatch] = useState(true);
   const [notifReminder, setNotifReminder] = useState(true);
-  const [notifOffers, setNotifOffers] = useState(false);
+  const { permission, requestPermission, isSupported } = usePushNotifications();
 
   useEffect(() => {
     getMe().then(setUser).catch(() => { /* fallback to cached auth user */ });
@@ -87,10 +88,10 @@ export function Profile() {
   }
 
   const initials = user
-    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
+    ? (user.name ?? '').split(' ').map((w) => w[0] ?? '').join('').toUpperCase().slice(0, 2) || '?'
     : '?';
 
-  const fullName = user ? `${user.firstName} ${user.lastName}`.trim() : '';
+  const fullName = user?.name ?? '';
 
   return (
     <div className={styles.root}>
@@ -137,6 +138,26 @@ export function Profile() {
         {/* Notifications */}
         <div className={styles.sectionLabel}>Notifications</div>
         <div className={styles.section}>
+          {isSupported && (
+            <Row
+              icon="🔔"
+              label="Push notifications"
+              sub={
+                permission === 'granted' ? 'Enabled' :
+                permission === 'denied' ? 'Blocked — change in browser settings' :
+                'Tap to enable'
+              }
+              right={
+                permission === 'denied' ? null :
+                <Toggle
+                  checked={permission === 'granted'}
+                  onChange={(v) => { if (v) requestPermission(); }}
+                  label="Push notifications"
+                />
+              }
+              onClick={permission === 'default' ? () => requestPermission() : undefined}
+            />
+          )}
           <Row
             icon="🔔"
             label="Match found"
@@ -146,11 +167,6 @@ export function Profile() {
             icon="✈️"
             label="Trip reminder"
             right={<Toggle checked={notifReminder} onChange={setNotifReminder} label="Trip reminder" />}
-          />
-          <Row
-            icon="🎁"
-            label="Special offers"
-            right={<Toggle checked={notifOffers} onChange={setNotifOffers} label="Special offers" />}
           />
         </div>
 

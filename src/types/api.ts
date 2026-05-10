@@ -84,27 +84,43 @@ export interface MyTripsResponse {
   }>;
 }
 
-/** Blurred partner (locked state) */
-export interface LockedPartner {
-  firstName: string;
-  blurredPhotoUrl: string;
+/** Trip snapshot inside a match */
+export interface MatchTrip {
+  tripId: string;
+  terminal: string;
+  direction: string;
   destination: string;
+  destLat: number;
+  destLng: number;
+  destZone: string;
+  flightNumber: string;
+  flightDate: string;
+  flightTime: string;
+  luggage: number;
+  paxCount: number;
+  mode: string;
+}
+
+/** Public profile of another user */
+export interface PublicUser {
+  userId: string;
+  firstName: string;
+  lastName?: string;
+  photoUrl?: string;
+  blurredPhotoUrl?: string;
   verified: boolean;
 }
 
 /** Full partner (unlocked state) */
-export interface UnlockedPartner {
-  userId: string;
-  firstName: string;
+export interface UnlockedPartner extends PublicUser {
   lastName: string;
   photoUrl: string;
-  age: number;
-  city: string;
-  languages: string[];
-  verified: boolean;
-  rating: number;
-  totalTrips: number;
-  onTimeRate: number;
+  age?: number;
+  city?: string;
+  languages?: string[];
+  rating?: number;
+  totalTrips?: number;
+  onTimeRate?: number;
 }
 
 /** Meeting point */
@@ -114,14 +130,20 @@ export interface MeetingPoint {
   walkMinutes: number;
 }
 
-/** GET /matches/:matchId — locked */
+/** GET /matches/:matchId — locked (actual backend shape) */
 export interface LockedMatch {
   matchId: string;
   status: 'pending';
-  score: number;
-  savings: number;
-  partner: LockedPartner;
+  airportCode: string;
+  score: string | number;
+  userId1: string;
+  userId2: string;
+  trip1: MatchTrip;
+  trip2: MatchTrip;
   unlockedBy: string[];
+  unlockDeadline: string | null;
+  createdAt: string;
+  savings?: number;
 }
 
 /** GET /matches/:matchId — unlocked */
@@ -153,8 +175,9 @@ export interface UnlockResponse {
 export interface User {
   userId: string;
   email: string;
-  firstName: string;
-  lastName: string;
+  name: string;
+  firstName?: string;
+  lastName?: string;
   photoUrl: string;
   blurredPhotoUrl: string;
   isPro: boolean;
