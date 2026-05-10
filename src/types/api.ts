@@ -49,6 +49,7 @@ export interface CreateTripRequest {
   mode: import('./domain').TripMode;
   flightNumber: string;
   flightDate: string;   // YYYY-MM-DD
+  flightTime?: string;  // ISO UTC arrival — pre-resolved by UI flight lookup
 }
 
 /** POST /trips response */

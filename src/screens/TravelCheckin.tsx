@@ -4,7 +4,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MIcon, MSegment, MStepper, MBtn, MDestInput } from '../components/ui';
+import { MIcon, MSegment, MStepper, MBtn, MDestInput, FlightLookupFeedback } from '../components/ui';
+import { useFlightLookup } from '../hooks/useFlightLookup';
 import { HomeIndicator, ProfileMenu } from '../components/layout';
 import { useAirportStore } from '../stores/airportStore';
 import { useTripStore } from '../stores/tripStore';
@@ -102,6 +103,9 @@ export function TravelCheckin() {
   });
 
   const mode = watch('mode');
+  const watchedFlightNumber = watch('flightNumber') ?? '';
+  const watchedFlightDate = watch('flightDate') ?? '';
+  const lookup = useFlightLookup(watchedFlightNumber, watchedFlightDate);
 
   const baseFare = airport?.baseFare ?? 12000;
   const currency = airport?.currency ?? 'EUR';
@@ -145,6 +149,7 @@ export function TravelCheckin() {
       mode: data.mode,
       flightNumber: (data.flightNumber ?? '').replace(/\s/g, ''),
       flightDate: data.flightDate ?? '',
+      flightTime: lookup.status === 'found' ? lookup.flightInfo!.arrivalTimeUtc : undefined,
     });
 
     if (!result) {
@@ -257,6 +262,13 @@ export function TravelCheckin() {
               )}
             />
           </div>
+          <FlightLookupFeedback
+            status={lookup.status}
+            airline={lookup.airline}
+            flightInfo={lookup.flightInfo}
+            errorMessage={lookup.errorMessage}
+            flightDate={watchedFlightDate}
+          />
           {(errors.flightNumber || errors.flightDate) && (
             <div className={styles.fieldError}>
               {errors.flightNumber?.message ?? errors.flightDate?.message}

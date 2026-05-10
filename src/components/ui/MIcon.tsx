@@ -33,7 +33,11 @@ export type IconName =
   | 'clock'
   | 'bell'
   | 'calendar'
-  | 'trash';
+  | 'trash'
+  | 'check-circle'
+  | 'alert-circle'
+  | 'wifi-off'
+  | 'radio';
 
 interface MIconProps {
   name: IconName;
@@ -228,6 +232,39 @@ const iconPaths: Record<IconName, JSX.Element> = {
       <path d="M3 6h18" />
       <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
       <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+    </g>
+  ),
+  'check-circle': (
+    <g>
+      <circle cx="12" cy="12" r="10" />
+      <path d="m9 12 2 2 4-4" />
+    </g>
+  ),
+  'alert-circle': (
+    <g>
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </g>
+  ),
+  'wifi-off': (
+    <g>
+      <line x1="2" y1="2" x2="22" y2="22" />
+      <path d="M8.5 16.5a5 5 0 0 1 7 0" />
+      <path d="M2 8.82a15 15 0 0 1 4.17-2.65" />
+      <path d="M10.66 5c4.01-.36 8.14.9 11.34 3.76" />
+      <path d="M16.85 11.25a10 10 0 0 1 2.22 1.68" />
+      <path d="M5 13a10 10 0 0 1 5.24-2.76" />
+      <circle cx="12" cy="20" r="1" />
+    </g>
+  ),
+  radio: (
+    <g>
+      <circle cx="12" cy="12" r="2" />
+      <path d="M4.93 4.93a10 10 0 0 0 0 14.14" />
+      <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+      <path d="M7.76 7.76a6 6 0 0 0 0 8.49" />
+      <path d="M16.24 7.76a6 6 0 0 1 0 8.49" />
     </g>
   ),
 };
