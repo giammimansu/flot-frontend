@@ -63,10 +63,18 @@ export function FlightLookupFeedback({ status, airline, flightInfo, errorMessage
             )}
           </div>
           <div className={styles.cardRow}>
+            <MIcon name="map-pin" size={14} className={styles.iconMuted} />
+            <span className={styles.textMuted}>
+              {flightInfo.flightNumber}
+              {(flightInfo.origin || flightInfo.destination) && (
+                <> &middot; {flightInfo.origin ?? '???'} → {flightInfo.destination ?? '???'}</>
+              )}
+            </span>
+          </div>
+          <div className={styles.cardRow}>
             <MIcon name="clock" size={14} className={styles.iconMuted} />
             <span className={styles.textMuted}>
               Arrives {formatLocalTime(flightInfo.arrivalTimeLocal)}
-              {flightInfo.origin && ` from ${flightInfo.origin}`}
             </span>
           </div>
           <div className={styles.cardRow}>

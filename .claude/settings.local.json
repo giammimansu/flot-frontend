@@ -18,7 +18,16 @@
       "Bash(sam build *)",
       "Bash(sam deploy *)",
       "Bash(aws lambda get-function-configuration *)",
-      "Bash(xargs grep -l \"first_name\\\\|last_name\\\\|firstName\\\\|lastName\")"
+      "Bash(xargs grep -l \"first_name\\\\|last_name\\\\|firstName\\\\|lastName\")",
+      "Bash(python -m py_compile src/handlers/flights/flight_lookup.py)",
+      "Bash(python -m py_compile src/lib/flight_tracker.py)",
+      "Bash(python -m py_compile src/handlers/trips/create_trip.py)",
+      "Bash(python -m pytest tests/ -x -q)",
+      "Bash(python -m pytest tests/ -q --ignore=tests/unit/test_notifications.py)",
+      "Bash(python -m pytest tests/ -q --ignore=tests/unit/test_notifications.py --ignore=tests/unit/test_photo_processing.py --ignore=tests/unit/test_unlock_flow.py)",
+      "Bash(python -m pytest tests/ -q -k \"create_trip or trip_create or flight_lookup or flight_tracker\" --ignore=tests/unit/test_notifications.py --ignore=tests/unit/test_photo_processing.py --ignore=tests/unit/test_unlock_flow.py)",
+      "Bash(git add *)",
+      "PowerShell(cmd /c \"dir C:\\\\Users\\\\gianm\\\\Desktop\\\\MyApps\\\\flot-backend\")"
     ]
   }
 }

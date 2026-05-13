@@ -3,12 +3,11 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAirportStore } from '../stores/airportStore';
 import { useAuthStore } from '../stores/authStore';
-import { fetchAirportStats } from '../services/airports';
 import { ProfileMenu } from '../components/layout/ProfileMenu';
+import { LiveMatchBanner } from '../components/ui/LiveMatchBanner';
 import styles from './EntryPoint.module.css';
 
 const isDevBypass = !import.meta.env.VITE_COGNITO_USER_POOL_ID;
-const STATS_TIMEOUT_MS = 2000;
 
 function GoogleIcon() {
   return (
@@ -37,13 +36,6 @@ function ShieldIcon() {
   );
 }
 
-function ZapIcon() {
-  return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" />
-    </svg>
-  );
-}
 
 function ChevronDown() {
   return (
@@ -118,34 +110,6 @@ function LiveFeed() {
   );
 }
 
-function SavingsCounter({ targetCents }: { targetCents: number }) {
-  const [displayCents, setDisplayCents] = useState(targetCents - 20000);
-  const rafRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    const start = targetCents - 20000;
-    const end = targetCents;
-    const duration = 1200;
-    const startTime = performance.now();
-
-    function tick(now: number) {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayCents(Math.round(start + (end - start) * eased));
-      if (progress < 1) rafRef.current = requestAnimationFrame(tick);
-    }
-
-    rafRef.current = requestAnimationFrame(tick);
-    return () => { if (rafRef.current !== null) cancelAnimationFrame(rafRef.current); };
-  }, [targetCents]);
-
-  return (
-    <span className={styles.savingsAmount}>
-      {'€' + Math.round(displayCents / 100).toLocaleString('it-IT')}
-    </span>
-  );
-}
 
 const FAQ_ITEMS = [
   {
@@ -205,23 +169,6 @@ export function EntryPoint() {
   const initials = user
     ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
     : '?';
-
-  const [savingsCents, setSavingsCents] = useState<number | null>(null);
-
-  useEffect(() => {
-    const statsAirport = selectedAirport?.code ?? 'MXP';
-    let cancelled = false;
-    const timer = setTimeout(() => { if (!cancelled) setSavingsCents(null); }, STATS_TIMEOUT_MS);
-
-    fetchAirportStats(statsAirport)
-      .then((stats) => {
-        clearTimeout(timer);
-        if (!cancelled) setSavingsCents(stats.totalSavingsMonth);
-      })
-      .catch(() => clearTimeout(timer));
-
-    return () => { cancelled = true; clearTimeout(timer); };
-  }, [selectedAirport?.code]);
 
   const handleLogin = useCallback(
     (provider: 'Google' | 'Apple') => {
@@ -294,19 +241,7 @@ export function EntryPoint() {
               Inserisci il tuo volo in anticipo. Flot ti connette con un viaggiatore diretto nella tua stessa zona di Milano. Viaggiate insieme, pagate il tassista a metà, e risparmiate fino a €60.
             </p>
 
-            {/* Savings counter */}
-            <div className={styles.savingsWidget}>
-              <div className={styles.savingsIconCircle}>
-                <ZapIcon />
-              </div>
-              <div>
-                {savingsCents !== null
-                  ? <SavingsCounter targetCents={savingsCents} />
-                  : <span className={styles.savingsAmount}>€12.847</span>
-                }
-                <div className={styles.savingsLabel}>risparmiati dai viaggiatori</div>
-              </div>
-            </div>
+            <LiveMatchBanner airport="Malpensa" />
 
             {/* CTA */}
             {isAuthenticated ? (

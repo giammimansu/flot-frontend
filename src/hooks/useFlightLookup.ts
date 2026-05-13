@@ -18,6 +18,7 @@ export interface FlightInfo {
   status: string;
   delayMinutes?: number;
   origin?: string;
+  destination?: string;
 }
 
 interface UseFlightLookupReturn {
