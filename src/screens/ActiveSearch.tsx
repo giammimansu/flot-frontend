@@ -6,6 +6,7 @@ import { useTripStore } from '../stores/tripStore';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { useCountdown } from '../hooks/useCountdown';
 import { patchTrip } from '../services/trips';
+import { TopNav } from '../components/layout/TopNav';
 import styles from './ActiveSearch.module.css';
 
 const STATUS_MSGS = [
@@ -98,12 +99,7 @@ export function ActiveSearch() {
   if (wsError) {
     return (
       <div className={styles.screen}>
-        <div className={styles.topNav}>
-          <div className={styles.brand}>
-            <div className={styles.brandDot} />
-            <span className={styles.brandText}>FLOT</span>
-          </div>
-        </div>
+        <TopNav showLogo />
         <div className={styles.statusBlock} style={{ marginTop: '80px' }}>
           <h2 className={styles.statusTitle}>Connection lost</h2>
           <p className={styles.statusMsg}>We couldn't connect to the matching service.</p>
@@ -119,16 +115,7 @@ export function ActiveSearch() {
 
   return (
     <div className={styles.screen}>
-      <div className={styles.topNav}>
-        <div className={styles.brand}>
-          <div className={styles.brandDot} />
-          <span className={styles.brandText}>FLOT</span>
-        </div>
-        <span className={styles.statusPill}>
-          <span className={styles.statusDot} />
-          Searching · {display}
-        </span>
-      </div>
+      <TopNav showLogo right={<span className={styles.statusPill}><span className={styles.statusDot} />Searching · {display}</span>} />
 
       <div className={styles.routeCard}>
         <div className={styles.routeCol}>

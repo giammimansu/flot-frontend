@@ -50,11 +50,8 @@ export function ProfileMenu({ open, onClose }: ProfileMenuProps) {
   }, [onClose, reset, navigate]);
 
   const menuItems: MenuItem[] = [
-    { label: 'Profile', icon: 'user', path: '/profile' },
-    { label: 'Verify identity', icon: 'badge-check', path: '/verify' },
-    { label: 'PRO subscription', icon: 'crown', path: '/pro' },
-    { label: 'Settings', icon: 'settings', path: '/settings' },
-    { label: 'Sign out', icon: 'log-out', action: handleLogout, danger: true },
+    { label: 'Profilo', icon: 'user', path: '/profile' },
+    { label: 'Esci', icon: 'log-out', action: handleLogout, danger: true },
   ];
 
   const handleItem = (item: MenuItem) => {

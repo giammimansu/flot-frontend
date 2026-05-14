@@ -4,6 +4,7 @@
 
 import { useNavigate } from 'react-router-dom';
 import { MIcon } from '../components/ui';
+import { TopNav } from '../components/layout/TopNav';
 import { useAirportStore } from '../stores/airportStore';
 import { useTripStore } from '../stores/tripStore';
 import { useMatchStore } from '../stores/matchStore';
@@ -46,12 +47,7 @@ export function NoMatchFound() {
 
   return (
     <div className={styles.screen}>
-      <div className={styles.topNav}>
-        <div className={styles.brand}>
-          <div className={styles.brandDot} />
-          <span className={styles.brandText}>FLOT</span>
-        </div>
-      </div>
+      <TopNav showLogo />
 
       <div className={styles.body}>
         {/* Hero */}

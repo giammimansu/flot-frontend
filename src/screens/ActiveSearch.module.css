@@ -29,14 +29,7 @@
   justify-content: space-between;
 }
 
-.brand { display: flex; align-items: center; gap: 6px; }
-.brandDot { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--amber); }
-.brandText {
-  font-family: var(--font-display);
-  font-size: var(--fs-20);
-  font-weight: 800;
-  color: var(--ink);
-}
+.brandLogo { height: 28px; width: auto; display: block; }
 
 .statusPill {
   display: inline-flex;
@@ -44,11 +37,11 @@
   gap: 6px;
   padding: 6px 12px;
   border-radius: var(--radius-pill);
-  background: var(--amber-soft);
+  background: var(--primary-50);
   font-family: var(--font-body);
   font-size: var(--fs-12);
   font-weight: var(--fw-semibold);
-  color: #92400E;
+  color: var(--primary-800);
 }
 .statusDot {
   width: 6px; height: 6px;
@@ -106,7 +99,7 @@
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-pill);
-  background: radial-gradient(circle at center, rgba(254, 243, 199, 0.8) 0%, transparent 68%);
+  background: radial-gradient(circle at center, rgba(235, 245, 244, 0.9) 0%, transparent 68%);
 }
 .radarRing {
   position: absolute;
@@ -123,7 +116,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 0 12px rgba(245, 158, 11, 0.12), 0 12px 32px var(--amber-glow);
+  box-shadow: 0 0 0 12px rgba(11, 138, 123, 0.12), 0 12px 32px var(--amber-glow);
   position: relative;
   z-index: 2;
 }
@@ -206,8 +199,8 @@
 .proTeaser {
   margin: 10px var(--space-5) 0;
   padding: 14px var(--space-4);
-  background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-  border: 1px solid #FDE68A;
+  background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+  border: 1px solid var(--primary-200);
   border-radius: 20px;
   display: flex;
   gap: var(--space-3);
@@ -237,7 +230,7 @@
 .proTeaserCopy {
   font-family: var(--font-body);
   font-size: var(--fs-12);
-  color: #92400E;
+  color: var(--primary-700);
   margin-top: 1px;
 }
 

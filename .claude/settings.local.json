@@ -27,7 +27,12 @@
       "Bash(python -m pytest tests/ -q --ignore=tests/unit/test_notifications.py --ignore=tests/unit/test_photo_processing.py --ignore=tests/unit/test_unlock_flow.py)",
       "Bash(python -m pytest tests/ -q -k \"create_trip or trip_create or flight_lookup or flight_tracker\" --ignore=tests/unit/test_notifications.py --ignore=tests/unit/test_photo_processing.py --ignore=tests/unit/test_unlock_flow.py)",
       "Bash(git add *)",
-      "PowerShell(cmd /c \"dir C:\\\\Users\\\\gianm\\\\Desktop\\\\MyApps\\\\flot-backend\")"
+      "PowerShell(cmd /c \"dir C:\\\\Users\\\\gianm\\\\Desktop\\\\MyApps\\\\flot-backend\")",
+      "PowerShell(Select-String -Path \"C:/Users/gianm/.claude/projects/C--Users-gianm-Desktop-MyApps-flot-frontend/design_decompressed.txt\" -Pattern \"comp-badges|Badges|badge|pill\" | Select-Object -First 20 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line\\)\" })",
+      "PowerShell(Select-String -Path \"C:/Users/gianm/.claude/projects/C--Users-gianm-Desktop-MyApps-flot-frontend/design_decompressed.txt\" -Pattern \"comp-navigation|BottomNav|bottom.nav|tab.bar|nav-item\" | Select-Object -First 5 | ForEach-Object { \"$\\($_.LineNumber\\): $\\($_.Line.Substring\\(0, [Math]::Min\\(120, $_.Line.Length\\)\\)\\)\" })",
+      "Bash(sed -i 's/calc\\(72px + env\\(safe-area-inset-bottom, 0px\\)\\)/calc\\(60px + env\\(safe-area-inset-bottom, 0px\\)\\)/g' C:/Users/gianm/Desktop/MyApps/flot-frontend/src/screens/EntryPoint.module.css C:/Users/gianm/Desktop/MyApps/flot-frontend/src/screens/MatchLocked.module.css)",
+      "Bash(sed -i 's/calc\\(72px + env\\(safe-area-inset-bottom, 0px\\) + 16px\\)/calc\\(60px + env\\(safe-area-inset-bottom, 0px\\) + 16px\\)/g' C:/Users/gianm/Desktop/MyApps/flot-frontend/src/screens/MyTrips.module.css)",
+      "Bash(sed -i 's/calc\\(72px + env\\(safe-area-inset-bottom\\)\\)/calc\\(60px + env\\(safe-area-inset-bottom\\)\\)/g' C:/Users/gianm/Desktop/MyApps/flot-frontend/src/screens/ConnectionUnlocked/ConnectionUnlocked.module.css C:/Users/gianm/Desktop/MyApps/flot-frontend/src/screens/Profile/Profile.module.css)"
     ]
   }
 }

@@ -4,6 +4,7 @@ import { MIcon } from '../ui';
 import type { IconName } from '../ui';
 import { useAuthStore } from '../../stores/authStore';
 import { ProfileMenu } from './ProfileMenu';
+import logoFull from '../../assets/logo-full.svg';
 import styles from './TopNav.module.css';
 
 interface TopNavAction {
@@ -56,10 +57,7 @@ export function TopNav({
           </button>
         )}
         {showLogo && !showBack && (
-          <div className={styles.logo}>
-            <div className={styles.logoDot} />
-            <span className={styles.logoText}>FLOT</span>
-          </div>
+          <img src={logoFull} alt="Flot" className={styles.logo} />
         )}
         {title && !showLogo && !showBack && (
           <h3>{title}</h3>

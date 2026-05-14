@@ -22,8 +22,8 @@
 }
 
 .live {
-  background: var(--amber-soft);
-  color: #92400E;
+  background: var(--primary-50);
+  color: var(--primary-800);
 }
 
 .error {
@@ -32,8 +32,8 @@
 }
 
 .amber {
-  background: var(--amber-soft);
-  color: #92400E;
+  background: var(--primary-50);
+  color: var(--primary-800);
 }
 
 /* Live pulse dot */

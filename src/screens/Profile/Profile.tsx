@@ -10,7 +10,9 @@ import { TabBar } from '../../components/layout/TabBar';
 import { HomeIndicator } from '../../components/layout/HomeIndicator';
 import { InstallPrompt } from '../../components/ui/InstallPrompt';
 import { useAuthStore } from '../../stores/authStore';
+import { useAirportStore } from '../../stores/airportStore';
 import { getMe } from '../../services/users';
+import { getMyTrips } from '../../services/trips';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
 import type { User } from '../../types/api';
 import styles from './Profile.module.css';
@@ -74,12 +76,19 @@ export function Profile() {
   const authReset = useAuthStore((s) => s.reset);
 
   const [user, setUser] = useState<User | null>(authUser);
-  const [notifMatch, setNotifMatch] = useState(true);
-  const [notifReminder, setNotifReminder] = useState(true);
+  const [tripCount, setTripCount] = useState<number | null>(null);
+  const [totalSaved, setTotalSaved] = useState<number | null>(null);
+  const airport = useAirportStore((s) => s.selectedAirport);
   const { permission, requestPermission, isSupported } = usePushNotifications();
 
   useEffect(() => {
     getMe().then(setUser).catch(() => { /* fallback to cached auth user */ });
+    getMyTrips().then((res) => {
+      const completed = res.trips.filter((t) => t.status === 'completed' || t.status === 'unlocked');
+      setTripCount(completed.length);
+      const baseFare = airport?.baseFare ?? 12000;
+      setTotalSaved(completed.length * Math.round(baseFare / 2 / 100));
+    }).catch(() => {});
   }, []);
 
   function handleLogout() {
@@ -95,7 +104,7 @@ export function Profile() {
 
   return (
     <div className={styles.root}>
-      <TopNav showLogo={false} title="Profile" showBack={false} showAvatar={false} />
+      <TopNav showLogo showBack={false} />
 
       <div className={styles.scrollArea}>
         {/* Profile card */}
@@ -116,17 +125,17 @@ export function Profile() {
 
           <div className={styles.statsStrip}>
             <div className={styles.statItem}>
-              <div className={styles.statValue}>—</div>
+              <div className={styles.statValue}>{tripCount ?? '—'}</div>
               <div className={styles.statLabel}>Trips</div>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.statItem}>
-              <div className={styles.statValue}>—</div>
+              <div className={styles.statValue}>{totalSaved != null ? `€${totalSaved}` : '—'}</div>
               <div className={styles.statLabel}>Saved</div>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.statItem}>
-              <div className={styles.statValue}>4.9 ★</div>
+              <div className={styles.statValue}>—</div>
               <div className={styles.statLabel}>Rating</div>
             </div>
           </div>
@@ -136,82 +145,35 @@ export function Profile() {
         <InstallPrompt className={styles.installPrompt} />
 
         {/* Notifications */}
-        <div className={styles.sectionLabel}>Notifications</div>
-        <div className={styles.section}>
-          {isSupported && (
-            <Row
-              icon="🔔"
-              label="Push notifications"
-              sub={
-                permission === 'granted' ? 'Enabled' :
-                permission === 'denied' ? 'Blocked — change in browser settings' :
-                'Tap to enable'
-              }
-              right={
-                permission === 'denied' ? null :
-                <Toggle
-                  checked={permission === 'granted'}
-                  onChange={(v) => { if (v) requestPermission(); }}
-                  label="Push notifications"
-                />
-              }
-              onClick={permission === 'default' ? () => requestPermission() : undefined}
-            />
-          )}
-          <Row
-            icon="🔔"
-            label="Match found"
-            right={<Toggle checked={notifMatch} onChange={setNotifMatch} label="Match found" />}
-          />
-          <Row
-            icon="✈️"
-            label="Trip reminder"
-            right={<Toggle checked={notifReminder} onChange={setNotifReminder} label="Trip reminder" />}
-          />
-        </div>
-
-        {/* Account */}
-        <div className={styles.sectionLabel}>Account</div>
-        <div className={styles.section}>
-          <Row
-            icon="🪪"
-            label="Verify identity"
-            sub={user?.verified ? 'Verified' : 'Get the verified badge'}
-            onClick={() => navigate('/verify')}
-          />
-          <Row
-            icon="💳"
-            label="Payment method"
-          />
-          <Row
-            icon="🌍"
-            label="Language"
-            sub={user?.lang ? user.lang.toUpperCase() : 'EN'}
-          />
-          <Row
-            icon="🔒"
-            label="Privacy & security"
-          />
-        </div>
-
-        {/* Support */}
-        <div className={styles.sectionLabel}>Support</div>
-        <div className={styles.section}>
-          <Row
-            icon="❓"
-            label="Help center"
-            onClick={() => window.open('https://flot.app/help', '_blank', 'noopener,noreferrer')}
-          />
-          <Row
-            icon="📄"
-            label="Terms of service"
-            onClick={() => window.open('https://flot.app/terms', '_blank', 'noopener,noreferrer')}
-          />
-        </div>
+        {isSupported && (
+          <>
+            <div className={styles.sectionLabel}>Notifiche</div>
+            <div className={styles.section}>
+              <Row
+                icon="🔔"
+                label="Notifiche push"
+                sub={
+                  permission === 'granted' ? 'Attive' :
+                  permission === 'denied' ? 'Bloccate — cambia nelle impostazioni del browser' :
+                  'Tocca per attivare'
+                }
+                right={
+                  permission === 'denied' ? null :
+                  <Toggle
+                    checked={permission === 'granted'}
+                    onChange={(v) => { if (v) requestPermission(); }}
+                    label="Notifiche push"
+                  />
+                }
+                onClick={permission === 'default' ? () => requestPermission() : undefined}
+              />
+            </div>
+          </>
+        )}
 
         {/* Logout */}
         <div className={styles.section}>
-          <Row icon="🚪" label="Sign out" onClick={handleLogout} danger />
+          <Row icon="🚪" label="Esci" onClick={handleLogout} danger />
         </div>
 
         <div className={styles.version}>FLOT v1.0.0-beta · Made in Milan</div>

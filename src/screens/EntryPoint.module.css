@@ -1,14 +1,14 @@
 /* ── Reset & Layout ── */
 .screen {
   min-height: 100dvh;
-  background: #FAFAF8;
-  color: #1C1917;
-  font-family: 'Inter', system-ui, sans-serif;
+  background: var(--neutral-50);
+  color: var(--neutral-900);
+  font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
 
 .screenWithTabBar {
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
 }
 
 .wrap {
@@ -37,7 +37,7 @@
   background: rgba(250, 250, 248, 0.85);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid #E7E5E4;
+  border-bottom: 1px solid var(--neutral-200);
 }
 
 .navInner {
@@ -50,23 +50,13 @@
 .navLogo {
   display: flex;
   align-items: center;
-  gap: 6px;
   text-decoration: none;
 }
 
-.navLogoDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #F59E0B;
-}
-
-.navLogoText {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
-  font-size: 20px;
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  color: #1C1917;
+.navLogoImg {
+  height: 36px;
+  width: auto;
+  display: block;
 }
 
 .navCta {
@@ -74,9 +64,9 @@
   padding: 0 16px;
   border-radius: 999px;
   border: none;
-  background: #1C1917;
+  background: var(--neutral-900);
   color: #fff;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -99,8 +89,8 @@
   min-width: 44px;
   min-height: 44px;
   border-radius: 999px;
-  border: 2px solid #E2E8F0;
-  background: #FEF3C7;
+  border: 2px solid var(--neutral-200);
+  background: var(--primary-50);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -108,21 +98,21 @@
   cursor: pointer;
   padding: 0;
   -webkit-tap-highlight-color: transparent;
-  transition: transform 120ms cubic-bezier(0.22, 0.61, 0.36, 1),
-              border-color 120ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  transition: transform 120ms cubic-bezier(0.25, 0.1, 0.25, 1),
+              border-color 120ms cubic-bezier(0.25, 0.1, 0.25, 1);
   flex-shrink: 0;
 }
 
 .navAvatar:active {
   transform: scale(0.94);
-  border-color: #F59E0B;
+  border-color: var(--primary-500);
 }
 
 .navAvatarInitials {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 14px;
   font-weight: 700;
-  color: #D97706;
+  color: var(--primary-600);
   line-height: 1;
   pointer-events: none;
 }
@@ -150,17 +140,17 @@
   gap: 8px;
   padding: 6px 14px;
   border-radius: 999px;
-  background: #FEF3C7;
+  background: var(--primary-50);
   font-size: 13px;
   font-weight: 600;
-  color: #92400E;
+  color: var(--primary-800);
 }
 
 .kickerDot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #F59E0B;
+  background: var(--primary-500);
   animation: pulse 1.4s infinite;
   flex-shrink: 0;
 }
@@ -171,20 +161,20 @@
 }
 
 .heroH1 {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(32px, 6vw, 56px);
   font-weight: 800;
   line-height: 1.05;
   letter-spacing: -0.03em;
   margin: 24px 0 0;
-  color: #1C1917;
+  color: var(--neutral-900);
   text-wrap: balance;
 }
 
 .heroSub {
   font-size: 16px;
   line-height: 1.6;
-  color: #57534E;
+  color: var(--neutral-600);
   margin: 16px auto 0;
   max-width: 520px;
   text-wrap: pretty;
@@ -204,7 +194,7 @@
   padding: 14px 20px;
   border-radius: 16px;
   background: #FFFFFF;
-  border: 1px solid #E7E5E4;
+  border: 1px solid var(--neutral-200);
   margin-top: 28px;
 }
 
@@ -220,7 +210,7 @@
 }
 
 .savingsAmount {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 28px;
   font-weight: 800;
   color: #16A34A;
@@ -232,7 +222,7 @@
 .savingsLabel {
   font-size: 11px;
   font-weight: 600;
-  color: #A8A29E;
+  color: var(--neutral-400);
   text-transform: uppercase;
   letter-spacing: 0.04em;
   margin-top: 2px;
@@ -253,7 +243,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: #A8A29E;
+  color: var(--neutral-400);
   font-size: 12px;
   font-weight: 500;
 }
@@ -263,13 +253,13 @@
   content: '';
   flex: 1;
   height: 1px;
-  background: #E7E5E4;
+  background: var(--neutral-200);
 }
 
 .btnAuth {
   height: 54px;
   border-radius: 14px;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 15px;
   font-weight: 600;
   display: flex;
@@ -289,7 +279,7 @@
 
 .btnGoogle {
   background: #FFFFFF;
-  color: #1C1917;
+  color: var(--neutral-900);
   border: 1.5px solid #E2E0DC !important;
   box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06), 0 4px 12px rgba(15, 23, 42, 0.04);
 }
@@ -320,9 +310,9 @@
   padding: 0 32px;
   border-radius: 999px;
   border: none;
-  background: #F59E0B;
-  color: #1C1917;
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  background: var(--accent-500);
+  color: #FFFFFF;
+  font-family: var(--font-display);
   font-size: 17px;
   font-weight: 700;
   cursor: pointer;
@@ -356,8 +346,8 @@
 /* ── Live Feed ── */
 .liveSection {
   background: #FFFFFF;
-  border-top: 1px solid #E7E5E4;
-  border-bottom: 1px solid #E7E5E4;
+  border-top: 1px solid var(--neutral-200);
+  border-bottom: 1px solid var(--neutral-200);
   padding: 28px 0;
 }
 
@@ -374,7 +364,7 @@
   gap: 7px;
   font-size: 12px;
   font-weight: 600;
-  color: #57534E;
+  color: var(--neutral-600);
 }
 
 .liveDot {
@@ -401,10 +391,10 @@
 }
 
 .liveStatVal {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 800;
-  color: #1C1917;
+  color: var(--neutral-900);
   font-feature-settings: "tnum" 1;
   line-height: 1;
   letter-spacing: -0.02em;
@@ -422,7 +412,7 @@
 .liveStatLbl {
   font-size: 10px;
   font-weight: 500;
-  color: #A8A29E;
+  color: var(--neutral-400);
   margin-top: 2px;
 }
 
@@ -443,8 +433,8 @@
   gap: 10px;
   padding: 10px 12px;
   border-radius: 12px;
-  background: #FAFAF8;
-  border: 1px solid #E7E5E4;
+  background: var(--neutral-50);
+  border: 1px solid var(--neutral-200);
 }
 
 .feedItemFresh {
@@ -463,7 +453,7 @@
 }
 
 .feedIcon_green { background: #EAF3DE; color: #3B6D11; }
-.feedIcon_amber { background: #FAEEDA; color: #854F0B; }
+.feedIcon_amber { background: var(--primary-50); color: var(--primary-700); }
 .feedIcon_blue  { background: #E6F1FB; color: #185FA5; }
 .feedIcon_gray  { background: #F1EFE8; color: #5F5E5A; }
 
@@ -471,20 +461,20 @@
   flex: 1;
   font-size: 12px;
   font-weight: 500;
-  color: #1C1917;
+  color: var(--neutral-900);
   line-height: 1.35;
 }
 
 .feedTime {
   font-size: 11px;
   font-weight: 500;
-  color: #A8A29E;
+  color: var(--neutral-400);
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .sectionH2 {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(24px, 4vw, 36px);
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -528,7 +518,7 @@
   top: 48px;
   bottom: 0;
   width: 2px;
-  background: #E7E5E4;
+  background: var(--neutral-200);
 }
 
 .step:last-child .stepLine {
@@ -539,7 +529,7 @@
   width: 48px;
   height: 48px;
   border-radius: 16px;
-  background: #FEF3C7;
+  background: var(--primary-100);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -550,7 +540,7 @@
 }
 
 .stepBody h3 {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 700;
   margin: 0 0 4px;
@@ -560,15 +550,15 @@
 .stepBody p {
   font-size: 14px;
   line-height: 1.6;
-  color: #57534E;
+  color: var(--neutral-600);
   margin: 0;
 }
 
 /* ── Why Us ── */
 .whySection {
   background: #FFFFFF;
-  border-top: 1px solid #E7E5E4;
-  border-bottom: 1px solid #E7E5E4;
+  border-top: 1px solid var(--neutral-200);
+  border-bottom: 1px solid var(--neutral-200);
   padding: 64px 0;
 }
 
@@ -592,12 +582,12 @@
 .whyCard {
   padding: 24px;
   border-radius: 24px;
-  border: 1px solid #E7E5E4;
-  background: #FAFAF8;
+  border: 1px solid var(--neutral-200);
+  background: var(--neutral-50);
 }
 
 .whyCard h3 {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: 18px;
   font-weight: 700;
   margin: 0 0 8px;
@@ -606,7 +596,7 @@
 .whyCard p {
   font-size: 14px;
   line-height: 1.6;
-  color: #57534E;
+  color: var(--neutral-600);
   margin: 0;
 }
 
@@ -629,11 +619,11 @@
 }
 
 .faqItem {
-  border-bottom: 1px solid #E7E5E4;
+  border-bottom: 1px solid var(--neutral-200);
 }
 
 .faqItem:first-child {
-  border-top: 1px solid #E7E5E4;
+  border-top: 1px solid var(--neutral-200);
 }
 
 .faqQ {
@@ -645,10 +635,10 @@
   align-items: center;
   justify-content: space-between;
   cursor: pointer;
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: var(--font-body);
   font-size: 15px;
   font-weight: 600;
-  color: #1C1917;
+  color: var(--neutral-900);
   text-align: left;
   gap: 12px;
 }
@@ -671,13 +661,13 @@
   padding: 0 0 18px;
   font-size: 14px;
   line-height: 1.7;
-  color: #57534E;
+  color: var(--neutral-600);
 }
 
 /* ── Final CTA ── */
 .finalCtaSection {
   text-align: center;
-  background: #FAFAF8;
+  background: var(--neutral-50);
   padding: 64px 0;
 }
 
@@ -688,7 +678,7 @@
 }
 
 .finalCtaH2 {
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  font-family: var(--font-display);
   font-size: clamp(24px, 5vw, 40px);
   font-weight: 800;
   letter-spacing: -0.03em;
@@ -702,9 +692,9 @@
   padding: 0 32px;
   border-radius: 24px;
   border: none;
-  background: #F59E0B;
-  color: #1C1917;
-  font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+  background: var(--accent-500);
+  color: #FFFFFF;
+  font-family: var(--font-display);
   font-size: 17px;
   font-weight: 700;
   cursor: pointer;
@@ -736,14 +726,14 @@
 /* ── Footer ── */
 .footer {
   padding: 32px 0;
-  border-top: 1px solid #E7E5E4;
+  border-top: 1px solid var(--neutral-200);
   text-align: center;
 }
 
 .footerText {
   margin: 0;
   font-size: 12px;
-  color: #A8A29E;
+  color: var(--neutral-400);
 }
 
 .footerLink {
@@ -764,6 +754,6 @@
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: #F59E0B;
+  background: var(--primary-500);
   animation: pulse 1.4s infinite;
 }

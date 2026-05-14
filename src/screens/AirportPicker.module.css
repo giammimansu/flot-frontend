@@ -63,7 +63,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #92400E;
+  color: var(--primary-800);
   flex-shrink: 0;
 }
 

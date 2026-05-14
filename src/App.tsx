@@ -115,16 +115,9 @@ function ForegroundNotifications() {
 }
 
 function TabBarContainer() {
-  const location = useLocation();
   const { isAuthenticated } = useAuth();
-  const showTabPaths = ['/check-in', '/my-trips', '/profile'];
-  const isTrip = location.pathname.startsWith('/trip/');
-  const isMatch = location.pathname.startsWith('/match/') || location.pathname.startsWith('/connection/');
-  const isHome = location.pathname === '/' || location.pathname === '';
-  if (showTabPaths.includes(location.pathname) || isTrip || isMatch || (isHome && isAuthenticated)) {
-    return <TabBar />;
-  }
-  return null;
+  if (!isAuthenticated) return null;
+  return <TabBar />;
 }
 
 export function App() {

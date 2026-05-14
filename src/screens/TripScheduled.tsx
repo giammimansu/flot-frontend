@@ -9,6 +9,7 @@ import { cancelTrip, getMyTrips } from '../services/trips';
 import { useWebSocket } from '../hooks/useWebSocket';
 import { formatDateShort, formatTimeShort } from '../lib/formatters';
 import type { Trip } from '../types/domain';
+import { TopNav } from '../components/layout/TopNav';
 import styles from './TripScheduled.module.css';
 
 export function TripScheduled() {
@@ -27,7 +28,6 @@ export function TripScheduled() {
   // Fetch from API when store data doesn't match URL (refresh / direct link)
   useEffect(() => {
     if (!urlTripId) return;
-    if (tripStore.tripId === urlTripId && tripStore.currentTrip && tripStore.destination) return;
     getMyTrips()
       .then((res) => {
         const found = res.trips.find((t) => t.tripId === urlTripId);
@@ -54,7 +54,8 @@ export function TripScheduled() {
   }, [ws, navigate]);
 
   const resolvedTripId = urlTripId ?? tripStore.tripId;
-  const trip = (tripStore.tripId === urlTripId && tripStore.currentTrip) ? tripStore.currentTrip : fetchedTrip;
+  const storeTrip = tripStore.tripId === urlTripId ? tripStore.currentTrip : null;
+  const trip = fetchedTrip ?? storeTrip;
 
   useEffect(() => {
     const airportCode = trip?.airportCode ?? tripStore.currentTrip?.airportCode;
@@ -102,17 +103,7 @@ export function TripScheduled() {
 
   return (
     <div className={styles.screen}>
-      <div className={styles.topNav}>
-        <div className={styles.brand}>
-          <div className={styles.brandDot} />
-          <span className={styles.brandText}>FLOT</span>
-        </div>
-        {resolvedTripId && (
-          <div className={styles.tripBadge}>
-            #{resolvedTripId.slice(-6).toUpperCase()}
-          </div>
-        )}
-      </div>
+      <TopNav showLogo right={resolvedTripId ? <div className={styles.tripBadge}>#{resolvedTripId.slice(-6).toUpperCase()}</div> : undefined} />
 
       <div className={styles.scrollArea}>
         <div className={styles.successAnim}>
@@ -150,6 +141,18 @@ export function TripScheduled() {
               </div>
             </div>
           </div>
+          {trip?.mode === 'scheduled' && trip?.flightNumber && (
+            <>
+              <div className={styles.divider} />
+              <div className={styles.flightRow}>
+                <div className={styles.flightIcon}><MIcon name="plane-landing" size={14} sw={2} /></div>
+                <span className={styles.flightNumber}>{trip.flightNumber}</span>
+                {trip.flightTime && (
+                  <span className={styles.flightTime}>· arrives {formatTimeShort(trip.flightTime)}</span>
+                )}
+              </div>
+            </>
+          )}
           <div className={styles.divider} />
           <div className={styles.detailsGrid}>
             <div className={styles.detailItem}>

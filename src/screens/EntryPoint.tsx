@@ -5,6 +5,7 @@ import { useAirportStore } from '../stores/airportStore';
 import { useAuthStore } from '../stores/authStore';
 import { ProfileMenu } from '../components/layout/ProfileMenu';
 import { LiveMatchBanner } from '../components/ui/LiveMatchBanner';
+import logoFull from '../assets/logo-full.svg';
 import styles from './EntryPoint.module.css';
 
 const isDevBypass = !import.meta.env.VITE_COGNITO_USER_POOL_ID;
@@ -200,8 +201,7 @@ export function EntryPoint() {
       <nav className={styles.nav}>
         <div className={`${styles.wrap} ${styles.navInner}`}>
           <a href="#" className={styles.navLogo}>
-            <span className={styles.navLogoDot} />
-            <span className={styles.navLogoText}>FLOT</span>
+            <img src={logoFull} alt="Flot" className={styles.navLogoImg} />
           </a>
           {isAuthenticated ? (
             <div className={styles.navRight}>
@@ -228,10 +228,7 @@ export function EntryPoint() {
       <section className={styles.heroSection}>
         <div className={styles.wrap}>
           <div className={styles.heroInner}>
-            <div className={styles.kicker}>
-              <span className={styles.kickerDot} />
-              📍 Oltre 1.200 viaggiatori stanno già risparmiando su Malpensa → Milano
-            </div>
+
 
             <h1 className={styles.heroH1}>
               Non pagare il taxi da solo. Unisciti alla community che dimezza le spese di viaggio.

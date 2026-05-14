@@ -40,7 +40,7 @@
 }
 
 .toastTitle {
-  font-family: 'Bricolage Grotesque', sans-serif;
+  font-family: var(--font-display);
   font-weight: 700;
   font-size: 15px;
   color: var(--ink);

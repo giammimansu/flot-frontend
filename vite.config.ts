@@ -55,6 +55,9 @@ export default defineConfig({
           },
         ],
 
+        skipWaiting: true,
+        clientsClaim: true,
+
         // Never intercept Cognito or auth traffic
         navigateFallback: '/offline.html',
       },

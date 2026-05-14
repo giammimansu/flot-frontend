@@ -8,6 +8,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useAirportStore } from '../stores/airportStore';
 import { getMyTrips, cancelTrip } from '../services/trips';
 import type { MyTripsResponse } from '../types/api';
+import { TopNav } from '../components/layout/TopNav';
 import styles from './MyTrips.module.css';
 
 export function MyTrips() {
@@ -77,24 +78,19 @@ export function MyTrips() {
     .length * Math.round((airport?.baseFare ?? 12000) / 2 / 100);
   const totalCompleted = trips.filter(t => t.status === 'completed').length;
 
-  const initials = user
-    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
-    : '?';
-
   return (
     <div className={styles.screen}>
+      <TopNav showLogo />
       <header className={styles.header}>
         <div className={styles.headerLeft}>
           <div className={styles.greeting}>Hey, {user?.firstName || 'Traveler'} 👋</div>
           <h1 className={styles.title}>My trips</h1>
         </div>
-        <div className={styles.avatar}>{initials}</div>
       </header>
 
       <div className={styles.statsStrip}>
         <div className={`${styles.statCard} ${styles.success}`}>
           <div className={styles.statValue}>
-            <MIcon name="sparkles" size={18} sw={2} />
             €{totalSaved}
           </div>
           <div className={styles.statLabel}>saved</div>

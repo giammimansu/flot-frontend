@@ -65,6 +65,8 @@ export const useTripStore = create<TripState>()(
             status: response.status,
             matchId: response.matchId,
             flightTime: response.flightTime,
+            flightNumber: data.flightNumber || undefined,
+            flightDate: data.flightDate || undefined,
             expiresAt: response.expiresAt,
             createdAt: response.createdAt,
           };

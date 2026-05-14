@@ -1,0 +1,260 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: var(--space-4);
+  border-bottom: 1px solid var(--hairline);
+  margin-bottom: var(--space-4);
+}
+
+.headerTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: var(--surface-2);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  color: var(--ink-muted);
+  font-size: var(--fs-16);
+  line-height: 1;
+}
+
+.section {
+  margin-bottom: var(--space-5);
+}
+
+.dateInputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dateInputIcon {
+  position: absolute;
+  left: var(--space-3);
+  font-size: var(--fs-16);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.dateInput {
+  width: 100%;
+  height: 44px;
+  padding: 0 var(--space-3) 0 var(--space-8);
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  color: var(--ink);
+  background: var(--surface-2);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  box-sizing: border-box;
+}
+
+.dateInput:focus {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--focus-ring);
+}
+
+.sectionLabel {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+  margin-bottom: var(--space-2);
+}
+
+.slotScroll {
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding: var(--space-1) 0 var(--space-2);
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.slotScroll::-webkit-scrollbar {
+  display: none;
+}
+
+.slotChip {
+  flex-shrink: 0;
+  padding: var(--space-2) 14px;
+  border-radius: var(--radius-pill);
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+
+.slotChipActive {
+  background: var(--amber);
+  color: var(--ink-inverse);
+  border-color: var(--amber);
+}
+
+.flightList {
+  display: flex;
+  flex-direction: column;
+}
+
+.flightRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-1);
+  border-bottom: 1px solid var(--hairline);
+  cursor: pointer;
+  transition: background var(--dur-press) var(--ease-out);
+  border-radius: var(--radius-sm);
+}
+
+.flightRow:active {
+  background: var(--amber-soft);
+}
+
+.flightRowIcon {
+  color: var(--ink-subtle);
+  flex-shrink: 0;
+}
+
+.flightRowBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.flightRowNumber {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+
+.flightRowRoute {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.flightRowStatus {
+  font-family: var(--font-body);
+  font-size: var(--fs-11, 11px);
+  color: var(--ink-subtle);
+  margin-top: 2px;
+}
+
+.flightRowTime {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+  gap: 2px;
+}
+
+.flightRowTime > div:first-child {
+  font-family: var(--font-mono);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+
+.flightRowTimeLabel {
+  font-family: var(--font-body);
+  font-size: var(--fs-12, 10px);
+  font-weight: var(--fw-medium);
+  color: var(--ink-subtle);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-wide);
+}
+
+.skeleton {
+  height: 60px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  margin-bottom: var(--space-2);
+  overflow: hidden;
+  position: relative;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, var(--surface-1) 50%, transparent 100%);
+  animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
+.emptyState {
+  padding: var(--space-7) 0;
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  color: var(--ink-muted);
+}
+
+.retryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-4);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-pill);
+  background: none;
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.footer {
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--hairline);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.footerLabel {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--ink-muted);
+}
+
+.manualBtn {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-semibold);
+  color: var(--amber-pressed);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

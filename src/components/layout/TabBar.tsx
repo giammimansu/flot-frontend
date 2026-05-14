@@ -21,9 +21,7 @@ export function TabBar() {
             to={tab.path}
             className={`${styles.tab} ${isActive ? styles.active : ''}`}
           >
-            <span className={styles.iconWrap}>
-              <MIcon name={tab.icon} size={24} sw={isActive ? 2 : 1.5} />
-            </span>
+            <MIcon name={tab.icon} size={22} sw={isActive ? 2 : 1.5} />
             <span className={styles.label}>{tab.name}</span>
           </Link>
         );

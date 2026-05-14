@@ -4,12 +4,13 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { MIcon, MSegment, MStepper, MBtn, MDestInput, FlightLookupFeedback } from '../components/ui';
-import { useFlightLookup } from '../hooks/useFlightLookup';
-import { HomeIndicator, ProfileMenu } from '../components/layout';
+import { MIcon, MSegment, MStepper, MBtn, MDestInput } from '../components/ui';
+import { FlightInput } from '../components/checkin/FlightInput';
+import { HomeIndicator, TopNav } from '../components/layout';
+import type { ResolvedFlight } from '../types/flights';
 import { useAirportStore } from '../stores/airportStore';
 import { useTripStore } from '../stores/tripStore';
-import { useAuthStore } from '../stores/authStore';
+
 import { useNotificationStore } from '../stores/notificationStore';
 import { formatCurrency, calcSavings } from '../lib/formatters';
 import type { TripDestination, TripMode } from '../types/domain';
@@ -43,6 +44,10 @@ const schema = z
   .refine(
     (d) => d.mode !== 'scheduled' || !!d.flightDate,
     { message: 'Select a flight date', path: ['flightDate'] },
+  )
+  .refine(
+    (d) => d.mode !== 'scheduled' || !d.flightDate || d.flightDate >= new Date().toISOString().split('T')[0],
+    { message: 'Flight date cannot be in the past', path: ['flightDate'] },
   );
 
 type FormValues = z.infer<typeof schema>;
@@ -67,7 +72,7 @@ export function TravelCheckin() {
   const submitTrip = useTripStore((s) => s.submitTrip);
   const tripStatus = useTripStore((s) => s.status);
   const preferredMode = useTripStore((s) => s.preferredMode);
-  const user = useAuthStore((s) => s.user);
+
 
   // If airport is missing (e.g. after a page refresh), re-fetch and auto-select
   useEffect(() => {
@@ -89,7 +94,7 @@ export function TravelCheckin() {
   const defaultMode: TripMode =
     (location.state as { defaultMode?: TripMode } | null)?.defaultMode ?? preferredMode;
 
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<FormValues>({
+  const { control, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
       mode: defaultMode,
@@ -102,22 +107,16 @@ export function TravelCheckin() {
     },
   });
 
+  const [resolvedFlight, setResolvedFlight] = useState<ResolvedFlight | null>(null);
+
   const mode = watch('mode');
-  const watchedFlightNumber = watch('flightNumber') ?? '';
   const watchedFlightDate = watch('flightDate') ?? '';
-  const lookup = useFlightLookup(watchedFlightNumber, watchedFlightDate);
 
   const baseFare = airport?.baseFare ?? 12000;
   const currency = airport?.currency ?? 'EUR';
   const savings = calcSavings(baseFare, 1);
   const isSubmitting = tripStatus === 'creating';
   const showToast = useNotificationStore((s) => s.showToast);
-
-  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
-
-  const initials = user
-    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
-    : '?';
 
   const ctaLabel = mode === 'scheduled' ? 'Schedule ride' : 'Find match now';
 
@@ -149,7 +148,7 @@ export function TravelCheckin() {
       mode: data.mode,
       flightNumber: (data.flightNumber ?? '').replace(/\s/g, ''),
       flightDate: data.flightDate ?? '',
-      flightTime: lookup.status === 'found' ? lookup.flightInfo!.arrivalTimeUtc : undefined,
+      flightTime: resolvedFlight?.flightTime,
     });
 
     if (!result) {
@@ -168,21 +167,7 @@ export function TravelCheckin() {
     <div className={styles.screen}>
       <div className={styles.scrollable}>
 
-        {/* Top nav */}
-        <div className={styles.topNav}>
-          <button className={styles.backBtn} onClick={() => navigate(-1)} aria-label="Go back">
-            <MIcon name="chevron-left" size={20} />
-          </button>
-          <span className={styles.navCenter}>FLOT</span>
-          <button
-            className={styles.avatar}
-            onClick={() => setProfileMenuOpen(true)}
-            aria-label="Open profile menu"
-          >
-            {initials}
-          </button>
-        </div>
-        <ProfileMenu open={profileMenuOpen} onClose={() => setProfileMenuOpen(false)} />
+        <TopNav showBack showLogo />
 
         {/* Hero */}
         <div className={styles.hero}>
@@ -223,51 +208,46 @@ export function TravelCheckin() {
         >
         <div className={styles.formSectionSm}>
           <div className={styles.fieldLabel}>Flight info</div>
-          <div className={styles.flightRow}>
-            <Controller
-              control={control}
-              name="flightNumber"
-              render={({ field }) => (
-                <div className={`${styles.textInputWrapper} ${errors.flightNumber ? styles.textInputError : ''}`}>
-                  <MIcon name="plane-landing" size={18} className={styles.textInputIcon} />
-                  <input
-                    className={styles.textInput}
-                    type="text"
-                    placeholder="AZ 1234"
-                    autoCapitalize="characters"
-                    autoCorrect="off"
-                    spellCheck={false}
-                    maxLength={8}
-                    value={field.value}
-                    onChange={(e) => field.onChange(e.target.value.toUpperCase())}
-                    aria-label="Flight number"
-                  />
-                </div>
-              )}
-            />
-            <Controller
-              control={control}
-              name="flightDate"
-              render={({ field }) => (
-                <div className={`${styles.textInputWrapper} ${errors.flightDate ? styles.textInputError : ''}`}>
-                  <MIcon name="calendar" size={18} className={styles.textInputIcon} />
-                  <input
-                    className={styles.textInput}
-                    type="date"
-                    value={field.value}
-                    onChange={field.onChange}
-                    aria-label="Flight date"
-                  />
-                </div>
-              )}
-            />
-          </div>
-          <FlightLookupFeedback
-            status={lookup.status}
-            airline={lookup.airline}
-            flightInfo={lookup.flightInfo}
-            errorMessage={lookup.errorMessage}
-            flightDate={watchedFlightDate}
+          <Controller
+            control={control}
+            name="flightDate"
+            render={({ field }) => (
+              <div className={`${styles.textInputWrapper} ${errors.flightDate ? styles.textInputError : ''}`}>
+                <MIcon name="calendar" size={18} className={styles.textInputIcon} />
+                <input
+                  className={styles.textInput}
+                  type="date"
+                  value={field.value}
+                  onChange={(e) => {
+                    const today = new Date().toISOString().split('T')[0];
+                    if (e.target.value && e.target.value < today) {
+                      e.target.value = today;
+                      field.onChange(today);
+                    } else {
+                      field.onChange(e);
+                    }
+                  }}
+                  min={new Date().toISOString().split('T')[0]}
+                  aria-label="Flight date"
+                />
+              </div>
+            )}
+          />
+          <Controller
+            control={control}
+            name="flightNumber"
+            render={({ field }) => (
+              <FlightInput
+                value={field.value ?? ''}
+                onChange={field.onChange}
+                onFlightResolved={(f) => {
+                  setResolvedFlight(f);
+                  if (f?.date) setValue('flightDate', f.date);
+                }}
+                flightDate={watchedFlightDate}
+                direction="TO_MILAN"
+              />
+            )}
           />
           {(errors.flightNumber || errors.flightDate) && (
             <div className={styles.fieldError}>

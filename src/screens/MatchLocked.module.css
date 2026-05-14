@@ -14,7 +14,7 @@
   min-height: 100dvh;
   background: var(--surface-0);
   padding-top: env(safe-area-inset-top);
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   position: relative;
 }
 
@@ -38,14 +38,7 @@
   color: var(--ink);
 }
 
-.brand { display: flex; align-items: center; gap: 6px; }
-.brandDot { width: 8px; height: 8px; border-radius: var(--radius-pill); background: var(--amber); }
-.brandText {
-  font-family: var(--font-display);
-  font-size: var(--fs-20);
-  font-weight: 800;
-  color: var(--ink);
-}
+.brandLogo { height: 28px; width: auto; display: block; }
 
 .foundPill {
   display: inline-flex;
@@ -275,7 +268,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.25), 0 4px 16px rgba(245, 158, 11, 0.20);
+  box-shadow: 0 1px 3px rgba(11, 138, 123, 0.25), 0 4px 16px rgba(11, 138, 123, 0.20);
   cursor: pointer;
   transition: transform var(--dur-press) var(--ease-out);
 }
