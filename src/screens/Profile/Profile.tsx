@@ -3,7 +3,7 @@
    /profile  (ProtectedRoute, TabBar shown)
    ============================================================ */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TopNav } from '../../components/layout/TopNav';
 import { TabBar } from '../../components/layout/TabBar';
@@ -11,7 +11,7 @@ import { HomeIndicator } from '../../components/layout/HomeIndicator';
 import { InstallPrompt } from '../../components/ui/InstallPrompt';
 import { useAuthStore } from '../../stores/authStore';
 import { useAirportStore } from '../../stores/airportStore';
-import { getMe } from '../../services/users';
+import { getMe, requestPhotoUploadUrl, uploadPhotoToS3, waitForPhotoUpdate } from '../../services/users';
 import { getMyTrips } from '../../services/trips';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
 import type { User } from '../../types/api';
@@ -78,7 +78,12 @@ export function Profile() {
   const [user, setUser] = useState<User | null>(authUser);
   const [tripCount, setTripCount] = useState<number | null>(null);
   const [totalSaved, setTotalSaved] = useState<number | null>(null);
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [photoLoadError, setPhotoLoadError] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const airport = useAirportStore((s) => s.selectedAirport);
+  const updateUser = useAuthStore((s) => s.updateUser);
   const { permission, requestPermission, isSupported } = usePushNotifications();
 
   useEffect(() => {
@@ -91,13 +96,56 @@ export function Profile() {
     }).catch(() => {});
   }, []);
 
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
+    if (!allowed.includes(file.type)) {
+      setPhotoError('Formato non supportato. Usa JPG, PNG o WebP.');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setPhotoError('Immagine troppo grande. Massimo 10 MB.');
+      return;
+    }
+
+    setPhotoError(null);
+    setPhotoUploading(true);
+    try {
+      const { uploadUrl, uploadFields, photoKey } = await requestPhotoUploadUrl(file.type);
+      await uploadPhotoToS3(uploadUrl, uploadFields, file);
+
+      // Optimistic update with CDN URL immediately
+      const optimisticPhotoUrl = `${import.meta.env.VITE_CDN_URL}/${photoKey}`;
+      const optimistic = user ? { ...user, photoUrl: optimisticPhotoUrl } : null;
+      if (optimistic) { setUser(optimistic); updateUser(optimistic); setPhotoLoadError(false); }
+
+      // Then replace with processed version from Lambda (resize/blur)
+      waitForPhotoUpdate(user?.photoUrl).then((updated) => {
+        setUser(updated);
+        updateUser(updated);
+        setPhotoLoadError(false); // processed photo is live — retry <img> render
+      }).catch(() => { /* Lambda timeout — optimistic URL stays */ });
+    } catch {
+      setPhotoError('Upload fallito. Riprova.');
+    } finally {
+      setPhotoUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
   function handleLogout() {
     authReset();
     navigate('/');
   }
 
   const initials = user
-    ? (user.name ?? '').split(' ').map((w) => w[0] ?? '').join('').toUpperCase().slice(0, 2) || '?'
+    ? (
+        user.firstName && user.lastName
+          ? (user.firstName[0] + user.lastName[0]).toUpperCase()
+          : (user.name ?? '').split(' ').map((w) => w[0] ?? '').join('').toUpperCase().slice(0, 2)
+      ) || '?'
     : '?';
 
   const fullName = user?.name ?? '';
@@ -110,11 +158,34 @@ export function Profile() {
         {/* Profile card */}
         <div className={styles.profileCard}>
           <div className={styles.avatarWrap}>
-            <div className={styles.avatarInitials}>{initials}</div>
-            <button className={styles.editBadge} aria-label="Edit photo" type="button">
-              ✎
+            {user?.photoUrl && !photoLoadError ? (
+              <img
+                src={user.photoUrl}
+                alt={fullName}
+                className={styles.avatar}
+                onError={() => setPhotoLoadError(true)}
+              />
+            ) : (
+              <div className={styles.avatarInitials}>{initials}</div>
+            )}
+            <button
+              className={`${styles.editBadge} ${photoUploading ? styles.editBadgeLoading : ''}`}
+              aria-label="Modifica foto profilo"
+              type="button"
+              disabled={photoUploading}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              {photoUploading ? '…' : '✎'}
             </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic"
+              className={styles.fileInput}
+              onChange={handlePhotoChange}
+            />
           </div>
+          {photoError && <div className={styles.photoError}>{photoError}</div>}
 
           <div className={styles.profileName}>{fullName || '—'}</div>
           <div className={styles.profileEmail}>{user?.email ?? ''}</div>

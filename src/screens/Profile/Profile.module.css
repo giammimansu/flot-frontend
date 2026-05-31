@@ -65,6 +65,20 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: opacity var(--dur-press);
+}
+.editBadgeLoading {
+  opacity: 0.6;
+  cursor: default;
+}
+.fileInput {
+  display: none;
+}
+.photoError {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--error);
+  text-align: center;
 }
 
 .profileName {

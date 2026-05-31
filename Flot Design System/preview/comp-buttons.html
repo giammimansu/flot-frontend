@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: #fff; padding: 20px 28px; display: flex; flex-direction: column; gap: 14px; }
+  .row { display: flex; gap: 10px; align-items: center; }
+  .row-label { font-size: 10px; font-family: var(--font-mono); color: var(--neutral-400); min-width: 68px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    font-family: var(--font-body); font-weight: 600; border: none; cursor: pointer;
+    border-radius: 8px; transition: all 150ms ease;
+  }
+  .btn-lg { height: 48px; padding: 0 24px; font-size: 16px; }
+  .btn-md { height: 40px; padding: 0 18px; font-size: 14px; }
+  .btn-sm { height: 32px; padding: 0 14px; font-size: 12px; border-radius: 6px; }
+  .btn-primary { background: var(--primary-500); color: #fff; }
+  .btn-accent { background: var(--accent-500); color: #fff; }
+  .btn-secondary { background: var(--neutral-100); color: var(--neutral-800); }
+  .btn-outline { background: transparent; color: var(--primary-600); border: 1.5px solid var(--primary-300); }
+  .btn-ghost { background: transparent; color: var(--primary-600); }
+  .btn-disabled { opacity: 0.4; pointer-events: none; }
+  .btn-pill { border-radius: 9999px; }
+</style>
+</head>
+<body>
+  <div class="row">
+    <span class="row-label">Primary</span>
+    <button class="btn btn-primary btn-lg">Split this ride</button>
+    <button class="btn btn-primary btn-md">Unlock match</button>
+    <button class="btn btn-primary btn-sm">Details</button>
+  </div>
+  <div class="row">
+    <span class="row-label">Variants</span>
+    <button class="btn btn-accent btn-md">Upgrade to PRO</button>
+    <button class="btn btn-secondary btn-md">Cancel</button>
+    <button class="btn btn-outline btn-md">View profile</button>
+    <button class="btn btn-ghost btn-md">Skip</button>
+  </div>
+  <div class="row">
+    <span class="row-label">States</span>
+    <button class="btn btn-primary btn-md btn-pill">Pill button</button>
+    <button class="btn btn-primary btn-md btn-disabled">Disabled</button>
+  </div>
+</body>
+</html>

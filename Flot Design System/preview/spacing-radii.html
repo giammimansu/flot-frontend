@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: #fff; padding: 20px 28px; display: flex; gap: 20px; align-items: center; }
+  .item { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .shape { width: 64px; height: 64px; background: var(--primary-100); border: 2px solid var(--primary-400); }
+  .label { font-size: 10px; font-family: var(--font-mono); color: var(--neutral-500); text-align: center; }
+  .name { font-size: 11px; font-weight: 600; color: var(--neutral-700); }
+</style>
+</head>
+<body>
+  <div class="item">
+    <div class="shape" style="border-radius:4px"></div>
+    <div><div class="name">xs</div><div class="label">4px</div></div>
+  </div>
+  <div class="item">
+    <div class="shape" style="border-radius:8px"></div>
+    <div><div class="name">sm</div><div class="label">8px</div></div>
+  </div>
+  <div class="item">
+    <div class="shape" style="border-radius:12px"></div>
+    <div><div class="name">md</div><div class="label">12px</div></div>
+  </div>
+  <div class="item">
+    <div class="shape" style="border-radius:16px"></div>
+    <div><div class="name">lg</div><div class="label">16px</div></div>
+  </div>
+  <div class="item">
+    <div class="shape" style="border-radius:24px"></div>
+    <div><div class="name">xl</div><div class="label">24px</div></div>
+  </div>
+  <div class="item">
+    <div class="shape" style="border-radius:9999px"></div>
+    <div><div class="name">full</div><div class="label">9999px</div></div>
+  </div>
+</body>
+</html>

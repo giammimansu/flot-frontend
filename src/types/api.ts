@@ -163,13 +163,11 @@ export type MatchResponse = LockedMatch | UnlockedMatch;
 /** POST /trips/:tripId/unlock */
 export interface UnlockRequest {
   matchId: string;
-  fakeDoor: boolean;
 }
 
 export interface UnlockResponse {
-  paymentIntentClientSecret: string;
-  amount: number;
-  currency: string;
+  success?: boolean;
+  matchStatus?: string;
 }
 
 /** GET /users/me */

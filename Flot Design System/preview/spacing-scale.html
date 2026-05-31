@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: #fff; padding: 20px 28px; }
+  .scale { display: flex; align-items: flex-end; gap: 4px; height: 100px; }
+  .bar-group { display: flex; flex-direction: column; align-items: center; gap: 4px; flex: 1; }
+  .bar { background: var(--primary-500); border-radius: 4px 4px 0 0; width: 100%; min-width: 20px; }
+  .val { font-size: 9px; font-family: var(--font-mono); color: var(--neutral-500); }
+  .tok { font-size: 9px; font-family: var(--font-mono); color: var(--neutral-400); }
+</style>
+</head>
+<body>
+  <div class="scale">
+    <div class="bar-group"><div class="val">4</div><div class="bar" style="height:4px"></div><div class="tok">1</div></div>
+    <div class="bar-group"><div class="val">8</div><div class="bar" style="height:8px"></div><div class="tok">2</div></div>
+    <div class="bar-group"><div class="val">12</div><div class="bar" style="height:12px"></div><div class="tok">3</div></div>
+    <div class="bar-group"><div class="val">16</div><div class="bar" style="height:16px"></div><div class="tok">4</div></div>
+    <div class="bar-group"><div class="val">20</div><div class="bar" style="height:20px"></div><div class="tok">5</div></div>
+    <div class="bar-group"><div class="val">24</div><div class="bar" style="height:24px"></div><div class="tok">6</div></div>
+    <div class="bar-group"><div class="val">32</div><div class="bar" style="height:32px"></div><div class="tok">8</div></div>
+    <div class="bar-group"><div class="val">40</div><div class="bar" style="height:40px"></div><div class="tok">10</div></div>
+    <div class="bar-group"><div class="val">48</div><div class="bar" style="height:48px"></div><div class="tok">12</div></div>
+    <div class="bar-group"><div class="val">64</div><div class="bar" style="height:64px"></div><div class="tok">16</div></div>
+    <div class="bar-group"><div class="val">80</div><div class="bar" style="height:80px"></div><div class="tok">20</div></div>
+    <div class="bar-group"><div class="val">96</div><div class="bar" style="height:96px"></div><div class="tok">24</div></div>
+    <div class="bar-group"><div class="val">120</div><div class="bar" style="height:100px"></div><div class="tok">30</div></div>
+  </div>
+</body>
+</html>

@@ -199,15 +199,18 @@ export function FlightSearchSheet({
             </div>
           )}
           {loadState === 'done' && (() => {
+            const now = new Date();
             const q = airportFilter.trim().toLowerCase();
-            const filtered = q
-              ? flights.filter((r) =>
-                  r.originName.toLowerCase().includes(q) ||
-                  r.originIata.toLowerCase().includes(q) ||
-                  r.destName.toLowerCase().includes(q) ||
-                  r.destIata.toLowerCase().includes(q),
-                )
-              : flights;
+            const filtered = flights
+              .filter((r) => !r.scheduledTimeLocal || new Date(r.scheduledTimeLocal) >= now)
+              .filter((r) =>
+                q
+                  ? r.originName.toLowerCase().includes(q) ||
+                    r.originIata.toLowerCase().includes(q) ||
+                    r.destName.toLowerCase().includes(q) ||
+                    r.destIata.toLowerCase().includes(q)
+                  : true,
+              );
             if (filtered.length === 0) return <div className={styles.emptyState}>No flights match "{airportFilter}"</div>;
             return filtered.map((row) => (
               <FlightRowItem key={row.number} row={row} onSelect={handleSelect} direction={apiDir} />

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: #fff; padding: 20px 28px; display: flex; gap: 24px; align-items: center; }
+  .logo-group { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .logo-bg {
+    display: flex; align-items: center; justify-content: center;
+    padding: 16px 24px; border-radius: 12px;
+  }
+  .light-bg { background: #fff; border: 1px solid var(--neutral-100); }
+  .dark-bg { background: var(--neutral-900); }
+  .brand-bg { background: var(--primary-500); }
+  .label { font-size: 10px; font-family: var(--font-mono); color: var(--neutral-400); }
+  .logomark { display: flex; align-items: center; gap: 8px; }
+  .logomark .dots { display: flex; align-items: center; }
+  .logomark .dots .d1 { width: 14px; height: 14px; border-radius: 50%; }
+  .logomark .dots .d2 { width: 14px; height: 14px; border-radius: 50%; margin-left: -2px; }
+  .logomark .wordmark { font-family: var(--font-display); font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+  .icon-box { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+  .icon-dots { display: flex; align-items: center; }
+  .icon-dots .d1 { width: 10px; height: 10px; border-radius: 50%; }
+  .icon-dots .d2 { width: 10px; height: 10px; border-radius: 50%; margin-left: -1px; }
+</style>
+</head>
+<body>
+  <div class="logo-group">
+    <div class="logo-bg light-bg">
+      <div class="logomark">
+        <div class="dots"><div class="d1" style="background:var(--primary-500)"></div><div class="d2" style="background:var(--accent-400)"></div></div>
+        <div class="wordmark" style="color:var(--neutral-900)">flot</div>
+      </div>
+    </div>
+    <div class="label">On light</div>
+  </div>
+  <div class="logo-group">
+    <div class="logo-bg dark-bg">
+      <div class="logomark">
+        <div class="dots"><div class="d1" style="background:var(--primary-400)"></div><div class="d2" style="background:var(--accent-400)"></div></div>
+        <div class="wordmark" style="color:#fff">flot</div>
+      </div>
+    </div>
+    <div class="label">On dark</div>
+  </div>
+  <div class="logo-group">
+    <div class="logo-bg brand-bg">
+      <div class="logomark">
+        <div class="dots"><div class="d1" style="background:#fff"></div><div class="d2" style="background:var(--accent-400)"></div></div>
+        <div class="wordmark" style="color:#fff">flot</div>
+      </div>
+    </div>
+    <div class="label">On brand</div>
+  </div>
+  <div class="logo-group">
+    <div class="icon-box" style="background:var(--primary-500)">
+      <div class="icon-dots"><div class="d1" style="background:#fff"></div><div class="d2" style="background:var(--accent-400)"></div></div>
+    </div>
+    <div class="label">App icon</div>
+  </div>
+</body>
+</html>

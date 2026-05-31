@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 80" fill="none">
+  <circle cx="28" cy="40" r="10" fill="#2EA39B"></circle>
+  <circle cx="52" cy="40" r="10" fill="#F27849"></circle>
+  <rect x="32" y="36" width="16" height="8" rx="4" fill="#2EA39B" opacity="0.4"></rect>
+  <text x="76" y="55" font-family="&#39;Sora&#39;, sans-serif" font-size="42" font-weight="700" fill="#FFFFFF" letter-spacing="-1">flot</text>
+</svg>

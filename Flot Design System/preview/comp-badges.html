@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="../colors_and_type.css">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  body { font-family: var(--font-body); background: #fff; padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .row-label { font-size: 10px; font-family: var(--font-mono); color: var(--neutral-400); min-width: 68px; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 4px 10px; border-radius: 4px;
+    font-size: 11px; font-weight: 600;
+  }
+  .badge-success { background: var(--success-50); color: var(--success-700); }
+  .badge-warning { background: var(--warning-50); color: var(--warning-700); }
+  .badge-error { background: var(--error-50); color: var(--error-700); }
+  .badge-info { background: var(--primary-50); color: var(--primary-700); }
+  .badge-neutral { background: var(--neutral-100); color: var(--neutral-600); }
+  .badge-accent { background: var(--accent-50); color: var(--accent-700); }
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 14px; border-radius: 9999px;
+    font-size: 13px; font-weight: 500; color: var(--neutral-700);
+    background: var(--neutral-50); border: 1px solid var(--neutral-200);
+  }
+  .pill.active { background: var(--primary-50); border-color: var(--primary-300); color: var(--primary-700); }
+  .dot { width: 6px; height: 6px; border-radius: 50%; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 5px 12px; border-radius: 6px;
+    font-size: 12px; font-weight: 600;
+    background: var(--primary-500); color: #fff;
+  }
+  .chip-outline {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 11px; border-radius: 6px;
+    font-size: 12px; font-weight: 600;
+    background: transparent; color: var(--neutral-600); border: 1.5px solid var(--neutral-200);
+  }
+</style>
+</head>
+<body>
+  <div class="row">
+    <span class="row-label">Status</span>
+    <span class="badge badge-success">Matched</span>
+    <span class="badge badge-warning">Pending</span>
+    <span class="badge badge-error">Cancelled</span>
+    <span class="badge badge-info">Searching</span>
+    <span class="badge badge-neutral">Draft</span>
+    <span class="badge badge-accent">PRO</span>
+  </div>
+  <div class="row">
+    <span class="row-label">Filters</span>
+    <span class="pill active"><span class="dot" style="background:var(--primary-500)"></span> Terminal 1</span>
+    <span class="pill">Terminal 2</span>
+    <span class="pill">Any terminal</span>
+  </div>
+  <div class="row">
+    <span class="row-label">Chips</span>
+    <span class="chip">1 carry-on</span>
+    <span class="chip-outline">Flexible ±30m</span>
+    <span class="chip-outline">Milano centro</span>
+  </div>
+</body>
+</html>

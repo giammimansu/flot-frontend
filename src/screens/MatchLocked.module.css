@@ -18,72 +18,19 @@
   position: relative;
 }
 
-.topNav {
-  padding: var(--space-4) var(--space-5) 0;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: relative;
-  z-index: 2;
-}
-
-.backBtn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  padding: 4px;
-  cursor: pointer;
-  color: var(--ink);
-}
-
-.brandLogo { height: 28px; width: auto; display: block; }
-
-.foundPill {
+/* ── Deadline countdown pill in TopNav ── */
+.deadlinePill {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 5px;
+  padding: 5px 10px;
   border-radius: var(--radius-pill);
-  background: var(--success-soft);
+  background: var(--amber-soft, rgba(245, 158, 11, 0.12));
   font-family: var(--font-body);
   font-size: var(--fs-12);
   font-weight: var(--fw-semibold);
-  color: var(--success);
-}
-.foundDot {
-  width: 6px; height: 6px;
-  border-radius: var(--radius-pill);
-  background: var(--success);
-}
-
-.glow {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0.25;
-}
-.glowOuter {
-  width: 220px;
-  height: 220px;
-  border-radius: var(--radius-pill);
-  background: radial-gradient(circle, rgba(220, 252, 231, 0.9) 0%, transparent 70%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.glowInner {
-  width: 72px;
-  height: 72px;
-  border-radius: var(--radius-pill);
-  background: var(--success);
-  color: var(--ink-inverse);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 0 0 16px rgba(22, 163, 74, 0.10);
+  color: var(--amber-dark, #92400e);
+  font-variant-numeric: tabular-nums;
 }
 
 .sheet {
@@ -94,6 +41,8 @@
   animation: sheetUp 450ms var(--ease-out);
   position: relative;
   z-index: 5;
+  /* sheet fills the space below nav */
+  flex: 1;
 }
 .handle {
   width: 40px;
@@ -103,52 +52,67 @@
   margin: 0 auto var(--space-4);
 }
 
+/* ── Celebration header (compact inline) ── */
 .celebration {
-  text-align: center;
-  animation: matchPop var(--dur-match) var(--ease-out);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: matchPop var(--dur-match, 400ms) var(--ease-out);
+  margin-bottom: var(--space-4);
 }
+.celebrationIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background: var(--success);
+  color: var(--ink-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 8px rgba(22, 163, 74, 0.12);
+}
+.celebrationText { flex: 1; }
 .celebrationTitle {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 22px;
   font-weight: 800;
   color: var(--ink);
   letter-spacing: var(--tracking-tight);
   margin: 0;
+  line-height: 1.1;
 }
 .celebrationCopy {
   font-family: var(--font-body);
-  font-size: var(--fs-14);
+  font-size: var(--fs-13);
   color: var(--ink-muted);
-  margin: 6px 0 0;
+  margin: 3px 0 0;
 }
 
-.valueGrid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  margin-top: var(--space-4);
-}
-.valueTile {
-  background: var(--surface-2);
-  border-radius: 18px;
-  padding: 14px;
-  text-align: center;
-}
-.valueTileSavings {
+/* ── Deal tile ── */
+.dealTile {
   background: var(--success-soft);
-  border-radius: 18px;
-  padding: 14px;
+  border-radius: 20px;
+  padding: 16px;
+  margin-bottom: var(--space-3);
+}
+.dealRow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.dealCol {
+  flex: 1;
   text-align: center;
 }
-.valueLabel {
-  font-family: var(--font-body);
-  font-size: 10px;
-  font-weight: var(--fw-semibold);
-  color: var(--ink-subtle);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+.dealDivider {
+  width: 1px;
+  height: 40px;
+  background: rgba(22, 163, 74, 0.2);
+  margin: 0 12px;
+  flex-shrink: 0;
 }
-.valueLabelSavings {
+.dealLabel {
   font-family: var(--font-body);
   font-size: 10px;
   font-weight: var(--fw-semibold);
@@ -156,14 +120,7 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
-.valueDest {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: var(--fw-bold);
-  color: var(--ink);
-  margin-top: 4px;
-}
-.valueSavings {
+.dealSavings {
   font-family: var(--font-display);
   font-size: 28px;
   font-weight: 800;
@@ -172,9 +129,27 @@
   font-feature-settings: "tnum" 1;
   margin-top: 4px;
 }
+.dealDest {
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: var(--fw-bold);
+  color: var(--ink);
+  margin-top: 4px;
+}
+.tripStrip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid rgba(22, 163, 74, 0.15);
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--success-dark, #166534);
+}
 
+/* ── Partner card ── */
 .partnerCard {
-  margin-top: var(--space-3);
   background: var(--surface-2);
   border: 1px solid var(--hairline);
   border-radius: 20px;
@@ -184,6 +159,7 @@
   gap: 14px;
   position: relative;
   overflow: hidden;
+  margin-bottom: var(--space-1);
 }
 .avatarWrap {
   position: relative;
@@ -217,28 +193,42 @@
 }
 
 .partnerInfo { flex: 1; min-width: 0; }
+.partnerNameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
 .partnerName {
   font-family: var(--font-display);
   font-size: var(--fs-18);
   font-weight: var(--fw-bold);
   color: var(--ink);
 }
-.partnerDest {
+.verifiedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: rgba(59, 130, 246, 0.10);
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: var(--fw-semibold);
+  color: #1d4ed8;
+}
+.partnerMeta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
   font-family: var(--font-body);
   font-size: var(--fs-12);
   color: var(--ink-muted);
-  margin-top: 2px;
+  margin-top: 3px;
+  flex-wrap: wrap;
 }
-.partnerSavings {
-  display: inline-block;
-  margin-top: 6px;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--success-soft);
-  font-family: var(--font-body);
-  font-size: 11px;
-  font-weight: var(--fw-semibold);
-  color: var(--success);
+.metaDot {
+  color: var(--ink-subtle);
 }
 .lockBadge {
   width: 36px;
@@ -253,6 +243,7 @@
   color: var(--ink-muted);
 }
 
+/* ── CTA ── */
 .unlockBtn {
   margin-top: 14px;
   width: 100%;
@@ -396,4 +387,23 @@
   font-family: var(--font-body);
   font-size: var(--fs-14);
   cursor: pointer;
+}
+
+/* ── Beta unlock sheet ── */
+.betaIconRow {
+  display: flex;
+  justify-content: center;
+  margin-bottom: var(--space-3);
+}
+.betaIcon {
+  font-size: 48px;
+  line-height: 1;
+}
+.betaBody {
+  font-family: var(--font-body);
+  font-size: var(--fs-14);
+  color: var(--ink-muted);
+  margin-top: var(--space-2);
+  line-height: 1.55;
+  text-align: center;
 }
