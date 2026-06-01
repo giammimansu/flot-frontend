@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flot — Onboarding</title>
+<link rel="stylesheet" href="colors_and_type.css">
+<style>
+  * { margin: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: #1A1D23;
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 24px;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+  }
+  [class^="icon-"], [class*=" icon-"] {
+    display: inline-block; font-style: normal; line-height: 1; vertical-align: middle;
+  }
+  button { font-family: inherit; }
+</style>
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel" src="ios-frame.jsx"></script>
+<script type="text/babel" src="tweaks-panel.jsx"></script>
+<script type="text/babel" src="icons.jsx"></script>
+<script type="text/babel" src="onboarding-content.jsx"></script>
+<script type="text/babel" src="onboarding.jsx"></script>
+
+<script type="text/babel">
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "language": "it",
+  "showVisual": true,
+  "cta": "match",
+  "transition": "slide",
+  "accent": "#E8603A"
+}/*EDITMODE-END*/;
+
+function App() {
+  const [t, setTweak] = useTweaks(TWEAK_DEFAULTS);
+  return (
+    <React.Fragment>
+      <IOSDevice dark={false} title={undefined}>
+        <Onboarding t={t} />
+      </IOSDevice>
+      <TweaksPanel>
+        <TweakSection label="Contenuto" />
+        <TweakRadio label="Lingua" value={t.language} options={['it', 'en']}
+                    onChange={(v) => setTweak('language', v)} />
+        <TweakRadio label="CTA finale" value={t.cta} options={['match', 'rideshare']}
+                    onChange={(v) => setTweak('cta', v)} />
+        <TweakSection label="Aspetto" />
+        <TweakToggle label="Visual nelle card" value={t.showVisual}
+                     onChange={(v) => setTweak('showVisual', v)} />
+        <TweakRadio label="Transizione" value={t.transition} options={['slide', 'fade']}
+                    onChange={(v) => setTweak('transition', v)} />
+        <TweakColor label="Colore CTA" value={t.accent}
+                    options={['#E8603A', '#F27849', '#D4502D', '#0B8A7B']}
+                    onChange={(v) => setTweak('accent', v)} />
+      </TweaksPanel>
+    </React.Fragment>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
+</body>
+</html>

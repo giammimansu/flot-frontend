@@ -41,6 +41,9 @@ const Profile = lazy(() =>
 const IdentityVerification = lazy(() =>
   import('./screens/IdentityVerification').then((m) => ({ default: m.IdentityVerification }))
 );
+const Onboarding = lazy(() =>
+  import('./screens/Onboarding').then((m) => ({ default: m.Onboarding }))
+);
 
 function ScreenLoader() {
   return (
@@ -116,8 +119,38 @@ function ForegroundNotifications() {
 
 function TabBarContainer() {
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return null;
+  const location = useLocation();
+  if (!isAuthenticated || location.pathname === '/onboarding') return null;
   return <TabBar />;
+}
+
+function OnboardingRedirector() {
+  const { isAuthenticated, isLoading, user } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    if (isAuthenticated && user) {
+      const hasSeenOnboarding = localStorage.getItem(`onboarding_seen_${user.userId}`);
+      if (!hasSeenOnboarding) {
+        if (location.pathname !== '/onboarding') {
+          navigate('/onboarding', { replace: true });
+        }
+      } else {
+        if (location.pathname === '/onboarding') {
+          navigate('/airport', { replace: true });
+        }
+      }
+    } else {
+      if (location.pathname === '/onboarding') {
+        navigate('/', { replace: true });
+      }
+    }
+  }, [isAuthenticated, isLoading, user, location.pathname, navigate]);
+
+  return null;
 }
 
 export function App() {
@@ -125,12 +158,14 @@ export function App() {
     <HashRouter>
       <ErrorBoundary>
         <AuthInit />
+        <OnboardingRedirector />
         <ForegroundNotifications />
         <Toast />
         <Suspense fallback={<ScreenLoader />}>
           <Routes>
             <Route path="/" element={wrap(<EntryPoint />)} />
             <Route path="/airport" element={wrap(<AirportPicker />)} />
+            <Route path="/onboarding" element={wrap(<ProtectedRoute><Onboarding /></ProtectedRoute>)} />
             <Route path="/check-in" element={wrap(<ProtectedRoute><TravelCheckin /></ProtectedRoute>)} />
             <Route path="/search" element={wrap(<ProtectedRoute><ActiveSearch /></ProtectedRoute>)} />
             <Route path="/trip/:tripId" element={wrap(<ProtectedRoute><TripScheduled /></ProtectedRoute>)} />

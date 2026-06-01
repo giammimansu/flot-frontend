@@ -14,6 +14,7 @@ import {
   authSignOut,
 } from '../services/auth';
 import type { SocialProvider } from '../services/auth';
+import { Hub } from 'aws-amplify/utils';
 
 /** Call this ONCE at app boot (in AuthInit). Runs the Cognito session check. */
 export function useAuthInit() {
@@ -24,6 +25,23 @@ export function useAuthInit() {
 
     async function checkAuth() {
       setLoading();
+
+      const isDevBypass = !import.meta.env.VITE_COGNITO_USER_POOL_ID;
+      if (isDevBypass) {
+        const devUserStr = localStorage.getItem('dev_user_session');
+        if (devUserStr) {
+          try {
+            const devUser = JSON.parse(devUserStr);
+            setAuthenticated(devUser, 'mock-token');
+            return;
+          } catch {
+            // ignore
+          }
+        }
+        setUnauthenticated();
+        return;
+      }
+
       const cognitoUser = await getAuthUser();
       if (cancelled) return;
 
@@ -65,7 +83,22 @@ export function useAuthInit() {
     }
 
     checkAuth();
-    return () => { cancelled = true; };
+
+    const unsubscribe = Hub.listen('auth', ({ payload }) => {
+      switch (payload.event) {
+        case 'signedIn':
+          checkAuth();
+          break;
+        case 'signedOut':
+          setUnauthenticated();
+          break;
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      unsubscribe();
+    };
   }, [setAuthenticated, setUnauthenticated, setLoading]);
 }
 
@@ -75,12 +108,39 @@ export function useAuth() {
 
   /** Trigger social login */
   const login = useCallback(async (provider: SocialProvider) => {
-    await socialSignIn(provider);
-  }, []);
+    const isDevBypass = !import.meta.env.VITE_COGNITO_USER_POOL_ID;
+    if (isDevBypass) {
+      const devUser = {
+        userId: 'dev-user-id',
+        email: 'dev@flot.app',
+        name: 'Dev User',
+        firstName: 'Dev',
+        lastName: 'User',
+        photoUrl: '',
+        blurredPhotoUrl: '',
+        isPro: false,
+        verified: true,
+        lang: 'it',
+        createdAt: new Date().toISOString(),
+      };
+      localStorage.setItem('dev_user_session', JSON.stringify(devUser));
+      useAuthStore.getState().setAuthenticated(devUser, 'mock-token');
+
+      const selectedAirport = useAirportStore.getState().selectedAirport;
+      navigate(selectedAirport ? '/check-in' : '/airport');
+    } else {
+      await socialSignIn(provider);
+    }
+  }, [navigate]);
 
   /** Sign out and navigate home */
   const logout = useCallback(async () => {
-    await authSignOut();
+    const isDevBypass = !import.meta.env.VITE_COGNITO_USER_POOL_ID;
+    if (isDevBypass) {
+      localStorage.removeItem('dev_user_session');
+    } else {
+      await authSignOut();
+    }
     reset();
     navigate('/');
   }, [reset, navigate]);

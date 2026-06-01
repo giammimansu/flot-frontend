@@ -366,10 +366,9 @@ export function EntryPoint() {
 
   const handleLogin = useCallback(
     (provider: 'Google' | 'Apple') => {
-      if (isDevBypass) navigate('/airport');
-      else login(provider);
+      login(provider);
     },
-    [login, navigate],
+    [login],
   );
 
   const scrollToAuth = () => {

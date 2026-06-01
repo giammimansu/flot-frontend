@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Flot — Landing Page</title>
+<link rel="stylesheet" href="colors_and_type.css" />
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: #E7EBF0;
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  #stage {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #root { transform-origin: center center; }
+
+  /* hide inner scrollbar of the phone content */
+  #root *::-webkit-scrollbar { width: 0; height: 0; }
+  #root * { scrollbar-width: none; }
+
+  /* press state */
+  .btn-press { transition: transform 100ms var(--ease-out), filter 150ms var(--ease-out); }
+  .btn-press:hover { filter: brightness(0.94); }
+  .btn-press:active { transform: scale(0.97); }
+
+  a { transition: color 150ms var(--ease-out); }
+  a:hover { color: #fff !important; }
+
+  /* live feed dot */
+  .live-dot {
+    width: 9px; height: 9px; border-radius: 50%;
+    background: var(--accent-400);
+    box-shadow: 0 0 0 0 rgba(248,130,91,0.6);
+    animation: pulse 1.8s infinite var(--ease-out);
+    display: inline-block;
+  }
+  @keyframes pulse {
+    0%   { box-shadow: 0 0 0 0 rgba(248,130,91,0.55); }
+    70%  { box-shadow: 0 0 0 8px rgba(248,130,91,0); }
+    100% { box-shadow: 0 0 0 0 rgba(248,130,91,0); }
+  }
+
+  /* feed enter animation */
+  .feed-enter { animation: feedIn 450ms var(--ease-out); }
+  @keyframes feedIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* reveal entrance — transform only so content is always visible even if the
+     animation clock is paused (e.g. backgrounded tab) */
+  .reveal { animation: revealUp 560ms var(--ease-out) both; }
+  @keyframes revealUp {
+    from { transform: translateY(16px); }
+    to   { transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+  <div id="stage">
+    <div id="root"></div>
+  </div>
+
+  <template id="__bundler_thumbnail">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+      <rect width="64" height="64" rx="14" fill="#0B8A7B"></rect>
+      <circle cx="22" cy="32" r="8" fill="white"></circle>
+      <circle cx="42" cy="32" r="8" fill="#F27849"></circle>
+      <rect x="25" y="29" width="14" height="6" rx="3" fill="white" opacity="0.4"></rect>
+    </svg>
+  </template>
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+  <script type="text/babel" src="ios-frame.jsx"></script>
+  <script type="text/babel" src="landing.jsx"></script>
+
+  <script>
+    function scaleStage() {
+      const root = document.getElementById('root');
+      const device = root.firstElementChild;
+      if (!device) return;
+      const dw = 402, dh = 874;
+      const pad = 32;
+      const scale = Math.min((window.innerWidth - pad) / dw, (window.innerHeight - pad) / dh, 1.1);
+      root.style.transform = 'scale(' + scale + ')';
+    }
+    window.addEventListener('resize', scaleStage);
+    const obs = new MutationObserver(scaleStage);
+    obs.observe(document.getElementById('root'), { childList: true });
+    setInterval(scaleStage, 500);
+    scaleStage();
+  </script>
+</body>
+</html>
