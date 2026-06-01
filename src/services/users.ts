@@ -74,3 +74,16 @@ export async function waitForPhotoUpdate(
   }
   throw new Error('PHOTO_UPDATE_TIMEOUT');
 }
+
+export interface UpdateProfilePayload {
+  gender?: string;
+  ageGroup?: string;
+  lang?: string;
+  onboarding?: boolean;
+  name?: string;
+}
+
+/** PUT /users/me */
+export async function updateProfile(payload: UpdateProfilePayload): Promise<User> {
+  return api.put('users/me', { json: payload }).json<User>();
+}

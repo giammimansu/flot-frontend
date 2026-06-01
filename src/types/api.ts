@@ -182,8 +182,13 @@ export interface User {
   isPro: boolean;
   verified: boolean;
   lang: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  ageGroup?: '18-25' | '26-35' | '36-45' | '46-55' | '56+';
+  onboarding: boolean;
   createdAt: string;
 }
+
+export type UserProfile = User;
 
 /** POST /users/me/verify */
 export interface VerifyResponse {

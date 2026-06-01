@@ -14,6 +14,7 @@ import {
   authSignOut,
 } from '../services/auth';
 import type { SocialProvider } from '../services/auth';
+import { getMe } from '../services/users';
 import { Hub } from 'aws-amplify/utils';
 
 /** Call this ONCE at app boot (in AuthInit). Runs the Cognito session check. */
@@ -32,6 +33,9 @@ export function useAuthInit() {
         if (devUserStr) {
           try {
             const devUser = JSON.parse(devUserStr);
+            if (devUser.onboarding === undefined) {
+              devUser.onboarding = false;
+            }
             setAuthenticated(devUser, 'mock-token');
             return;
           } catch {
@@ -61,6 +65,8 @@ export function useAuthInit() {
         const photoUrl = String(claims['picture'] ?? '');
         const email = String(claims['email'] ?? '');
 
+        // Set authenticated with fallback claims first, defaulting onboarding to true
+        // to prevent page flashes for onboarded users while the profile is fetching.
         setAuthenticated(
           {
             userId: cognitoUser.userId,
@@ -72,11 +78,21 @@ export function useAuthInit() {
             blurredPhotoUrl: '',
             isPro: false,
             verified: false,
-            lang: 'en',
+            lang: 'it',
+            onboarding: true,
             createdAt: '',
           },
           token ?? '',
         );
+
+        try {
+          const profile = await getMe();
+          if (!cancelled) {
+            setAuthenticated(profile, token ?? '');
+          }
+        } catch (error) {
+          console.error('[useAuthInit] Failed to fetch profile from backend:', error);
+        }
       } else {
         setUnauthenticated();
       }
@@ -121,6 +137,7 @@ export function useAuth() {
         isPro: false,
         verified: true,
         lang: 'it',
+        onboarding: false,
         createdAt: new Date().toISOString(),
       };
       localStorage.setItem('dev_user_session', JSON.stringify(devUser));

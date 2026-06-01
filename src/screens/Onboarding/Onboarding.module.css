@@ -1,0 +1,233 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  background-color: var(--neutral-50);
+  color: var(--neutral-900);
+  font-family: var(--font-body);
+  overflow: hidden;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-6) var(--space-6) var(--space-3);
+  position: relative;
+  min-height: 64px;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-2);
+  margin-left: calc(-1 * var(--space-2));
+  color: var(--neutral-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-full);
+  transition: background-color var(--dur-press) var(--ease-out), color var(--dur-press) var(--ease-out);
+}
+
+.backBtn:active {
+  background-color: var(--neutral-100);
+  color: var(--neutral-900);
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-bold);
+  color: var(--primary-600);
+  letter-spacing: var(--tracking-snug);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.progressContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-6);
+}
+
+.progressBarBg {
+  height: 6px;
+  background-color: var(--neutral-200);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  width: 100%;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: var(--primary-500);
+  border-radius: var(--radius-full);
+  transition: width var(--dur-base) var(--ease-out);
+}
+
+.stepIndicator {
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--neutral-500);
+  text-align: right;
+}
+
+.contentWrapper {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+}
+
+.stepContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.illustrationContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: clamp(80px, 15vh, 120px);
+  font-size: 64px;
+}
+
+.illustration {
+  animation: float 4s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+.textGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  text-align: center;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: var(--fs-28);
+  font-weight: var(--fw-bold);
+  color: var(--neutral-900);
+  line-height: var(--lh-tight);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: var(--fs-14);
+  color: var(--neutral-500);
+  line-height: var(--lh-normal);
+  margin: 0;
+}
+
+.optionsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+/* Custom SelectPill Component Styles */
+.pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 18px 24px;
+  background-color: var(--neutral-0);
+  border: 1.5px solid var(--neutral-200);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-align: left;
+  font-size: var(--fs-16);
+  font-weight: var(--fw-medium);
+  color: var(--neutral-800);
+  box-shadow: var(--shadow-card);
+  transition: all var(--dur-press) var(--ease-out);
+}
+
+.pill:hover:not(.selected) {
+  border-color: var(--neutral-300);
+  transform: translateY(-1px);
+}
+
+.pill:active {
+  transform: scale(0.99) translateY(0);
+}
+
+.selected {
+  background-color: var(--primary-50);
+  border-color: var(--primary-500);
+  color: var(--primary-700);
+  font-weight: var(--fw-semibold);
+}
+
+.radioCircle {
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--neutral-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color var(--dur-fast) var(--ease-out), background-color var(--dur-fast) var(--ease-out);
+}
+
+.selected .radioCircle {
+  border-color: var(--primary-500);
+  background-color: var(--primary-500);
+}
+
+.radioDot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--neutral-0);
+  transform: scale(0);
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+
+.selected .radioDot {
+  transform: scale(1);
+}
+
+.footer {
+  padding: var(--space-4) var(--space-6) clamp(var(--space-6), 4vh, var(--space-8));
+  background-color: var(--neutral-0);
+  box-shadow: var(--shadow-sheet);
+  border-top: 1px solid var(--neutral-100);
+  z-index: 10;
+}
+
+.footerInner {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.errorBanner {
+  background-color: var(--error-50);
+  border: 1px solid var(--error-100);
+  color: var(--error-700);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  font-size: var(--fs-14);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}

@@ -133,14 +133,13 @@ function OnboardingRedirector() {
     if (isLoading) return;
 
     if (isAuthenticated && user) {
-      const hasSeenOnboarding = localStorage.getItem(`onboarding_seen_${user.userId}`);
-      if (!hasSeenOnboarding) {
+      if (!user.onboarding) {
         if (location.pathname !== '/onboarding') {
           navigate('/onboarding', { replace: true });
         }
       } else {
         if (location.pathname === '/onboarding') {
-          navigate('/airport', { replace: true });
+          navigate('/check-in', { replace: true });
         }
       }
     } else {
