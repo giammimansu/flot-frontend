@@ -38,10 +38,22 @@ export function TopNav({
 }: TopNavProps) {
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const [photoError, setPhotoError] = useState(false);
   const user = useAuthStore((s) => s.user);
-  const initials = user
-    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
-    : '?';
+
+  // Initials: prefer first/last, fall back to splitting `name` (OAuth users).
+  const initials = (() => {
+    if (!user) return '?';
+    const fromParts = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.trim();
+    if (fromParts) return fromParts.toUpperCase();
+    const fromName = (user.name ?? '')
+      .split(' ')
+      .map((w) => w[0] ?? '')
+      .join('')
+      .slice(0, 2);
+    return fromName.toUpperCase() || '?';
+  })();
+  const showPhoto = !!user?.photoUrl && !photoError;
 
   return (
     <nav className={styles.root} aria-label="Top navigation">
@@ -85,7 +97,16 @@ export function TopNav({
             aria-haspopup="dialog"
             aria-expanded={menuOpen}
           >
-            <span className={styles.avatarInitials}>{initials}</span>
+            {showPhoto ? (
+              <img
+                src={user!.photoUrl}
+                alt={user?.name ?? 'Profile'}
+                className={styles.avatarImg}
+                onError={() => setPhotoError(true)}
+              />
+            ) : (
+              <span className={styles.avatarInitials}>{initials}</span>
+            )}
           </button>
         )}
       </div>
