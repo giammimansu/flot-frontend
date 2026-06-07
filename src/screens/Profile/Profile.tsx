@@ -9,13 +9,35 @@ import { TopNav } from '../../components/layout/TopNav';
 import { TabBar } from '../../components/layout/TabBar';
 import { HomeIndicator } from '../../components/layout/HomeIndicator';
 import { InstallPrompt } from '../../components/ui/InstallPrompt';
+import { BottomSheet } from '../../components/ui/BottomSheet';
+import { MBtn } from '../../components/ui';
 import { useAuthStore } from '../../stores/authStore';
 import { useAirportStore } from '../../stores/airportStore';
-import { getMe, requestPhotoUploadUrl, uploadPhotoToS3, waitForPhotoUpdate } from '../../services/users';
+import { getMe, requestPhotoUploadUrl, uploadPhotoToS3, waitForPhotoUpdate, updateProfile } from '../../services/users';
 import { getMyTrips } from '../../services/trips';
+import { getUserRating } from '../../services/reviews';
+import { parseApiError } from '../../services/api';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
 import type { User } from '../../types/api';
 import styles from './Profile.module.css';
+
+const LANG_OPTIONS = [
+  { value: 'it', label: 'Italiano' },
+  { value: 'en', label: 'English' },
+  { value: 'fr', label: 'Français' },
+  { value: 'de', label: 'Deutsch' },
+  { value: 'es', label: 'Español' },
+];
+const GENDER_OPTIONS = [
+  { value: 'male', label: 'Uomo' },
+  { value: 'female', label: 'Donna' },
+  { value: 'other', label: 'Altro' },
+  { value: 'prefer_not_to_say', label: 'Preferisco non dirlo' },
+];
+const AGE_OPTIONS = ['18-25', '26-35', '36-45', '46-55', '56+'].map((v) => ({ value: v, label: v }));
+
+const labelOf = (opts: { value: string; label: string }[], v?: string) =>
+  opts.find((o) => o.value === v)?.label ?? '—';
 
 /* ── Sub-components ── */
 
@@ -81,13 +103,24 @@ export function Profile() {
   const [photoUploading, setPhotoUploading] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [photoLoadError, setPhotoLoadError] = useState(false);
+  const [ratingAvg, setRatingAvg] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const airport = useAirportStore((s) => s.selectedAirport);
   const updateUser = useAuthStore((s) => s.updateUser);
+
+  const [editing, setEditing] = useState(false);
+  const [form, setForm] = useState({ lang: '', gender: '', ageGroup: '' });
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const { permission, requestPermission, isSupported } = usePushNotifications();
 
   useEffect(() => {
-    getMe().then(setUser).catch(() => { /* fallback to cached auth user */ });
+    getMe().then((u) => {
+      setUser(u);
+      if (u?.userId) {
+        getUserRating(u.userId).then((r) => setRatingAvg(r.average)).catch(() => {});
+      }
+    }).catch(() => { /* fallback to cached auth user */ });
     getMyTrips().then((res) => {
       const completed = res.trips.filter((t) => t.status === 'completed' || t.status === 'unlocked');
       setTripCount(completed.length);
@@ -132,6 +165,37 @@ export function Profile() {
     } finally {
       setPhotoUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  }
+
+  function openEdit() {
+    setForm({
+      lang: user?.lang ?? '',
+      gender: user?.gender ?? '',
+      ageGroup: user?.ageGroup ?? '',
+    });
+    setSaveError(null);
+    setEditing(true);
+  }
+
+  async function handleSaveProfile() {
+    if (saving) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const updated = await updateProfile({
+        lang: form.lang || undefined,
+        gender: form.gender || undefined,
+        ageGroup: form.ageGroup || undefined,
+      });
+      setUser(updated);
+      updateUser(updated);
+      setEditing(false);
+    } catch (err) {
+      const { message } = await parseApiError(err);
+      setSaveError(message || 'Salvataggio fallito. Riprova.');
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -206,10 +270,19 @@ export function Profile() {
             </div>
             <div className={styles.statDivider} />
             <div className={styles.statItem}>
-              <div className={styles.statValue}>—</div>
+              <div className={styles.statValue}>{ratingAvg != null ? ratingAvg.toFixed(1) : '—'}</div>
               <div className={styles.statLabel}>Rating</div>
             </div>
           </div>
+        </div>
+
+        {/* Account */}
+        <div className={styles.sectionLabel}>Account</div>
+        <div className={styles.section}>
+          <Row icon="🌐" label="Lingua" sub={labelOf(LANG_OPTIONS, user?.lang)} />
+          <Row icon="👤" label="Genere" sub={labelOf(GENDER_OPTIONS, user?.gender)} />
+          <Row icon="🎂" label="Fascia d'età" sub={user?.ageGroup ?? '—'} />
+          <Row icon="✎" label="Modifica profilo" onClick={openEdit} />
         </div>
 
         {/* Install prompt */}
@@ -251,6 +324,57 @@ export function Profile() {
 
         <HomeIndicator />
       </div>
+
+      <BottomSheet open={editing} onClose={() => setEditing(false)} aria-label="Modifica profilo">
+        <div className={styles.editSheet}>
+          <h2 className={styles.editTitle}>Modifica profilo</h2>
+
+          <label className={styles.editField}>
+            <span className={styles.editLabel}>Lingua</span>
+            <select
+              className={styles.editSelect}
+              value={form.lang}
+              onChange={(e) => setForm((f) => ({ ...f, lang: e.target.value }))}
+            >
+              <option value="">—</option>
+              {LANG_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+
+          <label className={styles.editField}>
+            <span className={styles.editLabel}>Genere</span>
+            <select
+              className={styles.editSelect}
+              value={form.gender}
+              onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
+            >
+              <option value="">—</option>
+              {GENDER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+
+          <label className={styles.editField}>
+            <span className={styles.editLabel}>Fascia d'età</span>
+            <select
+              className={styles.editSelect}
+              value={form.ageGroup}
+              onChange={(e) => setForm((f) => ({ ...f, ageGroup: e.target.value }))}
+            >
+              <option value="">—</option>
+              {AGE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+            </select>
+          </label>
+
+          {saveError && <div className={styles.editError}>{saveError}</div>}
+
+          <MBtn variant="dark" onClick={handleSaveProfile} loading={saving} disabled={saving}>
+            Salva
+          </MBtn>
+          <MBtn variant="secondary" onClick={() => setEditing(false)} disabled={saving}>
+            Annulla
+          </MBtn>
+        </div>
+      </BottomSheet>
 
       <TabBar />
     </div>

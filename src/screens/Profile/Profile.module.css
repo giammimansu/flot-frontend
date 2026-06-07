@@ -249,3 +249,46 @@
 }
 
 .installPrompt { margin: var(--space-4) var(--space-5) 0; }
+
+/* ── Edit profile sheet ── */
+.editSheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-2) 2px;
+}
+.editTitle {
+  font-family: var(--font-display);
+  font-size: var(--fs-20);
+  font-weight: var(--fw-bold);
+  color: var(--ink);
+  margin: 0 0 var(--space-1);
+}
+.editField {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.editLabel {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--ink-muted);
+}
+.editSelect {
+  font-family: var(--font-body);
+  font-size: var(--fs-15);
+  color: var(--ink);
+  background: var(--surface-1);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  appearance: none;
+}
+.editSelect:focus { outline: none; border-color: var(--amber); }
+.editError {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--error);
+  text-align: center;
+}

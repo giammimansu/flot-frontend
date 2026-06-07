@@ -71,6 +71,8 @@ export function TravelCheckin() {
   const selectAirport = useAirportStore((s) => s.selectAirport);
   const submitTrip = useTripStore((s) => s.submitTrip);
   const tripStatus = useTripStore((s) => s.status);
+  const banned = useTripStore((s) => s.banned);
+  const bannedMessage = useTripStore((s) => s.error);
   const preferredMode = useTripStore((s) => s.preferredMode);
 
 
@@ -152,11 +154,13 @@ export function TravelCheckin() {
     });
 
     if (!result) {
-      const tripError = useTripStore.getState().error;
+      const { error: tripError, banned: isBanned } = useTripStore.getState();
       if (tripError === 'AUTH_REQUIRED') {
         navigate('/', { replace: true });
         return;
       }
+      // Banned: the inline banner already explains it — no generic toast.
+      if (isBanned) return;
       showToast({ title: 'Error', body: tripError ?? 'Could not create the trip. Please try again.' });
       return;
     }
@@ -245,7 +249,9 @@ export function TravelCheckin() {
                   if (f?.date) setValue('flightDate', f.date);
                 }}
                 flightDate={watchedFlightDate}
-                direction="TO_MILAN"
+                direction={airport?.directionLabels[0] ?? 'TO_CITY'}
+                airportCode={airport?.code}
+                airportName={airport?.name}
               />
             )}
           />
@@ -335,15 +341,23 @@ export function TravelCheckin() {
         <div className={styles.ctaSpacer} />
       </div>
 
+      {/* Banned banner (#10 trustScore — 403 on create) */}
+      {banned && (
+        <div className={styles.bannedBanner} role="alert">
+          <MIcon name="alert-circle" size={16} sw={2} />
+          <span>{bannedMessage ?? 'Account sospeso. Contatta il supporto.'}</span>
+        </div>
+      )}
+
       {/* 7. CTA */}
       <div className={styles.ctaBar}>
         <MBtn
           variant="primary"
-          disabled={isSubmitting}
+          disabled={isSubmitting || banned}
           icon={mode === 'live' ? 'search' : 'timer'}
           onClick={handleSubmit(onSubmit, onError)}
         >
-          {isSubmitting ? 'Please wait…' : ctaLabel}
+          {isSubmitting ? 'Please wait…' : banned ? 'Account sospeso' : ctaLabel}
         </MBtn>
       </div>
 

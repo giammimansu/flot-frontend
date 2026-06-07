@@ -4,6 +4,10 @@ import { MIcon, MSegment, MBtn } from '../components/ui';
 import { BottomSheet } from '../components/ui/BottomSheet';
 import { TripCard } from '../components/trips/TripCard';
 import { PushPrompt } from '../components/trips/PushPrompt';
+import { ReviewSheet } from '../components/ReviewSheet/ReviewSheet';
+import { NotificationsSheet } from '../components/NotificationsSheet/NotificationsSheet';
+import { getNotifications } from '../services/notifications';
+import type { NotificationItem } from '../types/api';
 import { useAuth } from '../hooks/useAuth';
 import { useAirportStore } from '../stores/airportStore';
 import { getMyTrips, cancelTrip } from '../services/trips';
@@ -23,6 +27,12 @@ export function MyTrips() {
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [cancelTripId, setCancelTripId] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
+  const [reviewMatchId, setReviewMatchId] = useState<string | null>(null);
+  const [reviewedMatchIds, setReviewedMatchIds] = useState<Set<string>>(new Set());
+  const [notifs, setNotifs] = useState<NotificationItem[]>([]);
+  const [notifsLoading, setNotifsLoading] = useState(true);
+  const [notifsOpen, setNotifsOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
 
   const fetchTrips = async () => {
     setFetchError(null);
@@ -44,7 +54,19 @@ export function MyTrips() {
 
   useEffect(() => {
     fetchTrips();
+    getNotifications()
+      .then((res) => {
+        setNotifs(res.notifications);
+        setUnreadCount(res.notifications.filter((n) => !n.read).length);
+      })
+      .catch(() => { /* feed is best-effort */ })
+      .finally(() => setNotifsLoading(false));
   }, []);
+
+  const openNotifs = () => {
+    setNotifsOpen(true);
+    setUnreadCount(0); // mark seen locally (no backend mark-read endpoint)
+  };
 
   const handleCancel = (tripId: string) => {
     setCancelTripId(tripId);
@@ -86,6 +108,15 @@ export function MyTrips() {
           <div className={styles.greeting}>Hey, {user?.firstName || 'Traveler'} 👋</div>
           <h1 className={styles.title}>My trips</h1>
         </div>
+        <button
+          type="button"
+          className={styles.bellBtn}
+          onClick={openNotifs}
+          aria-label={`Notifiche${unreadCount ? `, ${unreadCount} non lette` : ''}`}
+        >
+          🔔
+          {unreadCount > 0 && <span className={styles.bellBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
+        </button>
       </header>
 
       <div className={styles.statsStrip}>
@@ -135,7 +166,13 @@ export function MyTrips() {
           </div>
         ) : displayedTrips.length > 0 ? (
           displayedTrips.map(trip => (
-            <TripCard key={trip.tripId} trip={trip} onCancelClick={handleCancel} />
+            <TripCard
+              key={trip.tripId}
+              trip={trip}
+              onCancelClick={handleCancel}
+              onReviewClick={setReviewMatchId}
+              reviewed={!!trip.matchId && reviewedMatchIds.has(trip.matchId)}
+            />
           ))
         ) : (
           <div className={styles.emptyState}>
@@ -170,6 +207,23 @@ export function MyTrips() {
           </MBtn>
         </div>
       </BottomSheet>
+
+      <ReviewSheet
+        open={!!reviewMatchId}
+        matchId={reviewMatchId}
+        onClose={() => setReviewMatchId(null)}
+        onSubmitted={(matchId) => {
+          setReviewedMatchIds((prev) => new Set(prev).add(matchId));
+          setReviewMatchId(null);
+        }}
+      />
+
+      <NotificationsSheet
+        open={notifsOpen}
+        items={notifs}
+        loading={notifsLoading}
+        onClose={() => setNotifsOpen(false)}
+      />
     </div>
   );
 }

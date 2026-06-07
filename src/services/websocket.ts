@@ -6,8 +6,8 @@
 import { getAccessToken } from './auth';
 import type { WsClientMessage, WsServerEvent } from '../types/ws';
 
-type EventName = WsServerEvent['event'];
-type EventPayload<E extends EventName> = Extract<WsServerEvent, { event: E }>['data'];
+type EventName = WsServerEvent['type'];
+type EventPayload<E extends EventName> = Extract<WsServerEvent, { type: E }>['data'];
 type Listener<E extends EventName> = (data: EventPayload<E>) => void;
 type AnyListener = (ev: WsServerEvent) => void;
 type GenericListener = (data: unknown) => void;
@@ -111,10 +111,14 @@ class FlotWebSocket {
     } catch {
       return;
     }
-    if (!parsed || typeof parsed !== 'object' || !('event' in parsed)) return;
-    const ev = parsed as WsServerEvent;
+    // Backend uses `type` as the discriminant. Tolerate legacy `event` too.
+    if (!parsed || typeof parsed !== 'object') return;
+    const obj = parsed as Record<string, unknown>;
+    const name = (obj.type ?? obj.event) as EventName | undefined;
+    if (!name) return;
+    const ev = { type: name, data: obj.data } as WsServerEvent;
     this.anyListeners.forEach((fn) => fn(ev));
-    const set = this.listeners.get(ev.event);
+    const set = this.listeners.get(name);
     if (set) {
       set.forEach((fn) => fn(ev.data));
     }

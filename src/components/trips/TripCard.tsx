@@ -2,15 +2,19 @@ import { useNavigate } from 'react-router-dom';
 import { MBtn } from '../ui';
 import { TripStatusBadge } from './TripStatusBadge';
 import { useAirportStore } from '../../stores/airportStore';
-import { formatDateShort } from '../../lib/formatters';
+import { formatDateShort, formatCurrency } from '../../lib/formatters';
 import styles from './TripCard.module.css';
 
 interface TripCardProps {
   trip: import('../../types/api').MyTripsResponse['trips'][0];
   onCancelClick?: (tripId: string) => void;
+  /** Open the review sheet for a completed trip's match. */
+  onReviewClick?: (matchId: string) => void;
+  /** Whether this trip's match has already been reviewed. */
+  reviewed?: boolean;
 }
 
-export function TripCard({ trip, onCancelClick }: TripCardProps) {
+export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripCardProps) {
   const navigate = useNavigate();
   const airport = useAirportStore((s) => s.selectedAirport);
 
@@ -31,8 +35,10 @@ export function TripCard({ trip, onCancelClick }: TripCardProps) {
   const isScheduled = trip.status === 'scheduled';
   const isCancelled = trip.status === 'cancelled';
 
-  // For MVP, hardcode ~ savings or pull from stats if unlocked/completed
-  const savingsAmount = isCompleted || isUnlocked ? '€60' : '~€60';
+  // Savings = half the airport's fixed fare (per-airport, never hardcoded).
+  const halfFareCents = Math.round((airport?.baseFare ?? 12000) / 2);
+  const savingsFmt = formatCurrency(halfFareCents, airport?.currency ?? 'EUR');
+  const savingsAmount = isCompleted || isUnlocked ? savingsFmt : `~${savingsFmt}`;
 
   return (
     <div className={styles.card}>
@@ -95,6 +101,17 @@ export function TripCard({ trip, onCancelClick }: TripCardProps) {
             <MBtn variant="primary" small onClick={() => handleOpenChat()} icon="message-circle">
               Apri chat
             </MBtn>
+          )}
+          {isCompleted && trip.matchId && onReviewClick && (
+            reviewed ? (
+              <MBtn variant="ghost" small disabled icon="check">
+                Recensito
+              </MBtn>
+            ) : (
+              <MBtn variant="primary" small onClick={() => onReviewClick(trip.matchId!)} icon="sparkles">
+                Recensisci
+              </MBtn>
+            )
           )}
         </div>
       </>}

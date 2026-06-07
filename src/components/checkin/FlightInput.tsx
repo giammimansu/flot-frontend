@@ -9,7 +9,11 @@ interface FlightInputProps {
   onChange: (code: string) => void
   onFlightResolved: (flight: ResolvedFlight | null) => void
   flightDate: string
-  direction: 'TO_MILAN' | 'FROM_MILAN'
+  /** Trip direction label (e.g. "TO_ROME"); only the FROM_ prefix matters here. */
+  direction: string
+  /** Hub airport — drives flight search + display. */
+  airportCode?: string
+  airportName?: string
   onSheetOpenChange?: (open: boolean) => void
 }
 
@@ -21,6 +25,8 @@ export function FlightInput({
   onFlightResolved,
   flightDate,
   direction,
+  airportCode = 'MXP',
+  airportName = 'Milan Malpensa',
   onSheetOpenChange,
 }: FlightInputProps) {
   const [status, setStatus] = useState<Status>('idle');
@@ -112,7 +118,7 @@ export function FlightInput({
         <div className={styles.flightInfo}>
           <span className={styles.flightInfoHighlight}>{resolved.flightNumber}</span>
           {' · '}
-          {resolved.origin}→MXP
+          {resolved.origin}→{airportCode}
           {' · arrives '}
           <span className={styles.flightInfoHighlight}>{resolved.displayTime}</span>
         </div>
@@ -132,6 +138,8 @@ export function FlightInput({
         onSelect={handleSelect}
         flightDate={flightDate}
         direction={direction}
+        airportCode={airportCode}
+        airportName={airportName}
       />
     </div>
   );
