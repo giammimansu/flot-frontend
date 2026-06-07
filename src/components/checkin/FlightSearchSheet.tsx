@@ -10,15 +10,14 @@ interface FlightSearchSheetProps {
   onClose: () => void
   onSelect: (flight: ResolvedFlight) => void
   flightDate: string
-  direction: 'TO_MILAN' | 'FROM_MILAN'
+  /** Trip direction label (e.g. "TO_ROME"); only the FROM_ prefix matters here. */
+  direction: string
+  /** Hub airport — drives the AeroDataBox query and labels. */
+  airportCode?: string
+  airportName?: string
 }
 
 type LoadState = 'idle' | 'loading' | 'done' | 'error';
-
-const DIRECTION_OPTIONS = [
-  { id: 'arrivals', label: '✈ Arriving at MXP' },
-  { id: 'departures', label: '✈ Departing from MXP' },
-];
 
 function buildSlots(): string[] {
   const slots: string[] = [];
@@ -47,9 +46,15 @@ export function FlightSearchSheet({
   onSelect,
   flightDate,
   direction,
+  airportCode = 'MXP',
+  airportName = 'Milan Malpensa',
 }: FlightSearchSheetProps) {
+  const DIRECTION_OPTIONS = [
+    { id: 'arrivals', label: `✈ Arriving at ${airportCode}` },
+    { id: 'departures', label: `✈ Departing from ${airportCode}` },
+  ];
   const [apiDir, setApiDir] = useState<'arrivals' | 'departures'>(
-    direction === 'FROM_MILAN' ? 'departures' : 'arrivals',
+    direction.startsWith('FROM') ? 'departures' : 'arrivals',
   );
   const [slot, setSlot] = useState(() => nearestSlot(SLOTS));
   const [selectedDate, setSelectedDate] = useState(flightDate || '');
@@ -72,7 +77,7 @@ export function FlightSearchSheet({
     setFlights([]);
     setAirportFilter('');
 
-    fetchFlightsBySlot(apiDir, slot, selectedDate, controller.signal)
+    fetchFlightsBySlot(apiDir, slot, selectedDate, airportCode, airportName, controller.signal)
       .then((rows) => {
         if (controller.signal.aborted) return;
         setFlights(rows);
@@ -84,7 +89,7 @@ export function FlightSearchSheet({
       });
 
     return () => controller.abort();
-  }, [open, apiDir, slot, selectedDate]);
+  }, [open, apiDir, slot, selectedDate, airportCode, airportName]);
 
   useEffect(() => {
     if (open) {

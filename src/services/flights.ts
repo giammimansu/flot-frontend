@@ -75,6 +75,8 @@ export async function fetchFlightsBySlot(
   direction: 'arrivals' | 'departures',
   slotTime: string,
   date: string,
+  hubIata = 'MXP',
+  hubName = 'Milan Malpensa',
   signal?: AbortSignal,
 ): Promise<FlightRow[]> {
   if (!RAPIDAPI_KEY) {
@@ -86,7 +88,7 @@ export async function fetchFlightsBySlot(
   const offsetMinutes = Math.round((slotDate.getTime() - Date.now()) / 60000) - 60;
   const dirParam = direction === 'arrivals' ? 'Arrival' : 'Departure';
 
-  const url = new URL(`${BASE_URL}/flights/airports/iata/MXP`);
+  const url = new URL(`${BASE_URL}/flights/airports/iata/${encodeURIComponent(hubIata)}`);
   url.searchParams.set('offsetMinutes', String(offsetMinutes));
   url.searchParams.set('durationMinutes', '120');
   url.searchParams.set('withLeg', 'true');
@@ -116,10 +118,10 @@ export async function fetchFlightsBySlot(
       const timeBlock = direction === 'arrivals' ? arr : dep;
       const timeLocal = pickLocalTime(timeBlock) ?? '';
 
-      const originIata = direction === 'arrivals' ? (depAp.iata ?? '') : 'MXP';
-      const originName = direction === 'arrivals' ? (depAp.name ?? '') : 'Milan Malpensa';
-      const destIata   = direction === 'arrivals' ? 'MXP' : (arrAp.iata ?? depAp.iata ?? '');
-      const destName   = direction === 'arrivals' ? 'Milan Malpensa' : (arrAp.name ?? '');
+      const originIata = direction === 'arrivals' ? (depAp.iata ?? '') : hubIata;
+      const originName = direction === 'arrivals' ? (depAp.name ?? '') : hubName;
+      const destIata   = direction === 'arrivals' ? hubIata : (arrAp.iata ?? depAp.iata ?? '');
+      const destName   = direction === 'arrivals' ? hubName : (arrAp.name ?? '');
 
       return {
         number: (f.number as string) ?? '',

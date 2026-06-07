@@ -16,6 +16,13 @@ export interface Zone {
   landmarks: string[];
 }
 
+/** Meeting point (per terminal) — from airport config */
+export interface MeetingPoint {
+  label: string;
+  description: string;
+  walkMinutes: number;
+}
+
 /** Airport configuration returned by GET /airports */
 export interface Airport {
   code: string;
@@ -27,6 +34,7 @@ export interface Airport {
   unlockFee: number;      // cents
   terminals: Terminal[];
   zones: Zone[];
+  meetingPoints: Record<string, MeetingPoint>;  // keyed by terminal code
   directionLabels: string[];
   searchTimeoutSec: number;
   scheduledMatchWindowMin: number;
@@ -102,7 +110,7 @@ export interface MatchTrip {
   mode: string;
 }
 
-/** Public profile of another user */
+/** Public profile of another user (locked view: GET /users/:id) */
 export interface PublicUser {
   userId: string;
   firstName: string;
@@ -112,29 +120,38 @@ export interface PublicUser {
   verified: boolean;
 }
 
-/** Full partner (unlocked state) */
+/** Aggregate rating from GET /users/:id/rating (or embedded in unlocked profile) */
+export interface Rating {
+  average: number | null;  // null when no reviews yet
+  count: number;
+}
+
+/** Full partner (unlocked view of GET /users/:id — shares an active match) */
 export interface UnlockedPartner extends PublicUser {
-  lastName: string;
-  photoUrl: string;
   age?: number;
   city?: string;
   languages?: string[];
-  rating?: number;
-  totalTrips?: number;
-  onTimeRate?: number;
+  rating?: Rating;
 }
 
-/** Meeting point */
-export interface MeetingPoint {
-  label: string;
-  description: string;
-  walkMinutes: number;
-}
+/** All Match lifecycle states (mirrors backend MatchStateMachine) */
+export type MatchStatus =
+  | 'pending'
+  | 'partially_unlocked'
+  | 'unlocked'
+  | 'unlock_expired'
+  | 'dissolved'
+  | 'expired'
+  | 'completed';
 
-/** GET /matches/:matchId — locked (actual backend shape) */
-export interface LockedMatch {
+/**
+ * GET /matches/:matchId — single shape for every status (backend get_match.py).
+ * The backend does NOT send partner/meetingPoint/savings: those are composed
+ * client-side from GET /users/:id + the airport config (see services/matches.ts).
+ */
+export interface Match {
   matchId: string;
-  status: 'pending';
+  status: MatchStatus;
   airportCode: string;
   score: string | number;
   userId1: string;
@@ -144,21 +161,63 @@ export interface LockedMatch {
   unlockedBy: string[];
   unlockDeadline: string | null;
   createdAt: string;
-  savings?: number;
+  completedAt?: string;
+  savings?: number;  // optional convenience; not guaranteed by backend
 }
 
-/** GET /matches/:matchId — unlocked */
-export interface UnlockedMatch {
+/** @deprecated use `Match`. Kept as alias for existing call-sites. */
+export type LockedMatch = Match;
+export type MatchResponse = Match;
+
+/**
+ * Client-composed view for the unlocked connection screen. NOT a backend shape —
+ * assembled from a Match + the partner's profile + the airport config.
+ */
+export interface ConnectionView {
   matchId: string;
-  status: 'unlocked';
+  status: MatchStatus;
   partner: UnlockedPartner;
-  meetingPoint: MeetingPoint;
-  savings: number;
-  yourShare: number;
-  fullFare: number;
+  meetingPoint: MeetingPoint | null;
+  savings: number;    // cents
+  yourShare: number;  // cents
+  fullFare: number;   // cents
 }
 
-export type MatchResponse = LockedMatch | UnlockedMatch;
+/** A persisted chat message from GET /matches/:matchId/chat */
+export interface ChatHistoryMessage {
+  matchId: string;
+  messageId: string;
+  type: 'user' | 'system';
+  text: string;
+  createdAt: string;
+  senderId?: string;  // absent for system messages
+}
+
+/** GET /matches/:matchId/chat response */
+export interface ChatHistoryResponse {
+  messages: ChatHistoryMessage[];
+  nextToken?: string;
+}
+
+/** POST /matches/:matchId/review request (P2 #11) */
+export interface CreateReviewRequest {
+  rating: number;        // 1-5
+  comment?: string;      // max 500
+}
+
+/** POST /matches/:matchId/review response */
+export interface CreateReviewResponse {
+  matchId: string;
+  reviewedUserId: string;
+  rating: number;
+}
+
+/** GET /users/:userId/rating response */
+export interface UserRating {
+  userId: string;
+  average: number | null;
+  count: number;
+}
 
 /** POST /trips/:tripId/unlock */
 export interface UnlockRequest {
@@ -167,7 +226,10 @@ export interface UnlockRequest {
 
 export interface UnlockResponse {
   success?: boolean;
-  matchStatus?: string;
+  matchStatus?: 'partially_unlocked' | 'unlocked';
+  paymentIntentClientSecret?: string;  // present when Stripe is configured (F4)
+  amount?: number;                      // cents
+  currency?: string;
 }
 
 /** GET /users/me */
@@ -194,6 +256,22 @@ export type UserProfile = User;
 export interface VerifyResponse {
   verificationSessionId: string;
   clientSecret: string;
+}
+
+/** A single in-app notification (GET /notifications) */
+export interface NotificationItem {
+  sk: string;             // NOTIF#<ts>#<uuid> — stable id
+  type?: string;
+  title: string;
+  body: string;
+  payload?: Record<string, unknown>;
+  read?: boolean;
+  createdAt: string;
+}
+
+/** GET /notifications response */
+export interface NotificationsResponse {
+  notifications: NotificationItem[];
 }
 
 /** GET /airports/:code/stats */

@@ -249,6 +249,23 @@
   z-index: 110;
 }
 
+.bannedBanner {
+  position: fixed;
+  left: 20px;
+  right: 20px;
+  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  font-size: var(--fs-14, 14px);
+  color: var(--danger, #b91c1c);
+  background: var(--danger-soft, #fef2f2);
+  border: 1px solid var(--danger, #b91c1c);
+  border-radius: 12px;
+  z-index: 111;
+}
+
 /* TopNav override for check-in: back + FLOT + avatar */
 .navCenter {
   font-family: var(--font-display);

@@ -7,8 +7,8 @@ import { useEffect, useRef, useState } from 'react';
 import { flotWs, type ConnectionStatus } from '../services/websocket';
 import type { WsClientMessage, WsServerEvent } from '../types/ws';
 
-type EventName = WsServerEvent['event'];
-type EventData<E extends EventName> = Extract<WsServerEvent, { event: E }>['data'];
+type EventName = WsServerEvent['type'];
+type EventData<E extends EventName> = Extract<WsServerEvent, { type: E }>['data'];
 
 interface UseWebSocketOptions {
   /** Open connection on mount (default: true) */
@@ -20,7 +20,8 @@ interface UseWebSocketOptions {
 interface UseWebSocketApi {
   status: ConnectionStatus;
   send: (msg: WsClientMessage) => boolean;
-  on: <E extends EventName>(event: E, fn: (data: EventData<E>) => void) => void;
+  /** Subscribe to a server event. Returns an unsubscribe fn (also auto-cleaned on unmount). */
+  on: <E extends EventName>(event: E, fn: (data: EventData<E>) => void) => () => void;
 }
 
 /**
@@ -53,9 +54,10 @@ export function useWebSocket(options: UseWebSocketOptions = {}): UseWebSocketApi
   const on = <E extends EventName>(
     event: E,
     fn: (data: EventData<E>) => void,
-  ): void => {
+  ): (() => void) => {
     const unsub = flotWs.on(event, fn as (data: never) => void);
     unsubsRef.current.push(unsub);
+    return unsub;
   };
 
   return {

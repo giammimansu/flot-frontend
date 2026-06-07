@@ -2,7 +2,7 @@
    FLOT — API Client (ky instance with auth interceptor)
    ============================================================ */
 
-import ky from 'ky';
+import ky, { HTTPError } from 'ky';
 import { getAccessToken } from './auth';
 
 /**
@@ -29,3 +29,23 @@ export const api = ky.create({
     ],
   },
 });
+
+export interface ApiError {
+  status: number;       // HTTP status, 0 if not an HTTP error
+  message: string;      // backend `error` field when present
+}
+
+/** Normalize a thrown error into { status, message }, reading the backend `{error}` body. */
+export async function parseApiError(err: unknown): Promise<ApiError> {
+  if (err instanceof HTTPError) {
+    let message = err.message;
+    try {
+      const body = (await err.response.clone().json()) as { error?: string } | null;
+      if (body?.error) message = body.error;
+    } catch {
+      /* non-JSON body — keep default message */
+    }
+    return { status: err.response.status, message };
+  }
+  return { status: 0, message: err instanceof Error ? err.message : 'Errore di rete' };
+}

@@ -59,9 +59,8 @@ export function ActiveSearch() {
 
   // WebSocket: navigate on match_found
   useEffect(() => {
-    const unsub = ws.on('match_found', (data) => {
+    const unsub = ws.on('match.found', (data) => {
       // Navigate immediately — MatchLocked fetches full data from API
-
       navigate(`/match/${data.matchId}`, { replace: true });
     });
     return unsub;

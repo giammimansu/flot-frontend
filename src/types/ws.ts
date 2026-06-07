@@ -1,8 +1,10 @@
 /* ============================================================
    FLOT — WebSocket Event Types
+   Mirrors backend exactly: server messages use a `type` discriminant
+   with dotted names (e.g. "chat.message"), NOT `event`.
    ============================================================ */
 
-/** Client → Server messages */
+/** Client → Server messages (routed by `action` via $request.body.action) */
 export interface WsChatMessage {
   action: 'chat_message';
   matchId: string;
@@ -16,54 +18,61 @@ export interface WsTyping {
 
 export type WsClientMessage = WsChatMessage | WsTyping;
 
-/** Server → Client events */
-export interface WsMatchFound {
-  event: 'match_found';
+/* ── Server → Client events (discriminant: `type`) ── */
+
+/** chat.message (to partner) · chat.message.sent (echo to sender) */
+export interface WsChatMessageEvent {
+  type: 'chat.message' | 'chat.message.sent';
   data: {
     matchId: string;
-    partner: {
-      firstName: string;
-      blurredPhotoUrl: string;
-      destination: string;
-      verified: boolean;
-    };
-  };
-}
-
-export interface WsMatchUnlocked {
-  event: 'match_unlocked';
-  data: { matchId: string };
-}
-
-export interface WsServerChatMessage {
-  event: 'chat_message';
-  data: {
-    matchId: string;
+    messageId: string;
     senderId: string;
     text: string;
-    timestamp: string;
+    createdAt: string;
   };
 }
 
-export interface WsServerTyping {
-  event: 'typing';
+/** chat.system — system message broadcast to both users */
+export interface WsChatSystemEvent {
+  type: 'chat.system';
+  data: {
+    matchId: string;
+    messageId: string;
+    text: string;
+    createdAt: string;
+  };
+}
+
+/** match.found — new match available (notification fan-out) */
+export interface WsMatchFound {
+  type: 'match.found';
+  data: {
+    matchId?: string;
+    [k: string]: unknown;
+  };
+}
+
+/** match.partner_unlocked — partner unlocked first (deadlock pressure) */
+export interface WsMatchPartnerUnlocked {
+  type: 'match.partner_unlocked';
+  data: {
+    matchId: string;
+    [k: string]: unknown;
+  };
+}
+
+/** typing — partner is typing in the chat */
+export interface WsTypingEvent {
+  type: 'typing';
   data: {
     matchId: string;
     userId: string;
   };
 }
 
-export interface WsPaymentStatus {
-  event: 'payment_status';
-  data: {
-    matchId: string;
-    status: 'captured' | 'failed';
-  };
-}
-
 export type WsServerEvent =
+  | WsChatMessageEvent
+  | WsChatSystemEvent
   | WsMatchFound
-  | WsMatchUnlocked
-  | WsServerChatMessage
-  | WsServerTyping
-  | WsPaymentStatus;
+  | WsMatchPartnerUnlocked
+  | WsTypingEvent;

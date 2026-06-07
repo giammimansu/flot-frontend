@@ -8,11 +8,14 @@ import type { TripStatus, TripMode, Trip } from '../types/domain';
 import type { TripDestination } from '../types/domain';
 import type { CreateTripRequest, CreateTripResponse } from '../types/api';
 import { createTrip } from '../services/trips';
+import { parseApiError } from '../services/api';
 
 interface TripState {
   tripId: string | null;
   status: TripStatus;
   error: string | null;
+  /** Account suspended (backend 403 on create_trip — #10 trustScore). */
+  banned: boolean;
   terminal: string | null;
   destination: string | null;
   luggage: number | null;
@@ -45,6 +48,7 @@ export const useTripStore = create<TripState>()(
       tripId: null,
       status: 'idle',
       error: null,
+      banned: false,
       terminal: null,
       destination: null,
       luggage: null,
@@ -73,6 +77,7 @@ export const useTripStore = create<TripState>()(
           set({
             tripId: response.tripId,
             status: 'searching',
+            banned: false,
             terminal: data.terminal,
             destination: data.destination,
             luggage: data.luggage,
@@ -81,9 +86,11 @@ export const useTripStore = create<TripState>()(
           });
           return response;
         } catch (err) {
+          const { status, message } = await parseApiError(err);
           set({
             status: 'error',
-            error: err instanceof Error ? err.message : 'Failed to create trip',
+            banned: status === 403,
+            error: message || 'Failed to create trip',
           });
           return null;
         }
@@ -127,6 +134,7 @@ export const useTripStore = create<TripState>()(
           tripId: null,
           status: 'idle',
           error: null,
+          banned: false,
           terminal: null,
           destination: null,
           luggage: null,
@@ -139,6 +147,7 @@ export const useTripStore = create<TripState>()(
           tripId: null,
           status: 'idle',
           error: null,
+          banned: false,
           terminal: null,
           destination: null,
           luggage: null,
