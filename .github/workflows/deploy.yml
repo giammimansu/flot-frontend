@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  workflow_dispatch:   # re-run manuale dalla tab Actions (usa i secret correnti)
 
 jobs:
   deploy:
