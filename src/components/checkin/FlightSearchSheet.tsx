@@ -77,7 +77,7 @@ export function FlightSearchSheet({
     setFlights([]);
     setAirportFilter('');
 
-    fetchFlightsBySlot(apiDir, slot, selectedDate, airportCode, airportName, controller.signal)
+    fetchFlightsBySlot(apiDir, slot, selectedDate, airportCode, controller.signal)
       .then((rows) => {
         if (controller.signal.aborted) return;
         setFlights(rows);
