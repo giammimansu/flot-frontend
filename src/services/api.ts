@@ -11,8 +11,15 @@ import { getAccessToken } from './auth';
  * - Points to the REST API base URL
  * - 10s timeout
  */
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL as string | undefined;
+if (!API_BASE_URL) {
+  // Missing at build time (Vite inlines env at build). Don't hard-crash the app —
+  // log clearly so the cause is visible instead of a blank screen.
+  console.error('[api] VITE_API_BASE_URL is not set — API requests will fail. Check the build env.');
+}
+
 export const api = ky.create({
-  prefixUrl: import.meta.env.VITE_API_BASE_URL.replace(/\/?$/, '/'),
+  prefixUrl: (API_BASE_URL ?? '/').replace(/\/?$/, '/'),
   timeout: 10_000,
   hooks: {
     beforeRequest: [
