@@ -111,13 +111,6 @@ function IconPlus({ size = 16 }: { size?: number }) {
   );
 }
 
-function IconChevronDown() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="m6 9 6 6 6-6" />
-    </svg>
-  );
-}
 
 /* ── Count-up hook ── */
 function useCountUp(target: number, duration = 1400) {
@@ -140,12 +133,14 @@ function useCountUp(target: number, duration = 1400) {
 }
 
 /* ── Live Feed ── */
-type FeedItem =
-  | { type: 'match'; a: string; b: string; key: number }
-  | { type: 'save'; who: string; amt: number; key: number }
-  | { type: 'search'; flight: string; key: number };
+type FeedItemData =
+  | { type: 'match'; a: string; b: string }
+  | { type: 'save'; who: string; amt: number }
+  | { type: 'search'; flight: string };
 
-const FEED_POOL: Omit<FeedItem, 'key'>[] = [
+type FeedItem = FeedItemData & { key: number };
+
+const FEED_POOL: FeedItemData[] = [
   { type: 'match', a: 'Malpensa', b: 'Milano Centro' },
   { type: 'save',  who: 'Giulia & Marco', amt: 60 },
   { type: 'search', flight: 'AZ 1574' },

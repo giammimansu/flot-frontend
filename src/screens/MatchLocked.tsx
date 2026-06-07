@@ -368,7 +368,7 @@ export function MatchLocked() {
               <span className={styles.partnerName}>{partnerFirstName}</span>
               {partner?.verified && (
                 <span className={styles.verifiedBadge}>
-                  <MIcon name="shield-check" size={12} sw={2} />
+                  <MIcon name="shield" size={12} sw={2} />
                   Verified
                 </span>
               )}
@@ -380,7 +380,7 @@ export function MatchLocked() {
               )}
               {partnerLuggage > 0 && (
                 <span>
-                  <MIcon name="briefcase" size={12} sw={2} />
+                  <MIcon name="luggage" size={12} sw={2} />
                   {' '}{partnerLuggage} bag{partnerLuggage !== 1 ? 's' : ''}
                 </span>
               )}

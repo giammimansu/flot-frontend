@@ -45,7 +45,7 @@ export function TripScheduled() {
 
   // If matched via ws while on this screen
   useEffect(() => {
-    const unsub = ws.on('match_found', (data) => {
+    const unsub = ws.on('match.found', (data) => {
       setTimeout(() => {
         navigate(`/match/${data.matchId}`);
       }, 2000);

@@ -20,9 +20,21 @@ export type WsClientMessage = WsChatMessage | WsTyping;
 
 /* ── Server → Client events (discriminant: `type`) ── */
 
-/** chat.message (to partner) · chat.message.sent (echo to sender) */
+/** chat.message — incoming message to partner */
 export interface WsChatMessageEvent {
-  type: 'chat.message' | 'chat.message.sent';
+  type: 'chat.message';
+  data: {
+    matchId: string;
+    messageId: string;
+    senderId: string;
+    text: string;
+    createdAt: string;
+  };
+}
+
+/** chat.message.sent — echo to sender */
+export interface WsChatMessageSentEvent {
+  type: 'chat.message.sent';
   data: {
     matchId: string;
     messageId: string;
@@ -72,6 +84,7 @@ export interface WsTypingEvent {
 
 export type WsServerEvent =
   | WsChatMessageEvent
+  | WsChatMessageSentEvent
   | WsChatSystemEvent
   | WsMatchFound
   | WsMatchPartnerUnlocked
