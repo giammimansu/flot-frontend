@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MIcon } from '../ui';
 import type { IconName } from '../ui';
@@ -40,6 +40,10 @@ export function TopNav({
   const [menuOpen, setMenuOpen] = useState(false);
   const [photoError, setPhotoError] = useState(false);
   const user = useAuthStore((s) => s.user);
+
+  useEffect(() => {
+    if (user?.photoUrl) setPhotoError(false);
+  }, [user?.photoUrl]);
 
   // Initials: prefer first/last, fall back to splitting `name` (OAuth users).
   const initials = (() => {

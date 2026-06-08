@@ -46,6 +46,23 @@ export function useAuthInit() {
         return;
       }
 
+      // On OAuth callback, fetchAuthSession() is what actually triggers the
+      // PKCE code exchange in Amplify v6. getCurrentUser() alone does not.
+      // Call it first so tokens are stored before we check the user.
+      const searchParams = new URLSearchParams(window.location.search);
+      const isOAuthCallback = searchParams.has('code') && searchParams.has('state');
+      if (isOAuthCallback) {
+        try {
+          const { fetchAuthSession } = await import('aws-amplify/auth');
+          await fetchAuthSession();
+        } catch (err) {
+          console.error('[useAuthInit] OAuth code exchange failed:', err);
+          // Exchange failed — don't set unauthenticated, wait for Hub signedIn
+          return;
+        }
+        if (cancelled) return;
+      }
+
       const cognitoUser = await getAuthUser();
       if (cancelled) return;
 

@@ -60,8 +60,9 @@ export default defineConfig({
         skipWaiting: true,
         clientsClaim: true,
 
-        // Never intercept Cognito or auth traffic
-        navigateFallback: '/offline.html',
+        // Serve index.html for all navigation — SPA fallback
+        // Auth paths are excluded via denylist so Cognito redirect is never intercepted
+        navigateFallback: '/index.html',
       },
 
       devOptions: {

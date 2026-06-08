@@ -175,9 +175,9 @@
 }
 
 
-/* CTA spacer (so scroll doesn't hide content behind fixed CTA) */
+/* CTA spacer — ctaBar (~80px) + TabBar (60px) */
 .ctaSpacer {
-  height: calc(80px + env(safe-area-inset-bottom, 0px));
+  height: calc(140px + env(safe-area-inset-bottom, 0px));
 }
 
 /* Top nav */
@@ -303,13 +303,13 @@
   flex-shrink: 0;
 }
 
-/* CTA bar */
+/* CTA bar — sits above the TabBar */
 .ctaBar {
   position: fixed;
-  bottom: 0;
+  bottom: calc(60px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
-  padding: 12px 20px calc(16px + env(safe-area-inset-bottom, 0px));
+  padding: 12px 20px 16px;
   background: linear-gradient(transparent, var(--surface-0) 24px);
   z-index: 110;
 }
@@ -318,7 +318,7 @@
   position: fixed;
   left: 20px;
   right: 20px;
-  bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  bottom: calc(140px + env(safe-area-inset-bottom, 0px));
   display: flex;
   align-items: center;
   gap: 8px;

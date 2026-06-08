@@ -7,7 +7,7 @@
 
 .content {
   flex: 1;
-  padding: var(--space-5) var(--space-5) var(--space-9);
+  padding: var(--space-5) var(--space-5) calc(80px + env(safe-area-inset-bottom, 0px));
 }
 
 .headline {

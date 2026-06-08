@@ -132,8 +132,13 @@ export function Profile() {
   const { permission, requestPermission, isSupported } = usePushNotifications();
 
   useEffect(() => {
+    if (user?.photoUrl) setPhotoLoadError(false);
+  }, [user?.photoUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
     getMe().then((u) => {
       setUser(u);
+      if (u?.photoUrl) setPhotoLoadError(false);
       if (u?.userId) {
         getUserRating(u.userId).then((r) => setRatingAvg(r.average)).catch(() => {});
       }
