@@ -6,6 +6,8 @@ import { useAirportStore } from '../stores/airportStore';
 import { useAuthStore } from '../stores/authStore';
 import { ProfileMenu } from '../components/layout/ProfileMenu';
 import { ensurePlaces } from '../lib/places';
+import { FlightInput } from '../components/checkin/FlightInput';
+import type { ResolvedFlight } from '../types/flights';
 import logoFull from '../assets/logo-full.svg';
 import styles from './EntryPoint.module.css';
 
@@ -594,13 +596,13 @@ function AddressInput({ id, value, onChange, placeholder }: {
 type MatchState = 'searching' | 'matched' | 'no_match';
 
 function ResultPanel({
-  flightNumber,
+  resolvedFlight,
   matchState,
   isAuthenticated,
   onBack,
   onLogin,
 }: {
-  flightNumber: string;
+  resolvedFlight: ResolvedFlight;
   matchState: MatchState;
   isAuthenticated: boolean;
   onBack: () => void;
@@ -618,17 +620,19 @@ function ResultPanel({
         </div>
       </div>
 
-      {/* TODO: replace with real flight data from AeroDataBox / aviation API */}
       <div className={styles.resultCard}>
         <div className={styles.resultIconWrap}><IconPlane size={18} /></div>
         <div className={styles.resultBody}>
           <div className={styles.resultLabel}>Volo agganciato</div>
-          <div className={styles.resultValue}>{flightNumber.toUpperCase()} · Malpensa</div>
-          <div className={styles.resultSub}>Monitorato in tempo reale</div>
+          <div className={styles.resultValue}>{resolvedFlight.flightNumber} · MXP</div>
+          <div className={styles.resultSub}>
+            {resolvedFlight.displayTime ? `Decollo ore ${resolvedFlight.displayTime}` : 'Monitorato in tempo reale'}
+            {resolvedFlight.status ? ` · ${resolvedFlight.status}` : ''}
+          </div>
         </div>
       </div>
 
-      {/* TODO: replace with backend-calculated departure time (flight time − transfer − buffer) */}
+      {/* TODO: replace with backend-calculated departure time (flight departure − transfer − buffer) */}
       <div className={styles.resultCard}>
         <div className={styles.resultIconWrap}><IconClock size={18} /></div>
         <div className={styles.resultBody}>
@@ -714,7 +718,8 @@ export function EntryPoint() {
   const [heroStep, setHeroStep] = useState<'form' | 'result'>('form');
   const [address, setAddress] = useState<AddressValue | null>(null);
   const [flightNumber, setFlightNumber] = useState('');
-  const [flightValid, setFlightValid] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle');
+  const [flightDate, setFlightDate] = useState('');
+  const [resolvedFlight, setResolvedFlight] = useState<ResolvedFlight | null>(null);
   // TODO: replace with real match state received from backend after POST /api/search
   const [matchState] = useState<MatchState>('searching');
 
@@ -730,18 +735,6 @@ export function EntryPoint() {
     if (user?.photoUrl) setPhotoError(false);
   }, [user?.photoUrl]);
 
-  // Flight number mock validation — TODO: replace with real aviation API call
-  useEffect(() => {
-    if (!flightNumber.trim()) { setFlightValid('idle'); return; }
-    const trimmed = flightNumber.trim().toUpperCase();
-    if (/^[A-Z]{2}\d{3,4}$/.test(trimmed)) {
-      setFlightValid('validating');
-      const t = setTimeout(() => setFlightValid('valid'), 700);
-      return () => clearTimeout(t);
-    }
-    setFlightValid('invalid');
-  }, [flightNumber]);
-
   const handleLogin = useCallback(
     (provider: 'Google' | 'Apple') => {
       login(provider);
@@ -751,9 +744,9 @@ export function EntryPoint() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!address || flightValid !== 'valid') return;
+    if (!address || !resolvedFlight) return;
     setHeroStep('result');
-    // TODO: POST { address, flightNumber } to /api/search and receive pick-up + departure time
+    // TODO: POST { address, resolvedFlight } to /api/search and receive pick-up + departure time
   };
 
   const scrollToForm = () => {
@@ -856,36 +849,32 @@ export function EntryPoint() {
                 />
               </div>
               <div className={styles.heroFormGroup}>
+                <label className={styles.heroLabel} htmlFor="hero-date">Data del volo</label>
+                <input
+                  id="hero-date"
+                  type="date"
+                  className={styles.heroInput}
+                  value={flightDate}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => { setFlightDate(e.target.value); setResolvedFlight(null); }}
+                />
+              </div>
+              <div className={styles.heroFormGroup}>
                 <label className={styles.heroLabel} htmlFor="hero-flight">Il tuo volo</label>
-                <div className={styles.heroInputWrap}>
-                  <input
-                    id="hero-flight"
-                    type="text"
-                    className={`${styles.heroInput} ${
-                      flightValid === 'valid' ? styles.heroInputValid :
-                      flightValid === 'invalid' ? styles.heroInputInvalid : ''
-                    }`}
-                    placeholder="Es. AZ1234"
-                    value={flightNumber}
-                    onChange={(e) => setFlightNumber(e.target.value)}
-                    autoComplete="off"
-                    style={{ paddingRight: flightValid !== 'idle' ? '90px' : '14px' }}
-                  />
-                  {flightValid === 'validating' && (
-                    <span className={`${styles.heroInputStatus} ${styles.heroInputStatusValidating}`}>Verifica…</span>
-                  )}
-                  {flightValid === 'valid' && (
-                    <span className={`${styles.heroInputStatus} ${styles.heroInputStatusValid}`}>✓ Trovato</span>
-                  )}
-                  {flightValid === 'invalid' && (
-                    <span className={`${styles.heroInputStatus} ${styles.heroInputStatusInvalid}`}>Non valido</span>
-                  )}
-                </div>
+                <FlightInput
+                  value={flightNumber}
+                  onChange={(v) => { setFlightNumber(v); setResolvedFlight(null); }}
+                  onFlightResolved={setResolvedFlight}
+                  flightDate={flightDate}
+                  direction="FROM_MXP"
+                  airportCode="MXP"
+                  airportName="Milan Malpensa"
+                />
               </div>
               <button
                 type="submit"
                 className={styles.btnPrimary}
-                disabled={!address || flightValid !== 'valid'}
+                disabled={!address || !resolvedFlight}
               >
                 Trova il tuo compagno
                 <IconArrowRight size={19} />
@@ -893,7 +882,7 @@ export function EntryPoint() {
             </form>
           ) : (
             <ResultPanel
-              flightNumber={flightNumber}
+              resolvedFlight={resolvedFlight!}
               matchState={matchState}
               isAuthenticated={isAuthenticated}
               onBack={() => setHeroStep('form')}
