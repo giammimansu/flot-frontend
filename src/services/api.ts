@@ -37,6 +37,12 @@ export const api = ky.create({
   },
 });
 
+/** Unauthenticated instance for public endpoints (flight lookup, flight slot). */
+export const publicApi = ky.create({
+  prefixUrl: (API_BASE_URL ?? '/').replace(/\/?$/, '/'),
+  timeout: 10_000,
+});
+
 export interface ApiError {
   status: number;       // HTTP status, 0 if not an HTTP error
   message: string;      // backend `error` field when present

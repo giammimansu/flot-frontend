@@ -5,7 +5,7 @@
      GET /flights/slot?direction=&slot=&date=&airport=
    ============================================================ */
 
-import { api } from './api';
+import { publicApi } from './api';
 import type { ResolvedFlight, FlightRow } from '../types/flights';
 
 interface LookupResponse {
@@ -32,7 +32,7 @@ export async function fetchFlightByNumber(
   signal?: AbortSignal,
 ): Promise<ResolvedFlight | null> {
   try {
-    const data = await api
+    const data = await publicApi
       .get('flights/lookup', { searchParams: { number: flightNumber, date }, signal })
       .json<LookupResponse>();
 
@@ -65,7 +65,7 @@ export async function fetchFlightsBySlot(
   signal?: AbortSignal,
 ): Promise<FlightRow[]> {
   try {
-    return await api
+    return await publicApi
       .get('flights/slot', {
         searchParams: { direction, slot: slotTime, date, airport: airportCode },
         signal,
