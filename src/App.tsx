@@ -120,7 +120,11 @@ function ForegroundNotifications() {
 function TabBarContainer() {
   const { isAuthenticated } = useAuth();
   const location = useLocation();
-  if (!isAuthenticated || location.pathname === '/onboarding') return null;
+  if (
+    !isAuthenticated ||
+    location.pathname === '/onboarding' ||
+    location.pathname.startsWith('/connection/')
+  ) return null;
   return <TabBar />;
 }
 

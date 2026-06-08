@@ -112,7 +112,7 @@ export function ConnectionUnlocked() {
         const match = await fetchMatch(matchId!);
         setMatch(match);
 
-        if (match.status !== 'unlocked') {
+        if (match.status !== 'unlocked' && match.status !== 'completed') {
           if (!cancelled) setError('Connessione non ancora sbloccata.');
           return;
         }
@@ -140,7 +140,8 @@ export function ConnectionUnlocked() {
         } finally {
           if (!cancelled) setHistoryLoaded(true);
         }
-      } catch {
+      } catch (err) {
+        console.error('[ConnectionUnlocked] load error:', err);
         if (!cancelled) setError('Impossibile caricare la connessione.');
       } finally {
         if (!cancelled) setLoading(false);

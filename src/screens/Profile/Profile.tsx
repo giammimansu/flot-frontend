@@ -50,22 +50,39 @@ interface RowProps {
   danger?: boolean;
 }
 function Row({ icon, label, sub, right, onClick, danger }: RowProps) {
-  return (
-    <button
-      className={`${styles.row} ${danger ? styles.rowDanger : ''}`}
-      onClick={onClick}
-      type="button"
-    >
+  const hasInteractiveRight = right != null;
+  const className = `${styles.row} ${danger ? styles.rowDanger : ''}`;
+  const inner = (
+    <>
       <span className={styles.rowIcon}>{icon}</span>
       <span className={styles.rowBody}>
         <span className={styles.rowLabel}>{label}</span>
         {sub && <span className={styles.rowSub}>{sub}</span>}
       </span>
-      {right !== undefined ? (
-        right
-      ) : onClick ? (
-        <span className={styles.chevron}>›</span>
-      ) : null}
+      {right !== undefined ? right : onClick ? <span className={styles.chevron}>›</span> : null}
+    </>
+  );
+  if (hasInteractiveRight) {
+    const handleKeyDown = onClick
+      ? (e: React.KeyboardEvent<HTMLDivElement>) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); }
+        }
+      : undefined;
+    return (
+      <div
+        className={className}
+        role={onClick ? 'button' : undefined}
+        tabIndex={onClick ? 0 : undefined}
+        onClick={onClick}
+        onKeyDown={handleKeyDown}
+      >
+        {inner}
+      </div>
+    );
+  }
+  return (
+    <button className={className} onClick={onClick} type="button">
+      {inner}
     </button>
   );
 }
@@ -82,7 +99,7 @@ function Toggle({ checked, onChange, label }: ToggleProps) {
       aria-checked={checked}
       aria-label={label}
       className={`${styles.toggle} ${checked ? styles.toggleOn : styles.toggleOff}`}
-      onClick={() => onChange(!checked)}
+      onClick={(e) => { e.stopPropagation(); onChange(!checked); }}
       type="button"
     >
       <span className={styles.toggleThumb} />

@@ -1,7 +1,7 @@
 .root {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
   background: var(--surface-0);
   overflow: hidden;
 }
@@ -9,7 +9,7 @@
 .scrollArea {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-4) var(--space-4) calc(60px + env(safe-area-inset-bottom));
+  padding: var(--space-4);
   display: flex;
   flex-direction: column;
   gap: var(--space-3);
@@ -361,17 +361,13 @@
 
 /* ── Chat input bar ── */
 .inputBar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
   background: var(--surface-1);
   border-top: 1px solid var(--hairline);
-  z-index: 10;
 }
 .chatInput {
   flex: 1;
