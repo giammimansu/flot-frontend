@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState, useCallback, type KeyboardEvent } from 'react';
-import { setOptions, importLibrary } from '@googlemaps/js-api-loader';
 import { MIcon } from './MIcon';
-import { GOOGLE_PLACES_API_KEY } from '../../lib/constants';
+import { ensurePlaces } from '../../lib/places';
 import type { TripDestination } from '../../types/domain';
 import styles from './MDestInput.module.css';
 
@@ -22,14 +21,6 @@ function debounce<T extends unknown[]>(fn: (...args: T) => void, ms: number) {
   };
 }
 
-let placesLibraryPromise: Promise<google.maps.PlacesLibrary> | null = null;
-
-function ensurePlaces(): Promise<google.maps.PlacesLibrary> {
-  if (placesLibraryPromise) return placesLibraryPromise;
-  setOptions({ key: GOOGLE_PLACES_API_KEY, v: 'weekly' });
-  placesLibraryPromise = importLibrary('places') as Promise<google.maps.PlacesLibrary>;
-  return placesLibraryPromise;
-}
 
 export function MDestInput({
   value,

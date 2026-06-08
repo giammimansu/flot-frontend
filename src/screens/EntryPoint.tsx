@@ -1,10 +1,11 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import type { FormEvent, KeyboardEvent, ChangeEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAirportStore } from '../stores/airportStore';
 import { useAuthStore } from '../stores/authStore';
 import { ProfileMenu } from '../components/layout/ProfileMenu';
+import { ensurePlaces } from '../lib/places';
 import logoFull from '../assets/logo-full.svg';
 import styles from './EntryPoint.module.css';
 
@@ -428,6 +429,167 @@ function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
   );
 }
 
+/* ── Address autocomplete ── */
+function debounce<T extends unknown[]>(fn: (...args: T) => void, ms: number) {
+  let timer: ReturnType<typeof setTimeout>;
+  return (...args: T) => { clearTimeout(timer); timer = setTimeout(() => fn(...args), ms); };
+}
+
+export interface AddressValue {
+  label: string;
+  lat: number;
+  lng: number;
+  placeId: string;
+}
+
+function AddressInput({ id, value, onChange, placeholder }: {
+  id: string;
+  value: AddressValue | null;
+  onChange: (v: AddressValue | null) => void;
+  placeholder?: string;
+}) {
+  const [query, setQuery] = useState(value?.label ?? '');
+  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [apiError, setApiError] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(null);
+  const autocompleteRef = useRef<google.maps.places.AutocompleteService | null>(null);
+  const placesRef = useRef<google.maps.places.PlacesService | null>(null);
+
+  useEffect(() => {
+    ensurePlaces()
+      .then((lib) => {
+        autocompleteRef.current = new lib.AutocompleteService();
+        placesRef.current = new lib.PlacesService(document.createElement('div'));
+      })
+      .catch(() => setApiError(true));
+  }, []);
+
+  // Reset query when parent clears value
+  useEffect(() => {
+    if (value === null && query !== '') setQuery('');
+  }, [value]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchSuggestions = useCallback(
+    debounce(async (input: string) => {
+      if (!autocompleteRef.current) return;
+      if (input.length < 3) { setSuggestions([]); setIsOpen(false); setLoading(false); return; }
+      try {
+        if (!sessionTokenRef.current) {
+          sessionTokenRef.current = new google.maps.places.AutocompleteSessionToken();
+        }
+        const res = await autocompleteRef.current.getPlacePredictions({
+          input,
+          sessionToken: sessionTokenRef.current,
+          componentRestrictions: { country: 'it' },
+          // Bias results toward Milan city center
+          locationBias: { lat: 45.4654, lng: 9.1859 } as google.maps.LatLngLiteral,
+          types: ['address'],
+        });
+        setSuggestions(res.predictions ?? []);
+        setIsOpen((res.predictions ?? []).length > 0);
+        setActiveIndex(-1);
+      } catch {
+        setApiError(true);
+        setSuggestions([]);
+        setIsOpen(false);
+      } finally {
+        setLoading(false);
+      }
+    }, 300),
+    [],
+  );
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    setQuery(val);
+    setApiError(false);
+    if (!val) { onChange(null); setSuggestions([]); setIsOpen(false); setLoading(false); return; }
+    setLoading(true);
+    fetchSuggestions(val);
+  };
+
+  const handleSelect = (s: google.maps.places.AutocompletePrediction) => {
+    if (!placesRef.current) return;
+    placesRef.current.getDetails(
+      { placeId: s.place_id, fields: ['name', 'formatted_address', 'geometry', 'place_id'], sessionToken: sessionTokenRef.current ?? undefined },
+      (place, status) => {
+        if (status === google.maps.places.PlacesServiceStatus.OK && place?.geometry?.location) {
+          const val: AddressValue = {
+            label: place.formatted_address ?? place.name ?? '',
+            lat: place.geometry.location.lat(),
+            lng: place.geometry.location.lng(),
+            placeId: place.place_id ?? s.place_id,
+          };
+          setQuery(val.label);
+          setSuggestions([]);
+          setIsOpen(false);
+          sessionTokenRef.current = null;
+          onChange(val);
+        } else {
+          setApiError(true);
+        }
+      },
+    );
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (!isOpen) return;
+    if (e.key === 'ArrowDown') { e.preventDefault(); setActiveIndex((i) => Math.min(i + 1, suggestions.length - 1)); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); setActiveIndex((i) => Math.max(i - 1, 0)); }
+    else if (e.key === 'Enter' && activeIndex >= 0) { e.preventDefault(); handleSelect(suggestions[activeIndex]); }
+    else if (e.key === 'Escape') { setIsOpen(false); setActiveIndex(-1); }
+  };
+
+  const handleBlur = () => setTimeout(() => { setIsOpen(false); setActiveIndex(-1); }, 150);
+
+  return (
+    <div className={styles.addrWrap}>
+      <div className={styles.heroInputWrap}>
+        <input
+          id={id}
+          type="text"
+          className={`${styles.heroInput} ${value ? styles.heroInputValid : ''}`}
+          placeholder={placeholder}
+          value={query}
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+          autoComplete="off"
+          aria-expanded={isOpen}
+          aria-haspopup="listbox"
+          aria-activedescendant={activeIndex >= 0 ? `addr-opt-${activeIndex}` : undefined}
+          role="combobox"
+          style={{ paddingRight: loading ? '44px' : undefined }}
+        />
+        {loading && <div className={styles.heroInputSpinner} aria-hidden="true" />}
+      </div>
+      {apiError && <p className={styles.addrErrorMsg}>Autocomplete non disponibile. Digita manualmente.</p>}
+      {isOpen && suggestions.length > 0 && (
+        <ul className={styles.addrSuggestions} role="listbox">
+          {suggestions.map((s, i) => (
+            <li
+              key={s.place_id}
+              id={`addr-opt-${i}`}
+              role="option"
+              aria-selected={i === activeIndex}
+              className={`${styles.addrSuggestionItem} ${i === activeIndex ? styles.addrSuggestionActive : ''}`}
+              onPointerDown={() => handleSelect(s)}
+            >
+              <span className={styles.addrSuggestionMain}>{s.structured_formatting.main_text}</span>
+              <span className={styles.addrSuggestionSub}>{s.structured_formatting.secondary_text}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 /* ── Post-submit result panel ── */
 type MatchState = 'searching' | 'matched' | 'no_match';
 
@@ -550,7 +712,7 @@ export function EntryPoint() {
 
   // Hero form state
   const [heroStep, setHeroStep] = useState<'form' | 'result'>('form');
-  const [address, setAddress] = useState('');
+  const [address, setAddress] = useState<AddressValue | null>(null);
   const [flightNumber, setFlightNumber] = useState('');
   const [flightValid, setFlightValid] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle');
   // TODO: replace with real match state received from backend after POST /api/search
@@ -589,7 +751,7 @@ export function EntryPoint() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (!address.trim() || flightValid !== 'valid') return;
+    if (!address || flightValid !== 'valid') return;
     setHeroStep('result');
     // TODO: POST { address, flightNumber } to /api/search and receive pick-up + departure time
   };
@@ -686,15 +848,11 @@ export function EntryPoint() {
             <form className={styles.heroForm} id="hero-form" onSubmit={handleSubmit}>
               <div className={styles.heroFormGroup}>
                 <label className={styles.heroLabel} htmlFor="hero-address">Da dove parti?</label>
-                {/* TODO: replace with Google Places autocomplete */}
-                <input
+                <AddressInput
                   id="hero-address"
-                  type="text"
-                  className={styles.heroInput}
-                  placeholder="Es. Via Tortona 12, Milano"
                   value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  autoComplete="street-address"
+                  onChange={setAddress}
+                  placeholder="Es. Via Tortona 12, Milano"
                 />
               </div>
               <div className={styles.heroFormGroup}>
@@ -727,7 +885,7 @@ export function EntryPoint() {
               <button
                 type="submit"
                 className={styles.btnPrimary}
-                disabled={!address.trim() || flightValid !== 'valid'}
+                disabled={!address || flightValid !== 'valid'}
               >
                 Trova il tuo compagno
                 <IconArrowRight size={19} />
