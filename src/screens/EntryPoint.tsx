@@ -355,9 +355,18 @@ export function EntryPoint() {
   const selectedAirport = useAirportStore((s) => s.selectedAirport);
   const user = useAuthStore((s) => s.user);
   const [menuOpen, setMenuOpen] = useState(false);
-  const initials = user
-    ? `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.toUpperCase().trim() || '?'
-    : '?';
+  const [photoError, setPhotoError] = useState(false);
+  const initials = (() => {
+    if (!user) return '?';
+    const fromParts = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.trim();
+    if (fromParts) return fromParts.toUpperCase();
+    return (user.name ?? '').split(' ').map((w) => w[0] ?? '').join('').slice(0, 2).toUpperCase() || '?';
+  })();
+  const showPhoto = !!user?.photoUrl && !photoError;
+
+  useEffect(() => {
+    if (user?.photoUrl) setPhotoError(false);
+  }, [user?.photoUrl]);
 
   const handleLogin = useCallback(
     (provider: 'Google' | 'Apple') => {
@@ -399,7 +408,16 @@ export function EntryPoint() {
               aria-haspopup="dialog"
               aria-expanded={menuOpen}
             >
-              <span className={styles.navAvatarInitials}>{initials}</span>
+              {showPhoto ? (
+                <img
+                  src={user!.photoUrl}
+                  alt={user?.name ?? 'Profilo'}
+                  className={styles.navAvatarImg}
+                  onError={() => setPhotoError(true)}
+                />
+              ) : (
+                <span className={styles.navAvatarInitials}>{initials}</span>
+              )}
             </button>
           ) : (
             <button className={styles.navCta} onClick={scrollToAuth}>
