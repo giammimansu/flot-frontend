@@ -1,4 +1,5 @@
 import { useEffect, useCallback, useRef, useState } from 'react';
+import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAirportStore } from '../stores/airportStore';
@@ -111,6 +112,13 @@ function IconPlus({ size = 16 }: { size?: number }) {
   );
 }
 
+function IconClock({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+    </svg>
+  );
+}
 
 /* ── Count-up hook ── */
 function useCountUp(target: number, duration = 1400) {
@@ -140,16 +148,17 @@ type FeedItemData =
 
 type FeedItem = FeedItemData & { key: number };
 
+// TODO: replace with real-time backend events (WebSocket)
 const FEED_POOL: FeedItemData[] = [
-  { type: 'match', a: 'Malpensa', b: 'Milano Centro' },
+  { type: 'match', a: 'Navigli', b: 'Malpensa T1' },
   { type: 'save',  who: 'Giulia & Marco', amt: 60 },
   { type: 'search', flight: 'AZ 1574' },
-  { type: 'match', a: 'Malpensa', b: 'Navigli' },
+  { type: 'match', a: 'Porta Nuova', b: 'Malpensa T2' },
   { type: 'save',  who: 'Sofia & Luca', amt: 58 },
-  { type: 'match', a: 'Malpensa', b: 'Porta Nuova' },
+  { type: 'match', a: 'Città Studi', b: 'Malpensa T1' },
   { type: 'search', flight: 'FR 8821' },
   { type: 'save',  who: 'Anna & Davide', amt: 60 },
-  { type: 'match', a: 'Malpensa', b: 'Città Studi' },
+  { type: 'match', a: 'Lambrate', b: 'Malpensa T1' },
 ];
 
 function FeedRow({ item, fresh }: { item: FeedItem; fresh: boolean }) {
@@ -172,7 +181,7 @@ function FeedRow({ item, fresh }: { item: FeedItem; fresh: boolean }) {
     icon = <IconSearch />;
     colorClass = styles.feedIconPrimary;
     primary = 'Nuovo viaggiatore in cerca';
-    meta = `Volo ${item.flight} · Malpensa`;
+    meta = `Volo ${item.flight} · verso Malpensa`;
   }
 
   return (
@@ -204,6 +213,7 @@ function LiveFeed() {
     return () => clearInterval(id);
   }, []);
 
+  // TODO: replace with real stats from backend analytics API
   const saved = useCountUp(8400);
   const rides = useCountUp(1240);
 
@@ -212,20 +222,21 @@ function LiveFeed() {
       <div className={styles.wrap}>
         <div className={styles.liveLabel}>
           <span className={styles.liveDot} />
-          <span>In tempo reale</span>
+          <span>Attività sulla piattaforma</span>
         </div>
-        <h2 className={styles.liveH2}>La community è in movimento, ora.</h2>
+        <h2 className={styles.liveH2}>Chi va a Malpensa non va da solo.</h2>
         <div className={styles.feedList}>
           {items.map((it, i) => <FeedRow key={it.key} item={it} fresh={i === 0} />)}
         </div>
+        {/* TODO: replace with real stats once backend analytics is live */}
         <div className={styles.liveStats}>
           <div className={styles.statTile}>
             <div className={styles.statNum}>€{saved}</div>
-            <div className={styles.statLbl}>risparmiati questa settimana</div>
+            <div className={styles.statLbl}>risparmio stimato a regime</div>
           </div>
           <div className={styles.statTile}>
             <div className={styles.statNum}>{rides}+</div>
-            <div className={styles.statLbl}>corse condivise</div>
+            <div className={styles.statLbl}>corse potenziali al mese</div>
           </div>
         </div>
       </div>
@@ -235,9 +246,21 @@ function LiveFeed() {
 
 /* ── How It Works ── */
 const STEPS = [
-  { icon: <IconPlane size={20} />, t: 'Pianifica in anticipo', d: 'Aggiungi numero del volo, terminal e zona di destinazione. Anche giorni prima di partire.' },
-  { icon: <IconUsers size={20} />, t: 'Ricevi il match', d: 'Ti abbiniamo a chi è diretto nella tua stessa zona. Vi coordinate nella chat interna.' },
-  { icon: <IconNavigation size={20} />, t: 'Dividete il taxi', d: 'Vi trovate al punto di ritrovo, salite sul taxi ufficiale e dividete la tariffa direttamente col tassista.' },
+  {
+    icon: <IconPlane size={20} />,
+    t: 'Inserisci via e numero del volo',
+    d: 'Digita la via di partenza a Milano e il numero del tuo volo per Malpensa. Il sistema calcola tutto il resto.',
+  },
+  {
+    icon: <IconUsers size={20} />,
+    t: 'Ricevi match e punto di ritiro',
+    d: 'Ti abbiniamo a chi è diretto allo stesso terminal. Ti assegniamo il punto di ritiro più comodo, vicino a te.',
+  },
+  {
+    icon: <IconNavigation size={20} />,
+    t: 'Dividete il taxi verso Malpensa',
+    d: 'Vi trovate al pick-up assegnato a Milano, salite sul taxi ufficiale e dividete la tariffa direttamente col tassista.',
+  },
 ];
 
 function HowItWorks() {
@@ -269,16 +292,16 @@ function HowItWorks() {
 
 /* ── Why Choose ── */
 const REASONS = [
-  { icon: <IconShieldCheck size={22} />, t: 'Sicurezza e community', d: 'Viaggi con chi era sul tuo stesso volo o su voli vicini. Profili verificati e recensioni reciproche dopo ogni corsa.' },
-  { icon: <IconMessageCircle size={22} />, t: 'Zero stress', d: 'Sai con chi viaggi prima ancora di atterrare. Niente code impreviste, niente trattative al volo col tassista.' },
-  { icon: <IconMapPin size={22} />, t: 'Ottimizzazione geografica', d: "L'algoritmo abbina solo chi è diretto nella tua stessa area. Nessuna deviazione, nessun tempo perso." },
+  { icon: <IconShieldCheck size={22} />, t: 'Sicurezza e community', d: 'Viaggi con chi è diretto allo stesso terminal. Profili verificati e recensioni reciproche dopo ogni corsa.' },
+  { icon: <IconMessageCircle size={22} />, t: 'Zero stress', d: 'Sai con chi dividi il taxi prima ancora di uscire di casa. Niente ricerche last-minute, niente trattative col tassista.' },
+  { icon: <IconMapPin size={22} />, t: 'Pick-up vicino a te', d: "Il sistema assegna il punto di ritiro più comodo in base alla tua via. Nessuna deviazione, nessun tempo perso." },
 ];
 
 function WhyChoose() {
   return (
     <section className={styles.whySection}>
       <div className={styles.wrap}>
-        <SectionTitle eyebrow="Perché Flot" title="Pensato per chi viaggia di fretta" />
+        <SectionTitle eyebrow="Perché Flot" title="Pensato per chi non vuole perdere l'aereo" />
         <div className={styles.whyGrid}>
           {REASONS.map((r, i) => (
             <div key={i} className={styles.whyCard}>
@@ -293,13 +316,70 @@ function WhyChoose() {
   );
 }
 
+/* ── Flight Monitor ── */
+function FlightMonitor() {
+  return (
+    <section className={styles.flightMonitorSection}>
+      <div className={styles.wrap}>
+        <div className={styles.fmInner}>
+          <span className={styles.fmBadge}>
+            <IconPlane size={12} /> Monitoraggio live
+          </span>
+          <h2 className={styles.fmTitle}>Voliamo con te,<br />anche se l'orario cambia.</h2>
+          <p className={styles.fmDesc}>
+            Monitoriamo il tuo volo in tempo reale. Anticipo o ritardo? Ricalcoliamo quando devi partire da Milano e aggiorniamo il match automaticamente.
+          </p>
+          <div className={styles.fmCards}>
+            <div className={styles.fmCard}>
+              <div className={styles.fmCardIcon}><IconClock size={18} /></div>
+              <div>
+                <p className={styles.fmCardTitle}>Partenza ricalcolata</p>
+                <p className={styles.fmCardDesc}>Ti diciamo esattamente quando uscire di casa, con il margine giusto per il check-in.</p>
+              </div>
+            </div>
+            <div className={styles.fmCard}>
+              <div className={styles.fmCardIcon}><IconMessageCircle size={18} /></div>
+              <div>
+                <p className={styles.fmCardTitle}>Match sempre sincronizzato</p>
+                <p className={styles.fmCardDesc}>Se il volo di uno dei due cambia, aggiorniamo entrambi e ricalcoliamo il pick-up.</p>
+              </div>
+            </div>
+            <div className={styles.fmCard}>
+              <div className={styles.fmCardIcon}><IconShieldCheck size={18} /></div>
+              <div>
+                <p className={styles.fmCardTitle}>Notifiche in anticipo</p>
+                <p className={styles.fmCardDesc}>Push alert in tempo utile, così hai sempre il tempo di organizzarti senza correre.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ── FAQ ── */
 const FAQS = [
-  { q: 'Cosa succede se il mio volo è in ritardo?', a: "Niente panico. Flot monitora i voli in tempo reale: se il tuo è in ritardo, l'algoritmo riorganizza automaticamente il match e aggiorna l'orario del ritrovo. Tu e il tuo compagno ricevete una notifica e restate sincronizzati." },
-  { q: 'Come trovo il mio compagno in aeroporto?', a: "Ti suggeriamo un punto di ritrovo preciso all'interno dell'aeroporto. Nella chat interna potete coordinarvi negli ultimi minuti. Semplice e diretto." },
-  { q: 'È sicuro viaggiare con uno sconosciuto?', a: "Sì. La community Flot è fatta di viaggiatori verificati. Prima di salire vedete il profilo, la valutazione e le recensioni dell'altra persona. Dopo la corsa vi recensite a vicenda: chi non rispetta le regole esce dalla community." },
-  { q: 'I tassisti accettano la divisione della spesa?', a: 'Assolutamente. Per il tassista è una normale corsa ufficiale, semplicemente pagata in due. Flot lavora solo con taxi ufficiali: nessuna trattativa, nessun servizio abusivo. Pagate ciascuno la vostra metà a fine corsa.' },
-  { q: 'Quanto costa esattamente il servizio?', a: 'Solo 1,99€, e li paghi unicamente a match trovato. Se non troviamo nessuno per te, non paghi nulla. Flot non trattiene mai i soldi della corsa: quelli vanno direttamente al tassista.' },
+  {
+    q: 'Cosa succede se il mio volo cambia orario?',
+    a: "Nessun problema. Monitoriamo il tuo volo in tempo reale: se anticipa o ritarda, ricalcoliamo automaticamente l'orario di partenza da Milano e aggiorniamo il match. Tu e il tuo compagno ricevete una notifica e restate sincronizzati.",
+  },
+  {
+    q: 'Come ci troviamo al punto di pick-up?',
+    a: "Il sistema ti assegna il punto di ritiro più comodo in base alla tua via di partenza, solitamente a pochi minuti da te a piedi. Nella chat interna potete coordinarvi negli ultimi minuti. Semplice e diretto.",
+  },
+  {
+    q: 'È sicuro viaggiare con uno sconosciuto?',
+    a: "Sì. La community Flot è fatta di viaggiatori verificati. Prima di salire vedete il profilo, la valutazione e le recensioni dell'altra persona. Dopo la corsa vi recensite a vicenda: chi non rispetta le regole esce dalla community.",
+  },
+  {
+    q: 'I tassisti accettano la divisione della spesa?',
+    a: 'Assolutamente. Per il tassista è una normale corsa ufficiale verso Malpensa, semplicemente pagata in due. Flot lavora solo con taxi ufficiali: nessuna trattativa, nessun servizio abusivo. Pagate ciascuno la vostra metà a fine corsa.',
+  },
+  {
+    q: 'Quanto costa esattamente il servizio?',
+    a: 'Solo 1,99€, e li paghi unicamente a match trovato. Se non troviamo nessuno per te, non paghi nulla. Flot non trattiene mai i soldi della corsa: quelli vanno direttamente al tassista.',
+  },
 ];
 
 function FAQItem({ item, open, onToggle }: { item: typeof FAQS[0]; open: boolean; onToggle: () => void }) {
@@ -348,6 +428,117 @@ function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
   );
 }
 
+/* ── Post-submit result panel ── */
+type MatchState = 'searching' | 'matched' | 'no_match';
+
+function ResultPanel({
+  flightNumber,
+  matchState,
+  isAuthenticated,
+  onBack,
+  onLogin,
+}: {
+  flightNumber: string;
+  matchState: MatchState;
+  isAuthenticated: boolean;
+  onBack: () => void;
+  onLogin: (p: 'Google' | 'Apple') => void;
+}) {
+  return (
+    <div className={styles.resultPanel} id="hero-form">
+      {/* TODO: replace with backend-assigned pick-up based on address */}
+      <div className={styles.resultCard}>
+        <div className={styles.resultIconWrap}><IconMapPin size={18} /></div>
+        <div className={styles.resultBody}>
+          <div className={styles.resultLabel}>Pick-up assegnato</div>
+          <div className={styles.resultValue}>Navigli — Via Vigevano</div>
+          <div className={styles.resultSub}>A circa 4 min dalla tua via</div>
+        </div>
+      </div>
+
+      {/* TODO: replace with real flight data from AeroDataBox / aviation API */}
+      <div className={styles.resultCard}>
+        <div className={styles.resultIconWrap}><IconPlane size={18} /></div>
+        <div className={styles.resultBody}>
+          <div className={styles.resultLabel}>Volo agganciato</div>
+          <div className={styles.resultValue}>{flightNumber.toUpperCase()} · Malpensa</div>
+          <div className={styles.resultSub}>Monitorato in tempo reale</div>
+        </div>
+      </div>
+
+      {/* TODO: replace with backend-calculated departure time (flight time − transfer − buffer) */}
+      <div className={styles.resultCard}>
+        <div className={styles.resultIconWrap}><IconClock size={18} /></div>
+        <div className={styles.resultBody}>
+          <div className={styles.resultLabel}>Partenza da Milano</div>
+          <div className={styles.resultValue}>ore 06:45</div>
+          <div className={styles.resultSub}>Con 3h di anticipo sul volo</div>
+        </div>
+      </div>
+
+      {/* TODO: replace with real match state from backend (WebSocket or polling) */}
+      {matchState === 'searching' && (
+        <div className={`${styles.matchCard} ${styles.matchSearching}`}>
+          <div className={`${styles.matchIcon} ${styles.matchIconSearching}`}>
+            <div className={styles.matchSpinner} />
+          </div>
+          <div>
+            <div className={styles.matchTitle}>Cerchiamo il tuo compagno…</div>
+            <div className={styles.matchDesc}>Ti avvisiamo appena troviamo qualcuno diretto allo stesso terminal.</div>
+          </div>
+        </div>
+      )}
+
+      {matchState === 'matched' && (
+        <div className={`${styles.matchCard} ${styles.matchFound}`}>
+          <div className={`${styles.matchIcon} ${styles.matchIconFound}`}>
+            <IconCircleCheck size={18} />
+          </div>
+          <div>
+            <div className={styles.matchTitle}>Match trovato!</div>
+            <div className={styles.matchDesc}>Abbiamo trovato il tuo compagno di viaggio verso Malpensa.</div>
+          </div>
+        </div>
+      )}
+
+      {matchState === 'no_match' && (
+        <div className={`${styles.matchCard} ${styles.matchNoMatch}`}>
+          <div className={`${styles.matchIcon} ${styles.matchIconNoMatch}`}>
+            <IconUsers size={18} />
+          </div>
+          <div>
+            <div className={styles.matchTitle}>Nessuno ancora — ci pensiamo noi.</div>
+            <div className={styles.matchDesc}>Non c'è ancora nessuno per il tuo orario. Ti avvisiamo non appena arriva un viaggiatore compatibile.</div>
+          </div>
+        </div>
+      )}
+
+      {!isAuthenticated && (
+        <div className={styles.authGate}>
+          <div className={styles.authGateTitle}>
+            {matchState === 'matched'
+              ? 'Accedi per vedere chi è il tuo compagno:'
+              : 'Accedi per ricevere la notifica di match:'}
+          </div>
+          <div className={styles.authRow}>
+            <button className={`${styles.btnAuth} ${styles.btnGoogle}`} onClick={() => onLogin('Google')}>
+              <IconGoogle />
+              Continua con Google
+            </button>
+            <div className={styles.authDivider}><span>o</span></div>
+            <button className={`${styles.btnAuth} ${styles.btnApple}`} onClick={() => onLogin('Apple')}>
+              <IconApple />
+              Continua con Apple
+            </button>
+          </div>
+        </div>
+      )}
+
+      <button className={styles.resultBack} onClick={onBack}>← Modifica i dati</button>
+    </div>
+  );
+}
+
 /* ── Main component ── */
 export function EntryPoint() {
   const { isAuthenticated, isLoading, login } = useAuth();
@@ -356,6 +547,15 @@ export function EntryPoint() {
   const user = useAuthStore((s) => s.user);
   const [menuOpen, setMenuOpen] = useState(false);
   const [photoError, setPhotoError] = useState(false);
+
+  // Hero form state
+  const [heroStep, setHeroStep] = useState<'form' | 'result'>('form');
+  const [address, setAddress] = useState('');
+  const [flightNumber, setFlightNumber] = useState('');
+  const [flightValid, setFlightValid] = useState<'idle' | 'validating' | 'valid' | 'invalid'>('idle');
+  // TODO: replace with real match state received from backend after POST /api/search
+  const [matchState] = useState<MatchState>('searching');
+
   const initials = (() => {
     if (!user) return '?';
     const fromParts = `${user.firstName?.[0] ?? ''}${user.lastName?.[0] ?? ''}`.trim();
@@ -368,6 +568,18 @@ export function EntryPoint() {
     if (user?.photoUrl) setPhotoError(false);
   }, [user?.photoUrl]);
 
+  // Flight number mock validation — TODO: replace with real aviation API call
+  useEffect(() => {
+    if (!flightNumber.trim()) { setFlightValid('idle'); return; }
+    const trimmed = flightNumber.trim().toUpperCase();
+    if (/^[A-Z]{2}\d{3,4}$/.test(trimmed)) {
+      setFlightValid('validating');
+      const t = setTimeout(() => setFlightValid('valid'), 700);
+      return () => clearTimeout(t);
+    }
+    setFlightValid('invalid');
+  }, [flightNumber]);
+
   const handleLogin = useCallback(
     (provider: 'Google' | 'Apple') => {
       login(provider);
@@ -375,12 +587,23 @@ export function EntryPoint() {
     [login],
   );
 
-  const scrollToAuth = () => {
-    document.getElementById('hero-auth')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    if (!address.trim() || flightValid !== 'valid') return;
+    setHeroStep('result');
+    // TODO: POST { address, flightNumber } to /api/search and receive pick-up + departure time
+  };
+
+  const scrollToForm = () => {
+    document.getElementById('hero-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   const handleFindRide = () => {
-    navigate(selectedAirport ? '/check-in' : '/airport');
+    if (isAuthenticated && selectedAirport) {
+      navigate('/check-in');
+    } else {
+      scrollToForm();
+    }
   };
 
   if (isLoading && !isDevBypass) {
@@ -420,8 +643,8 @@ export function EntryPoint() {
               )}
             </button>
           ) : (
-            <button className={styles.navCta} onClick={scrollToAuth}>
-              Inizia gratis
+            <button className={styles.navCta} onClick={scrollToForm}>
+              Trova il tuo compagno
             </button>
           )}
         </div>
@@ -433,16 +656,16 @@ export function EntryPoint() {
         <div className={styles.wrap}>
           <div className={styles.heroBadge}>
             <IconPlane size={15} />
-            Da Malpensa al centro di Milano
+            Da Milano a Malpensa
           </div>
 
           <h1 className={styles.heroH1}>
-            Esci dall'aeroporto.<br />
+            Vai a Malpensa.<br />
             <span className={styles.heroAccent}>A metà prezzo.</span>
           </h1>
 
           <p className={styles.heroSub}>
-            Inserisci il tuo volo in anticipo. Flot ti abbina a un viaggiatore diretto nella tua stessa zona. Dividete il taxi ufficiale a metà, direttamente col tassista.
+            Inserisci via di partenza e numero del volo. Flot ti abbina a un viaggiatore diretto allo stesso terminal. Dividete il taxi ufficiale a metà, direttamente col tassista.
           </p>
 
           <div className={styles.priceCard}>
@@ -459,25 +682,65 @@ export function EntryPoint() {
             </div>
           </div>
 
-          {isAuthenticated ? (
-            <div className={styles.heroCta} id="hero-auth">
-              <button className={styles.btnPrimary} onClick={handleFindRide}>
-                Cerca il tuo compagno
+          {heroStep === 'form' ? (
+            <form className={styles.heroForm} id="hero-form" onSubmit={handleSubmit}>
+              <div className={styles.heroFormGroup}>
+                <label className={styles.heroLabel} htmlFor="hero-address">Da dove parti?</label>
+                {/* TODO: replace with Google Places autocomplete */}
+                <input
+                  id="hero-address"
+                  type="text"
+                  className={styles.heroInput}
+                  placeholder="Es. Via Tortona 12, Milano"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  autoComplete="street-address"
+                />
+              </div>
+              <div className={styles.heroFormGroup}>
+                <label className={styles.heroLabel} htmlFor="hero-flight">Il tuo volo</label>
+                <div className={styles.heroInputWrap}>
+                  <input
+                    id="hero-flight"
+                    type="text"
+                    className={`${styles.heroInput} ${
+                      flightValid === 'valid' ? styles.heroInputValid :
+                      flightValid === 'invalid' ? styles.heroInputInvalid : ''
+                    }`}
+                    placeholder="Es. AZ1234"
+                    value={flightNumber}
+                    onChange={(e) => setFlightNumber(e.target.value)}
+                    autoComplete="off"
+                    style={{ paddingRight: flightValid !== 'idle' ? '90px' : '14px' }}
+                  />
+                  {flightValid === 'validating' && (
+                    <span className={`${styles.heroInputStatus} ${styles.heroInputStatusValidating}`}>Verifica…</span>
+                  )}
+                  {flightValid === 'valid' && (
+                    <span className={`${styles.heroInputStatus} ${styles.heroInputStatusValid}`}>✓ Trovato</span>
+                  )}
+                  {flightValid === 'invalid' && (
+                    <span className={`${styles.heroInputStatus} ${styles.heroInputStatusInvalid}`}>Non valido</span>
+                  )}
+                </div>
+              </div>
+              <button
+                type="submit"
+                className={styles.btnPrimary}
+                disabled={!address.trim() || flightValid !== 'valid'}
+              >
+                Trova il tuo compagno
                 <IconArrowRight size={19} />
               </button>
-            </div>
+            </form>
           ) : (
-            <div className={styles.authRow} id="hero-auth">
-              <button className={`${styles.btnAuth} ${styles.btnGoogle}`} onClick={() => handleLogin('Google')}>
-                <IconGoogle />
-                Continua con Google
-              </button>
-              <div className={styles.authDivider}><span>o</span></div>
-              <button className={`${styles.btnAuth} ${styles.btnApple}`} onClick={() => handleLogin('Apple')}>
-                <IconApple />
-                Continua con Apple
-              </button>
-            </div>
+            <ResultPanel
+              flightNumber={flightNumber}
+              matchState={matchState}
+              isAuthenticated={isAuthenticated}
+              onBack={() => setHeroStep('form')}
+              onLogin={handleLogin}
+            />
           )}
 
           <div className={styles.trustBadge}>
@@ -496,6 +759,9 @@ export function EntryPoint() {
       {/* ── WHY CHOOSE ── */}
       <WhyChoose />
 
+      {/* ── FLIGHT MONITOR ── */}
+      <FlightMonitor />
+
       {/* ── FAQ ── */}
       <FAQ />
 
@@ -506,11 +772,11 @@ export function EntryPoint() {
             Da solo paghi 120€.<br />Condividendo, solo 60€.
           </h2>
           <p className={styles.finalCtaSub}>
-            Inserisci il tuo prossimo volo da Malpensa. Ci pensiamo noi a trovarti un compagno di viaggio diretto nella tua zona.
+            Inserisci la tua via di partenza e il numero del volo. Ci pensiamo noi a trovarti un compagno diretto allo stesso terminal.
           </p>
           <button
             className={styles.btnPrimaryFull}
-            onClick={isAuthenticated ? handleFindRide : scrollToAuth}
+            onClick={handleFindRide}
           >
             Trova il tuo compagno
             <IconArrowRight size={19} />
@@ -535,7 +801,7 @@ export function EntryPoint() {
             <span className={styles.footerBrand}>flot</span>
           </div>
           <p className={styles.footerTagline}>
-            Dividi il taxi dall'aeroporto. Condividi il risparmio. Più semplice, più economico, più umano.
+            Dividi il taxi per Malpensa. Condividi il risparmio. Più semplice, più economico, più umano.
           </p>
           <div className={styles.footerLinks}>
             {['Termini di servizio', 'Privacy', 'Note legali', 'Cookie', 'Contatti'].map((l) => (
