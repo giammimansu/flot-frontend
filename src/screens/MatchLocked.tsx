@@ -12,6 +12,7 @@ import { fetchUser } from '../services/users';
 import { parseApiError } from '../services/api';
 import { PaymentSheet } from '../components/PaymentSheet/PaymentSheet';
 import { formatCurrency } from '../lib/formatters';
+import { computeSavings } from '../lib/savings';
 import { useCountdown } from '../hooks/useCountdown';
 import type { Match, PublicUser } from '../types/api';
 import styles from './MatchLocked.module.css';
@@ -137,7 +138,7 @@ export function MatchLocked() {
   const airport =
     (match && airports.find((a) => a.code === match.airportCode)) || selectedAirport || null;
   const currency = airport?.currency ?? 'EUR';
-  const savingsCents = airport?.baseFare ? Math.round(airport.baseFare / 2) : 0;
+  const savingsEuros = airport?.baseFare ? computeSavings(airport.baseFare, 2) : 0;
 
   // Navigate based on the match status the backend reported.
   const resolveByStatus = useCallback(async (status: 'partially_unlocked' | 'unlocked' | undefined) => {
@@ -339,7 +340,7 @@ export function MatchLocked() {
             <div className={styles.dealCol}>
               <div className={styles.dealLabel}>You save</div>
               <div className={styles.dealSavings}>
-                {savingsCents > 0 ? formatCurrency(savingsCents, currency) : '—'}
+                {savingsEuros > 0 ? formatCurrency(savingsEuros, currency) : '—'}
               </div>
             </div>
             <div className={styles.dealDivider} />

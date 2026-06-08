@@ -105,7 +105,7 @@ export function MyTrips() {
       <TopNav showLogo />
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <div className={styles.greeting}>Hey, {user?.firstName || 'Traveler'} 👋</div>
+          <div className={styles.greeting}>Hey, {user?.firstName || user?.name?.split(' ')[0] || 'Traveler'} 👋</div>
           <h1 className={styles.title}>My trips</h1>
         </div>
         <button

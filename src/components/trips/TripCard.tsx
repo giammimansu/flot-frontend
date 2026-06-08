@@ -36,8 +36,8 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
   const isCancelled = trip.status === 'cancelled';
 
   // Savings = half the airport's fixed fare (per-airport, never hardcoded).
-  const halfFareCents = Math.round((airport?.baseFare ?? 12000) / 2);
-  const savingsFmt = formatCurrency(halfFareCents, airport?.currency ?? 'EUR');
+  const halfFareEuros = Math.round((airport?.baseFare ?? 12000) / 2 / 100);
+  const savingsFmt = formatCurrency(halfFareEuros, airport?.currency ?? 'EUR');
   const savingsAmount = isCompleted || isUnlocked ? savingsFmt : `~${savingsFmt}`;
 
   return (
