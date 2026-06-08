@@ -87,6 +87,16 @@
   flex-shrink: 0;
 }
 
+.airportCardSelected {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 3px var(--amber-glow), var(--shadow-card);
+}
+
+.airportIconSelected {
+  background: var(--amber);
+  color: #fff;
+}
+
 /* Loading skeleton */
 .skeleton {
   height: 80px;

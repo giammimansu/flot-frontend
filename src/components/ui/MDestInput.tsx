@@ -196,6 +196,22 @@ export function MDestInput({
         <div className={styles.chevron}>
           {loading ? (
             <div className={styles.spinner} aria-hidden="true" />
+          ) : value !== null ? (
+            <button
+              type="button"
+              className={styles.clearBtn}
+              aria-label="Clear destination"
+              onPointerDown={(e) => {
+                e.preventDefault();
+                setQuery('');
+                setSuggestions([]);
+                setIsOpen(false);
+                onChange(null);
+                setTimeout(() => inputRef.current?.focus(), 0);
+              }}
+            >
+              ✕
+            </button>
           ) : (
             <MIcon name="chevron-right" size={18} color="var(--ink-subtle)" />
           )}

@@ -183,6 +183,29 @@ export function TravelCheckin() {
           </p>
         </div>
 
+        {/* Airport — only when multiple airports available */}
+        {airports.length > 1 && airport && (
+          <div className={styles.formSectionSm}>
+            <div className={styles.fieldLabel}>Airport</div>
+            <button
+              type="button"
+              className={styles.airportField}
+              onClick={() => navigate('/airport', { state: { force: true } })}
+              aria-label={`Change airport — currently ${airport.name}`}
+            >
+              <div className={styles.airportFieldIcon}>
+                <MIcon name="plane-landing" size={20} />
+              </div>
+              <div className={styles.airportFieldBody}>
+                <span className={styles.airportFieldName}>{airport.name}</span>
+                <span className={styles.airportFieldCode}>{airport.code}</span>
+              </div>
+              <span className={styles.airportFieldChange}>Change</span>
+              <MIcon name="chevron-right" size={16} color="var(--ink-subtle)" />
+            </button>
+          </div>
+        )}
+
         {/* 1. Mode */}
         <div className={styles.formSection}>
           <Controller
