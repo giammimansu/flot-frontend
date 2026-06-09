@@ -153,6 +153,14 @@ function IconPlus({ size = 16 }: { size?: number }) {
   );
 }
 
+function IconBag({ size = 18 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
+    </svg>
+  );
+}
+
 function IconClock({ size = 18 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -793,6 +801,7 @@ export function EntryPoint() {
   const [flightNumber, setFlightNumber] = useState('');
   const [flightDate, setFlightDate] = useState('');
   const [resolvedFlight, setResolvedFlight] = useState<ResolvedFlight | null>(null);
+  const [luggage, setLuggage] = useState(1);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Booking (POST /trips) state
@@ -874,7 +883,7 @@ export function EntryPoint() {
       originPlaceId: address.placeId,
       originLabel: address.label,
       paxCount: 1,
-      luggage: 0,
+      luggage,
       mode: 'scheduled',
       flightNumber: resolvedFlight.flightNumber,
       flightDate: flightDate || resolvedFlight.date,
@@ -1047,6 +1056,22 @@ export function EntryPoint() {
                   min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => { setFlightDate(e.target.value); setResolvedFlight(null); }}
                 />
+              </div>
+              <div className={styles.heroFormGroup}>
+                <label className={styles.heroLabel}>Bagagli</label>
+                <div className={styles.luggagePicker}>
+                  {[1, 2, 3].map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={`${styles.luggageOption} ${luggage === n ? styles.luggageOptionActive : ''}`}
+                      onClick={() => setLuggage(n)}
+                    >
+                      <IconBag size={18} />
+                      <span>{n}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
               <div className={styles.heroFormGroup}>
                 <label className={styles.heroLabel} htmlFor="hero-flight">Il tuo volo</label>
