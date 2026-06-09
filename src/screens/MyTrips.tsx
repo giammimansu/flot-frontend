@@ -46,7 +46,7 @@ export function MyTrips() {
       setTrips(patched);
     } catch (err) {
       console.error('getMyTrips failed:', err);
-      setFetchError('Could not load trips. Please try again.');
+      setFetchError('Impossibile caricare i viaggi. Riprova.');
     } finally {
       setLoading(false);
     }
@@ -105,8 +105,8 @@ export function MyTrips() {
       <TopNav showLogo />
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <div className={styles.greeting}>Hey, {user?.firstName || user?.name?.split(' ')[0] || 'Traveler'} 👋</div>
-          <h1 className={styles.title}>My trips</h1>
+          <div className={styles.greeting}>Ciao, {user?.firstName || user?.name?.split(' ')[0] || 'Viaggiatore'} 👋</div>
+          <h1 className={styles.title}>I tuoi viaggi</h1>
         </div>
         <button
           type="button"
@@ -124,14 +124,14 @@ export function MyTrips() {
           <div className={styles.statValue}>
             €{totalSaved}
           </div>
-          <div className={styles.statLabel}>saved</div>
+          <div className={styles.statLabel}>risparmiati</div>
         </div>
         <div className={`${styles.statCard} ${styles.surface}`}>
           <div className={styles.statValue}>
             <MIcon name="check" size={18} sw={2} />
             {totalCompleted}
           </div>
-          <div className={styles.statLabel}>completed</div>
+          <div className={styles.statLabel}>completati</div>
         </div>
       </div>
 
@@ -142,8 +142,8 @@ export function MyTrips() {
       <div className={styles.tabs}>
         <MSegment
           options={[
-            { id: 'active', label: `Active (${trips.filter(t => activeStatuses.includes(t.status)).length})` },
-            { id: 'past', label: `Past (${trips.filter(t => pastStatuses.includes(t.status)).length})` },
+            { id: 'active', label: `Attivi (${trips.filter(t => activeStatuses.includes(t.status)).length})` },
+            { id: 'past', label: `Passati (${trips.filter(t => pastStatuses.includes(t.status)).length})` },
           ]}
           value={tab}
           onChange={(v) => setTab(v as 'active' | 'past')}
@@ -152,16 +152,16 @@ export function MyTrips() {
 
       <div className={styles.list}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: 'var(--ink-muted)' }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--ink-muted)' }}>Caricamento…</div>
         ) : fetchError ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyCircle}>
               <MIcon name="x" size={28} sw={2} />
             </div>
-            <div className={styles.emptyTitle}>Network error</div>
+            <div className={styles.emptyTitle}>Errore di rete</div>
             <div className={styles.emptySub}>{fetchError}</div>
             <MBtn variant="primary" onClick={() => { setLoading(true); fetchTrips(); }}>
-              Retry
+              Riprova
             </MBtn>
           </div>
         ) : displayedTrips.length > 0 ? (
@@ -179,16 +179,16 @@ export function MyTrips() {
             <div className={styles.emptyCircle}>
               <MIcon name="search" size={28} sw={2} />
             </div>
-            <div className={styles.emptyTitle}>No trips here</div>
-            <div className={styles.emptySub}>Your trips will appear here</div>
-            <MBtn variant="primary" onClick={() => navigate('/check-in')}>
-              Book a trip
+            <div className={styles.emptyTitle}>Nessun viaggio qui</div>
+            <div className={styles.emptySub}>I tuoi viaggi appariranno qui</div>
+            <MBtn variant="primary" onClick={() => navigate('/')}>
+              Prenota un viaggio
             </MBtn>
           </div>
         )}
       </div>
 
-      <button className={styles.fab} onClick={() => navigate('/check-in')}>
+      <button className={styles.fab} onClick={() => navigate('/')}>
         <MIcon name="plus" size={26} sw={2.5} />
       </button>
 
