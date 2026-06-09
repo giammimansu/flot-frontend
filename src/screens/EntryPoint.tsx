@@ -9,7 +9,7 @@ import { ProfileMenu } from '../components/layout/ProfileMenu';
 import { ensurePlaces } from '../lib/places';
 import { FlightInput } from '../components/checkin/FlightInput';
 import type { ResolvedFlight } from '../types/flights';
-import type { CreateTripRequest, CreateTripResponse } from '../types/api';
+import type { CreateTripRequest } from '../types/api';
 import logoFull from '../assets/logo-full.svg';
 import styles from './EntryPoint.module.css';
 
@@ -795,17 +795,10 @@ export function EntryPoint() {
 
   // Booking (POST /trips) state
   const [bookingState, setBookingState] = useState<BookingState>('idle');
-  const [tripResult, setTripResult] = useState<CreateTripResponse | null>(null);
   const [banned, setBanned] = useState(false);
   const [bookingError, setBookingError] = useState<string | null>(null);
-
-  // Derive the match card state from the real trip response.
-  const matchState: MatchState = (() => {
-    if (!tripResult) return 'searching';
-    if (tripResult.matchId || tripResult.status === 'matched') return 'matched';
-    if (tripResult.status === 'searching') return 'searching';
-    return 'no_match'; // scheduled / tracking_pending → reassuring "we'll notify you"
-  })();
+  // Transient match card shown while saving; on success we navigate to /trip/:id.
+  const matchState: MatchState = 'searching';
 
   const initials = (() => {
     if (!user) return '?';
@@ -892,8 +885,9 @@ export function EntryPoint() {
       .then((res) => {
         clearDraft();
         if (res) {
-          setTripResult(res);
           setBookingState('done');
+          // Booking persisted — show the trip screen (e.g. /trip/{tripId}).
+          navigate(`/trip/${res.tripId}`);
         } else {
           const st = useTripStore.getState();
           setBanned(st.banned);
@@ -905,7 +899,7 @@ export function EntryPoint() {
         setBookingError('Errore di rete. Riprova.');
         setBookingState('error');
       });
-  }, [heroStep, isAuthenticated, address, resolvedFlight, flightDate, bookingState, submitTrip]);
+  }, [heroStep, isAuthenticated, address, resolvedFlight, flightDate, bookingState, submitTrip, navigate]);
 
   const scrollToForm = () => {
     document.getElementById('hero-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
