@@ -98,14 +98,14 @@ export function FlightInput({
         <input
           className={`${styles.input} ${status === 'not_found' ? styles.inputError : ''}`}
           type="text"
-          placeholder="e.g. AZ613"
+          placeholder="es. AZ613"
           autoCapitalize="characters"
           autoCorrect="off"
           spellCheck={false}
           maxLength={7}
           value={value}
           onChange={(e) => onChange(e.target.value.toUpperCase())}
-          aria-label="Flight number"
+          aria-label="Numero volo"
         />
         <StatusPill status={status} />
       </div>
@@ -119,7 +119,7 @@ export function FlightInput({
           <span className={styles.flightInfoHighlight}>{resolved.flightNumber}</span>
           {' · '}
           {resolved.origin}→{resolved.destination || airportCode}
-          {' · '}
+          {' · partenza '}
           <span className={styles.flightInfoHighlight}>{resolved.displayTime}</span>
         </div>
       )}
@@ -129,7 +129,7 @@ export function FlightInput({
         className={styles.findLink}
         onClick={() => { setSheetOpen(true); onSheetOpenChange?.(true); }}
       >
-        Don't know your flight? Find it →
+        Non conosci il numero del volo? Cercalo →
       </button>
 
       <FlightSearchSheet
@@ -155,10 +155,10 @@ function StatusPill({ status }: { status: Status }) {
     );
   }
   if (status === 'found') {
-    return <span className={`${styles.statusPill} ${styles.pillFound}`}>✓ Tracked</span>;
+    return <span className={`${styles.statusPill} ${styles.pillFound}`}>✓ Trovato</span>;
   }
   if (status === 'not_found') {
-    return <span className={`${styles.statusPill} ${styles.pillNotFound}`}>✗ Not found</span>;
+    return <span className={`${styles.statusPill} ${styles.pillNotFound}`}>✗ Non trovato</span>;
   }
-  return <span className={`${styles.statusPill} ${styles.pillUnavailable}`}>⚠ Unavailable</span>;
+  return <span className={`${styles.statusPill} ${styles.pillUnavailable}`}>⚠ Non disponibile</span>;
 }
