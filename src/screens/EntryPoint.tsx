@@ -1060,12 +1060,17 @@ export function EntryPoint() {
               <div className={styles.heroFormGroup}>
                 <label className={styles.heroLabel}>Bagagli</label>
                 <div className={styles.luggageCounter}>
-                  <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.max(0, n - 1))} disabled={luggage === 0} aria-label="Riduci bagagli">−</button>
-                  <span className={styles.luggageVal}>
-                    <IconBag size={16} />
-                    {luggage}
-                  </span>
-                  <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.min(3, n + 1))} disabled={luggage === 3} aria-label="Aggiungi bagaglio">+</button>
+                  <div className={styles.luggageInfo}>
+                    <span className={styles.luggageIcon}><IconBag size={18} /></span>
+                    <span className={styles.luggageText}>
+                      {luggage === 0 ? 'Nessun bagaglio' : `${luggage} ${luggage === 1 ? 'bagaglio' : 'bagagli'}`}
+                    </span>
+                  </div>
+                  <div className={styles.luggageControls}>
+                    <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.max(0, n - 1))} disabled={luggage === 0} aria-label="Riduci bagagli">−</button>
+                    <span className={styles.luggageVal}>{luggage}</span>
+                    <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.min(3, n + 1))} disabled={luggage === 3} aria-label="Aggiungi bagaglio">+</button>
+                  </div>
                 </div>
               </div>
               <div className={styles.heroFormGroup}>
