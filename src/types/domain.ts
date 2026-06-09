@@ -44,4 +44,5 @@ export interface Trip {
   paxCount?: number;
   expiresAt?: string;
   createdAt: string;
+  originLabel?: string;
 }

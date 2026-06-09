@@ -87,10 +87,15 @@ export function TripScheduled() {
     }
   };
 
-  const resolvedAirportCode = trip?.airportCode ?? tripStore.currentTrip?.airportCode ?? airport?.code;
   const terminalLabel = airport?.terminals.find((t) => t.code === resolvedTerminal)?.label ?? resolvedTerminal ?? 'Terminal';
-  const fromLabel = resolvedAirportCode ? `${resolvedAirportCode} - ${terminalLabel}` : terminalLabel;
-  const toLabel = resolvedDestination || 'Destination';
+  const originLabel = trip?.originLabel ?? null;
+  const isFromMilan = (trip?.direction ?? tripStore.currentTrip?.direction) === 'FROM_MILAN';
+  const fromLabel = isFromMilan
+    ? (originLabel || 'Milano')
+    : terminalLabel;
+  const toLabel = isFromMilan
+    ? (resolvedDestination || 'Milano Malpensa')
+    : (resolvedDestination || 'Destinazione');
 
   const halfFareEur = Math.round((airport?.baseFare ?? 12000) / 2 / 100);
   const savingsDisplay = new Intl.NumberFormat('en-GB', {
@@ -161,7 +166,7 @@ export function TripScheduled() {
             </div>
             <div className={styles.detailItem}>
               <div className={styles.detailIcon}><MIcon name="clock" size={14} sw={2} /></div>
-              {trip?.flightTime ? formatTimeShort(trip.flightTime) : '--:--'}
+              Decollo {trip?.flightTime ? formatTimeShort(trip.flightTime) : '--:--'}
             </div>
             <div className={styles.detailItem}>
               <div className={styles.detailIcon}><MIcon name="users" size={14} sw={2} /></div>
