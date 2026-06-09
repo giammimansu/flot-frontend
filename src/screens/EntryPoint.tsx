@@ -4,14 +4,52 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useAirportStore } from '../stores/airportStore';
 import { useAuthStore } from '../stores/authStore';
+import { useTripStore } from '../stores/tripStore';
 import { ProfileMenu } from '../components/layout/ProfileMenu';
 import { ensurePlaces } from '../lib/places';
 import { FlightInput } from '../components/checkin/FlightInput';
 import type { ResolvedFlight } from '../types/flights';
+import type { CreateTripRequest, CreateTripResponse } from '../types/api';
 import logoFull from '../assets/logo-full.svg';
 import styles from './EntryPoint.module.css';
 
 const isDevBypass = !import.meta.env.VITE_COGNITO_USER_POOL_ID;
+
+/* MVP single-route: the trip always goes Milano → Malpensa.
+   The destination is fixed to the MXP airport; the user-entered address is the
+   pickup origin. TODO: when multi-airport, source these from the airport registry. */
+const MXP_DESTINATION = {
+  airportCode: 'MXP',
+  direction: 'FROM_MILAN', // MXP airport.to_airport_direction
+  terminal: 'T1',          // TODO: collect/derive terminal from the flight
+  name: 'Milano Malpensa (MXP)',
+  lat: 45.6306,
+  lng: 8.7281,
+  placeId: 'mxp-malpensa-airport',
+};
+
+/* Draft persisted across the OAuth redirect so the booking survives login. */
+const DRAFT_KEY = 'flot_mvp_booking_draft';
+
+interface BookingDraft {
+  address: AddressValue;
+  flightNumber: string;
+  flightDate: string;
+  resolvedFlight: ResolvedFlight;
+}
+
+function saveDraft(d: BookingDraft) {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(d)); } catch { /* ignore */ }
+}
+function loadDraft(): BookingDraft | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    return raw ? (JSON.parse(raw) as BookingDraft) : null;
+  } catch { return null; }
+}
+function clearDraft() {
+  try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
+}
 
 /* ── Icons ── */
 function IconGoogle() {
@@ -594,16 +632,23 @@ function AddressInput({ id, value, onChange, placeholder }: {
 
 /* ── Post-submit result panel ── */
 type MatchState = 'searching' | 'matched' | 'no_match';
+type BookingState = 'idle' | 'creating' | 'done' | 'error';
 
 function ResultPanel({
   resolvedFlight,
   matchState,
+  bookingState,
+  banned,
+  errorMsg,
   isAuthenticated,
   onBack,
   onLogin,
 }: {
   resolvedFlight: ResolvedFlight;
   matchState: MatchState;
+  bookingState: BookingState;
+  banned: boolean;
+  errorMsg: string | null;
   isAuthenticated: boolean;
   onBack: () => void;
   onLogin: (p: 'Google' | 'Apple') => void;
@@ -642,49 +687,11 @@ function ResultPanel({
         </div>
       </div>
 
-      {/* TODO: replace with real match state from backend (WebSocket or polling) */}
-      {matchState === 'searching' && (
-        <div className={`${styles.matchCard} ${styles.matchSearching}`}>
-          <div className={`${styles.matchIcon} ${styles.matchIconSearching}`}>
-            <div className={styles.matchSpinner} />
-          </div>
-          <div>
-            <div className={styles.matchTitle}>Cerchiamo il tuo compagno…</div>
-            <div className={styles.matchDesc}>Ti avvisiamo appena troviamo qualcuno diretto allo stesso terminal.</div>
-          </div>
-        </div>
-      )}
-
-      {matchState === 'matched' && (
-        <div className={`${styles.matchCard} ${styles.matchFound}`}>
-          <div className={`${styles.matchIcon} ${styles.matchIconFound}`}>
-            <IconCircleCheck size={18} />
-          </div>
-          <div>
-            <div className={styles.matchTitle}>Match trovato!</div>
-            <div className={styles.matchDesc}>Abbiamo trovato il tuo compagno di viaggio verso Malpensa.</div>
-          </div>
-        </div>
-      )}
-
-      {matchState === 'no_match' && (
-        <div className={`${styles.matchCard} ${styles.matchNoMatch}`}>
-          <div className={`${styles.matchIcon} ${styles.matchIconNoMatch}`}>
-            <IconUsers size={18} />
-          </div>
-          <div>
-            <div className={styles.matchTitle}>Nessuno ancora — ci pensiamo noi.</div>
-            <div className={styles.matchDesc}>Non c'è ancora nessuno per il tuo orario. Ti avvisiamo non appena arriva un viaggiatore compatibile.</div>
-          </div>
-        </div>
-      )}
-
+      {/* Not logged in — login required to save the booking in the database. */}
       {!isAuthenticated && (
         <div className={styles.authGate}>
           <div className={styles.authGateTitle}>
-            {matchState === 'matched'
-              ? 'Accedi per vedere chi è il tuo compagno:'
-              : 'Accedi per ricevere la notifica di match:'}
+            Accedi per confermare la richiesta e cercare il tuo compagno:
           </div>
           <div className={styles.authRow}>
             <button className={`${styles.btnAuth} ${styles.btnGoogle}`} onClick={() => onLogin('Google')}>
@@ -696,6 +703,69 @@ function ResultPanel({
               <IconApple />
               Continua con Apple
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* Logged in — saving the booking */}
+      {isAuthenticated && bookingState === 'creating' && (
+        <div className={`${styles.matchCard} ${styles.matchSearching}`}>
+          <div className={`${styles.matchIcon} ${styles.matchIconSearching}`}>
+            <div className={styles.matchSpinner} />
+          </div>
+          <div>
+            <div className={styles.matchTitle}>Registriamo la tua richiesta…</div>
+            <div className={styles.matchDesc}>Un istante, stiamo salvando il tuo viaggio.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Logged in — booking saved, show match state */}
+      {isAuthenticated && bookingState === 'done' && matchState === 'searching' && (
+        <div className={`${styles.matchCard} ${styles.matchSearching}`}>
+          <div className={`${styles.matchIcon} ${styles.matchIconSearching}`}>
+            <div className={styles.matchSpinner} />
+          </div>
+          <div>
+            <div className={styles.matchTitle}>Cerchiamo il tuo compagno…</div>
+            <div className={styles.matchDesc}>Ti avvisiamo appena troviamo qualcuno diretto allo stesso terminal.</div>
+          </div>
+        </div>
+      )}
+
+      {isAuthenticated && bookingState === 'done' && matchState === 'matched' && (
+        <div className={`${styles.matchCard} ${styles.matchFound}`}>
+          <div className={`${styles.matchIcon} ${styles.matchIconFound}`}>
+            <IconCircleCheck size={18} />
+          </div>
+          <div>
+            <div className={styles.matchTitle}>Match trovato!</div>
+            <div className={styles.matchDesc}>Abbiamo trovato il tuo compagno di viaggio verso Malpensa.</div>
+          </div>
+        </div>
+      )}
+
+      {isAuthenticated && bookingState === 'done' && matchState === 'no_match' && (
+        <div className={`${styles.matchCard} ${styles.matchNoMatch}`}>
+          <div className={`${styles.matchIcon} ${styles.matchIconNoMatch}`}>
+            <IconUsers size={18} />
+          </div>
+          <div>
+            <div className={styles.matchTitle}>Richiesta salvata — ci pensiamo noi.</div>
+            <div className={styles.matchDesc}>Non c'è ancora nessuno per il tuo orario. Ti avvisiamo non appena arriva un viaggiatore compatibile.</div>
+          </div>
+        </div>
+      )}
+
+      {/* Logged in — booking failed */}
+      {isAuthenticated && bookingState === 'error' && (
+        <div className={`${styles.matchCard} ${styles.matchNoMatch}`}>
+          <div className={`${styles.matchIcon} ${styles.matchIconNoMatch}`}>
+            <IconUsers size={18} />
+          </div>
+          <div>
+            <div className={styles.matchTitle}>{banned ? 'Account sospeso' : 'Non siamo riusciti a salvare'}</div>
+            <div className={styles.matchDesc}>{errorMsg ?? 'Riprova tra poco.'}</div>
           </div>
         </div>
       )}
@@ -714,14 +784,28 @@ export function EntryPoint() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [photoError, setPhotoError] = useState(false);
 
+  const submitTrip = useTripStore((s) => s.submitTrip);
+
   // Hero form state
   const [heroStep, setHeroStep] = useState<'form' | 'result'>('form');
   const [address, setAddress] = useState<AddressValue | null>(null);
   const [flightNumber, setFlightNumber] = useState('');
   const [flightDate, setFlightDate] = useState('');
   const [resolvedFlight, setResolvedFlight] = useState<ResolvedFlight | null>(null);
-  // TODO: replace with real match state received from backend after POST /api/search
-  const [matchState] = useState<MatchState>('searching');
+
+  // Booking (POST /trips) state
+  const [bookingState, setBookingState] = useState<BookingState>('idle');
+  const [tripResult, setTripResult] = useState<CreateTripResponse | null>(null);
+  const [banned, setBanned] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
+
+  // Derive the match card state from the real trip response.
+  const matchState: MatchState = (() => {
+    if (!tripResult) return 'searching';
+    if (tripResult.matchId || tripResult.status === 'matched') return 'matched';
+    if (tripResult.status === 'searching') return 'searching';
+    return 'no_match'; // scheduled / tracking_pending → reassuring "we'll notify you"
+  })();
 
   const initials = (() => {
     if (!user) return '?';
@@ -745,9 +829,83 @@ export function EntryPoint() {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!address || !resolvedFlight) return;
+    // Persist the draft so the booking survives the OAuth redirect, then show
+    // the result panel. The actual POST /trips happens once authenticated.
+    saveDraft({ address, flightNumber, flightDate: flightDate || resolvedFlight.date, resolvedFlight });
+    setBookingState('idle');
+    setTripResult(null);
+    setBanned(false);
+    setBookingError(null);
     setHeroStep('result');
-    // TODO: POST { address, resolvedFlight } to /api/search and receive pick-up + departure time
   };
+
+  const handleBack = () => {
+    clearDraft();
+    setBookingState('idle');
+    setTripResult(null);
+    setBanned(false);
+    setBookingError(null);
+    setHeroStep('form');
+  };
+
+  // Restore a pending draft after returning from the OAuth login redirect.
+  useEffect(() => {
+    const d = loadDraft();
+    if (!d) return;
+    setAddress(d.address);
+    setFlightNumber(d.flightNumber);
+    setFlightDate(d.flightDate);
+    setResolvedFlight(d.resolvedFlight);
+    setHeroStep('result');
+  }, []);
+
+  // Create the booking (POST /trips → flot-dev table) once authenticated and
+  // viewing the result panel. Login is required to write to the database.
+  useEffect(() => {
+    if (heroStep !== 'result' || !isAuthenticated) return;
+    if (!address || !resolvedFlight) return;
+    if (bookingState !== 'idle') return;
+
+    setBookingState('creating');
+    const req: CreateTripRequest = {
+      airportCode: MXP_DESTINATION.airportCode,
+      terminal: MXP_DESTINATION.terminal,
+      direction: MXP_DESTINATION.direction,
+      destination: MXP_DESTINATION.name,
+      destLat: MXP_DESTINATION.lat,
+      destLng: MXP_DESTINATION.lng,
+      destPlaceId: MXP_DESTINATION.placeId,
+      originLat: address.lat,
+      originLng: address.lng,
+      originPlaceId: address.placeId,
+      paxCount: 1,
+      luggage: 0,
+      mode: 'scheduled',
+      flightNumber: resolvedFlight.flightNumber,
+      flightDate: flightDate || resolvedFlight.date,
+      // TODO: for FROM_MILAN the relevant time is the MXP departure; flight_lookup
+      // currently returns the arrival time. Passed as a hint for now.
+      flightTime: resolvedFlight.flightTime || undefined,
+    };
+
+    submitTrip(req)
+      .then((res) => {
+        clearDraft();
+        if (res) {
+          setTripResult(res);
+          setBookingState('done');
+        } else {
+          const st = useTripStore.getState();
+          setBanned(st.banned);
+          setBookingError(st.error);
+          setBookingState('error');
+        }
+      })
+      .catch(() => {
+        setBookingError('Errore di rete. Riprova.');
+        setBookingState('error');
+      });
+  }, [heroStep, isAuthenticated, address, resolvedFlight, flightDate, bookingState, submitTrip]);
 
   const scrollToForm = () => {
     document.getElementById('hero-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -884,8 +1042,11 @@ export function EntryPoint() {
             <ResultPanel
               resolvedFlight={resolvedFlight!}
               matchState={matchState}
+              bookingState={bookingState}
+              banned={banned}
+              errorMsg={bookingError}
               isAuthenticated={isAuthenticated}
-              onBack={() => setHeroStep('form')}
+              onBack={handleBack}
               onLogin={handleLogin}
             />
           )}

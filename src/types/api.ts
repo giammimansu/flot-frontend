@@ -52,6 +52,10 @@ export interface CreateTripRequest {
   destLng: number;
   destPlaceId: string;
   destZone?: string;
+  // MVP TO_AIRPORT: departure address in the city (required for FROM_MILAN direction).
+  originLat?: number;
+  originLng?: number;
+  originPlaceId?: string;
   paxCount: number;
   luggage: number;
   mode: import('./domain').TripMode;
