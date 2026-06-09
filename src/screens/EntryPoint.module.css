@@ -966,40 +966,48 @@
 
 .heroInput::placeholder { color: var(--neutral-400); }
 
-.luggagePicker {
+.luggageCounter {
   display: flex;
-  gap: 10px;
-}
-
-.luggageOption {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  height: 64px;
-  border-radius: var(--radius-md);
+  gap: 0;
+  height: 52px;
   border: 1.5px solid var(--neutral-200);
+  border-radius: var(--radius-md);
   background: #fff;
-  color: var(--neutral-500);
-  font-family: var(--font-body);
-  font-size: 0.875rem;
-  font-weight: 500;
+  overflow: hidden;
+  width: fit-content;
+}
+
+.luggageBtn {
+  width: 52px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  font-size: 1.25rem;
+  font-weight: 400;
+  color: var(--neutral-700);
   cursor: pointer;
-  transition: border-color 150ms var(--ease-out), background 150ms var(--ease-out), color 150ms var(--ease-out);
+  transition: background 120ms;
   -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+}
+
+.luggageBtn:hover:not(:disabled) { background: var(--neutral-50); }
+.luggageBtn:disabled { color: var(--neutral-300); cursor: default; }
+
+.luggageVal {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 56px;
   justify-content: center;
-}
-
-.luggageOption:hover {
-  border-color: var(--primary-300);
-  color: var(--primary-600);
-}
-
-.luggageOptionActive {
-  border-color: var(--primary-500);
-  background: var(--primary-50);
-  color: var(--primary-600);
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--neutral-900);
+  border-left: 1.5px solid var(--neutral-200);
+  border-right: 1.5px solid var(--neutral-200);
+  height: 100%;
 }
 
 .heroInput:focus {
