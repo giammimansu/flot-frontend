@@ -15,6 +15,7 @@ interface FlightInputProps {
   airportCode?: string
   airportName?: string
   onSheetOpenChange?: (open: boolean) => void
+  onDateResolved?: (date: string) => void
 }
 
 type Status = 'idle' | 'loading' | 'found' | 'not_found' | 'unavailable';
@@ -28,6 +29,7 @@ export function FlightInput({
   airportCode = 'MXP',
   airportName = 'Milan Malpensa',
   onSheetOpenChange,
+  onDateResolved,
 }: FlightInputProps) {
   const [status, setStatus] = useState<Status>('idle');
   const [resolved, setResolved] = useState<ResolvedFlight | null>(null);
@@ -89,6 +91,7 @@ export function FlightInput({
     setResolved(flight);
     setStatus('found');
     onFlightResolved(flight);
+    if (flight.date) onDateResolved?.(flight.date);
     setSheetOpen(false);
   };
 

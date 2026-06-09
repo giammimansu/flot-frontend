@@ -1049,6 +1049,7 @@ export function EntryPoint() {
                   value={flightNumber}
                   onChange={(v) => { setFlightNumber(v); setResolvedFlight(null); }}
                   onFlightResolved={setResolvedFlight}
+                  onDateResolved={setFlightDate}
                   flightDate={flightDate}
                   direction="FROM_MXP"
                   airportCode="MXP"
