@@ -44,6 +44,7 @@ export async function fetchFlightByNumber(
       flightNumber: data.flightNumber ?? flightNumber.toUpperCase(),
       origin: data.origin ?? '',
       originName: data.origin ?? '',
+      destination: data.destination ?? '',
       flightTime,
       displayTime: (data.arrivalTimeLocal ?? '').substring(11, 16),
       date: flightTime.substring(0, 10),

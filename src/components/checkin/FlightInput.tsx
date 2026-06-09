@@ -111,15 +111,15 @@ export function FlightInput({
       </div>
 
       {!flightDate && clean.length >= 4 && (
-        <span className={styles.hint}>Select arrival date first</span>
+        <span className={styles.hint}>Seleziona prima la data del volo</span>
       )}
 
       {status === 'found' && resolved && (
         <div className={styles.flightInfo}>
           <span className={styles.flightInfoHighlight}>{resolved.flightNumber}</span>
           {' · '}
-          {resolved.origin}→{airportCode}
-          {' · arrives '}
+          {resolved.origin}→{resolved.destination || airportCode}
+          {' · '}
           <span className={styles.flightInfoHighlight}>{resolved.displayTime}</span>
         </div>
       )}

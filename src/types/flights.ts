@@ -2,6 +2,7 @@ export interface ResolvedFlight {
   flightNumber: string
   origin: string
   originName: string
+  destination: string
   flightTime: string    // ISO8601 UTC
   displayTime: string   // "HH:MM" local at destination
   date: string          // "YYYY-MM-DD" local date
