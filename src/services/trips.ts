@@ -41,6 +41,7 @@ export async function getMyTrips(): Promise<import('../types/api').MyTripsRespon
     matchId: (t.matchId as string | null) ?? (t.tentativeMatchId as string | null) ?? null,
     createdAt: String(t.createdAt ?? ''),
     expiresAt: t.expiresAt ? String(t.expiresAt) : undefined,
+    originLabel: t.originLabel ? String(t.originLabel) : undefined,
   }));
   return { trips };
 }
