@@ -56,6 +56,7 @@ export interface CreateTripRequest {
   originLat?: number;
   originLng?: number;
   originPlaceId?: string;
+  originLabel?: string;
   paxCount: number;
   luggage: number;
   mode: import('./domain').TripMode;
@@ -94,6 +95,7 @@ export interface MyTripsResponse {
     matchId: string | null;
     createdAt: string;
     expiresAt?: string;
+    originLabel?: string;
   }>;
 }
 

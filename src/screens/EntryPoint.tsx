@@ -782,6 +782,7 @@ export function EntryPoint() {
   const selectedAirport = useAirportStore((s) => s.selectedAirport);
   const user = useAuthStore((s) => s.user);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [loginSheetOpen, setLoginSheetOpen] = useState(false);
   const [photoError, setPhotoError] = useState(false);
 
   const submitTrip = useTripStore((s) => s.submitTrip);
@@ -826,7 +827,6 @@ export function EntryPoint() {
     // the result panel. The actual POST /trips happens once authenticated.
     saveDraft({ address, flightNumber, flightDate: flightDate || resolvedFlight.date, resolvedFlight });
     setBookingState('idle');
-    setTripResult(null);
     setBanned(false);
     setBookingError(null);
     setHeroStep('result');
@@ -835,7 +835,6 @@ export function EntryPoint() {
   const handleBack = () => {
     clearDraft();
     setBookingState('idle');
-    setTripResult(null);
     setBanned(false);
     setBookingError(null);
     setHeroStep('form');
@@ -871,6 +870,7 @@ export function EntryPoint() {
       originLat: address.lat,
       originLng: address.lng,
       originPlaceId: address.placeId,
+      originLabel: address.label,
       paxCount: 1,
       luggage: 0,
       mode: 'scheduled',
@@ -931,32 +931,64 @@ export function EntryPoint() {
             <img src={logoFull} alt="Flot" className={styles.navLogoImg} />
           </a>
           {isAuthenticated ? (
-            <button
-              className={styles.navAvatar}
-              onClick={() => setMenuOpen(true)}
-              aria-label="Apri profilo"
-              aria-haspopup="dialog"
-              aria-expanded={menuOpen}
-            >
-              {showPhoto ? (
-                <img
-                  src={user!.photoUrl}
-                  alt={user?.name ?? 'Profilo'}
-                  className={styles.navAvatarImg}
-                  onError={() => setPhotoError(true)}
-                />
-              ) : (
-                <span className={styles.navAvatarInitials}>{initials}</span>
-              )}
-            </button>
+            <div className={styles.navAuthRow}>
+              <button className={styles.navMyTrips} onClick={() => navigate('/my-trips')}>
+                I miei viaggi
+              </button>
+              <button
+                className={styles.navAvatar}
+                onClick={() => setMenuOpen(true)}
+                aria-label="Apri profilo"
+                aria-haspopup="dialog"
+                aria-expanded={menuOpen}
+              >
+                {showPhoto ? (
+                  <img
+                    src={user!.photoUrl}
+                    alt={user?.name ?? 'Profilo'}
+                    className={styles.navAvatarImg}
+                    onError={() => setPhotoError(true)}
+                  />
+                ) : (
+                  <span className={styles.navAvatarInitials}>{initials}</span>
+                )}
+              </button>
+            </div>
           ) : (
-            <button className={styles.navCta} onClick={scrollToForm}>
-              Trova il tuo compagno
-            </button>
+            <div className={styles.navAuthRow}>
+              <button className={styles.navMyTrips} onClick={() => setLoginSheetOpen(true)}>
+                Accedi
+              </button>
+              <button className={styles.navCta} onClick={scrollToForm}>
+                Trova il tuo compagno
+              </button>
+            </div>
           )}
         </div>
       </nav>
       <ProfileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+
+      {/* ── LOGIN SHEET ── */}
+      {loginSheetOpen && (
+        <div className={styles.loginOverlay} onClick={() => setLoginSheetOpen(false)} aria-hidden="true">
+          <div className={styles.loginSheet} onClick={(e) => e.stopPropagation()} role="dialog" aria-modal="true" aria-label="Accedi">
+            <div className={styles.handle}><div className={styles.handleBar} /></div>
+            <h2 className={styles.loginSheetTitle}>Accedi a Flot</h2>
+            <p className={styles.loginSheetSub}>Scegli come vuoi continuare</p>
+            <div className={styles.authRow}>
+              <button className={`${styles.btnAuth} ${styles.btnGoogle}`} onClick={() => { setLoginSheetOpen(false); handleLogin('Google'); }}>
+                <IconGoogle />
+                Continua con Google
+              </button>
+              <div className={styles.authDivider}><span>o</span></div>
+              <button className={`${styles.btnAuth} ${styles.btnApple}`} onClick={() => { setLoginSheetOpen(false); handleLogin('Apple'); }}>
+                <IconApple />
+                Continua con Apple
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── HERO ── */}
       <section className={styles.heroSection}>

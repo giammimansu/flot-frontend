@@ -18,9 +18,12 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
   const navigate = useNavigate();
   const airport = useAirportStore((s) => s.selectedAirport);
 
-  // Fallback for terminal/destination labels if not found
-  const fromLabel = airport?.terminals.find((t) => t.code === trip.terminal)?.label || trip.terminal || 'Airport';
-  
+  const terminalLabel = airport?.terminals.find((t) => t.code === trip.terminal)?.label || trip.terminal || 'Airport';
+  const addressLabel = trip.originLabel || 'Milano';
+  const routeLabel = trip.direction === 'FROM_MILAN'
+    ? `${addressLabel} → ${terminalLabel}`
+    : `${terminalLabel} → ${addressLabel}`;
+
   const handleViewMatch = () => {
     if (trip.matchId) navigate(`/match/${trip.matchId}`);
   };
@@ -54,7 +57,7 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
           <div className={styles.routeDotEnd} />
         </div>
         <div className={styles.routeText}>
-          <div className={styles.routeTo}>{fromLabel} → {trip.destination}</div>
+          <div className={styles.routeTo}>{routeLabel}</div>
           <div className={styles.routeDate}>{formatDateShort(trip.flightTime)}</div>
         </div>
       </div>

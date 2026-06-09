@@ -79,6 +79,29 @@
 .navCta:hover { background: var(--primary-600); }
 .navCta:active { transform: scale(0.96); }
 
+.navAuthRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navMyTrips {
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--radius-full);
+  border: 1.5px solid var(--border-subtle, rgba(0,0,0,0.12));
+  background: transparent;
+  color: var(--text-primary);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 150ms var(--ease-out), border-color 150ms var(--ease-out);
+  -webkit-tap-highlight-color: transparent;
+  white-space: nowrap;
+}
+.navMyTrips:hover { background: var(--surface-hover, rgba(0,0,0,0.04)); border-color: var(--border-default, rgba(0,0,0,0.2)); }
+.navMyTrips:active { transform: scale(0.96); }
+
 .navAvatar {
   width: 36px;
   height: 36px;
@@ -778,6 +801,52 @@
   font-family: var(--font-body);
   font-size: 13.5px;
   text-align: left;
+}
+
+/* ── Login Sheet ── */
+.loginOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+}
+
+.loginSheet {
+  width: 100%;
+  background: var(--surface-primary, #fff);
+  border-radius: var(--radius-xl, 20px) var(--radius-xl, 20px) 0 0;
+  padding: 12px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.handle {
+  display: flex;
+  justify-content: center;
+  padding-bottom: 12px;
+}
+
+.handleBar {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--border-subtle, rgba(0,0,0,0.12));
+}
+
+.loginSheetTitle {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 4px;
+}
+
+.loginSheetSub {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin: 0 0 20px;
 }
 
 /* ── Footer ── */
