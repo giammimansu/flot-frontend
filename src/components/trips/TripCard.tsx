@@ -19,10 +19,11 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
   const airport = useAirportStore((s) => s.selectedAirport);
 
   const terminalLabel = airport?.terminals.find((t) => t.code === trip.terminal)?.label || trip.terminal || 'Airport';
+  const airportLabel = `${terminalLabel} (${trip.airportCode})`;
   const addressLabel = trip.originLabel || 'Milano';
   const routeLabel = trip.direction === 'FROM_MILAN'
-    ? `${addressLabel} → ${terminalLabel}`
-    : `${terminalLabel} → ${addressLabel}`;
+    ? `${addressLabel} → ${airportLabel}`
+    : `${airportLabel} → ${addressLabel}`;
 
   const handleViewMatch = () => {
     if (trip.matchId) navigate(`/match/${trip.matchId}`);
