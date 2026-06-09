@@ -103,7 +103,7 @@ export function TripScheduled() {
 
   return (
     <div className={styles.screen}>
-      <TopNav showLogo right={resolvedTripId ? <div className={styles.tripBadge}>#{resolvedTripId.slice(-6).toUpperCase()}</div> : undefined} />
+      <TopNav showBack right={resolvedTripId ? <div className={styles.tripBadge}>#{resolvedTripId.slice(-6).toUpperCase()}</div> : undefined} />
 
       <div className={styles.scrollArea}>
         <div className={styles.successAnim}>
@@ -203,9 +203,6 @@ export function TripScheduled() {
       </div>
 
       <div className={styles.actionArea}>
-        <MBtn variant="dark" onClick={() => navigate(-1)} icon="arrow-left">
-          Indietro
-        </MBtn>
         <button className={styles.cancelLink} onClick={handleCancel}>
           <MIcon name="trash" size={14} sw={2} />
           Cancella prenotazione
