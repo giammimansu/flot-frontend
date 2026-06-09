@@ -117,9 +117,9 @@ export function TripScheduled() {
         </div>
 
         <div className={styles.textCenter}>
-          <h1 className={styles.headline}>Trip booked!</h1>
+          <h1 className={styles.headline}>Viaggio prenotato!</h1>
           <p className={styles.subhead}>
-            We'll find you a travel companion on the day. You'll get a notification as soon as we find a match.
+            Cercheremo un compagno di viaggio per te. Riceverai una notifica non appena troviamo un match.
           </p>
         </div>
 
@@ -132,11 +132,11 @@ export function TripScheduled() {
             </div>
             <div className={styles.routeDetails}>
               <div className={styles.routeStep}>
-                <span className={styles.routeLabel}>From</span>
+                <span className={styles.routeLabel}>Da</span>
                 <span className={styles.routeValue}>{fromLabel}</span>
               </div>
               <div className={styles.routeStep}>
-                <span className={styles.routeLabel}>To</span>
+                <span className={styles.routeLabel}>A</span>
                 <span className={styles.routeValue}>{toLabel}</span>
               </div>
             </div>
@@ -148,7 +148,7 @@ export function TripScheduled() {
                 <div className={styles.flightIcon}><MIcon name="plane-landing" size={14} sw={2} /></div>
                 <span className={styles.flightNumber}>{trip.flightNumber}</span>
                 {trip.flightTime && (
-                  <span className={styles.flightTime}>· arrives {formatTimeShort(trip.flightTime)}</span>
+                  <span className={styles.flightTime}>· partenza {formatTimeShort(trip.flightTime)}</span>
                 )}
               </div>
             </>
@@ -157,7 +157,7 @@ export function TripScheduled() {
           <div className={styles.detailsGrid}>
             <div className={styles.detailItem}>
               <div className={styles.detailIcon}><MIcon name="calendar" size={14} sw={2} /></div>
-              {trip?.flightTime ? formatDateShort(trip.flightTime) : 'Today'}
+              {trip?.flightTime ? formatDateShort(trip.flightTime) : 'Oggi'}
             </div>
             <div className={styles.detailItem}>
               <div className={styles.detailIcon}><MIcon name="clock" size={14} sw={2} /></div>
@@ -165,17 +165,17 @@ export function TripScheduled() {
             </div>
             <div className={styles.detailItem}>
               <div className={styles.detailIcon}><MIcon name="users" size={14} sw={2} /></div>
-              1 Passenger
+              1 Passeggero
             </div>
             <div className={styles.detailItem}>
               <div className={styles.detailIcon}><MIcon name="luggage" size={14} sw={2} /></div>
-              {resolvedLuggage} {resolvedLuggage === 1 ? 'Bag' : 'Bags'}
+              {resolvedLuggage} {resolvedLuggage === 1 ? 'Bagaglio' : 'Bagagli'}
             </div>
           </div>
           <div className={styles.savingsStrip}>
             <div className={styles.savingsLabel}>
               <MIcon name="sparkles" size={16} sw={2} />
-              Estimated savings
+              Risparmio stimato
             </div>
             <div className={styles.savingsValue}>~{savingsDisplay}</div>
           </div>
@@ -186,34 +186,29 @@ export function TripScheduled() {
         </div>
 
         <div className={styles.stepsSection}>
-          <div className={styles.stepsTitle}>What happens next</div>
+          <div className={styles.stepsTitle}>Cosa succede ora</div>
           <div className={styles.stepItem}>
             <div className={styles.stepNumber}>1</div>
-            <div className={styles.stepText}>We'll look for companions heading to {toLabel.split(',')[0]}</div>
+            <div className={styles.stepText}>Cerchiamo compagni diretti a {toLabel.split(',')[0]}</div>
           </div>
           <div className={styles.stepItem}>
             <div className={styles.stepNumber}>2</div>
-            <div className={styles.stepText}>You'll get a push notification when a match is found</div>
+            <div className={styles.stepText}>Ricevi una notifica push quando troviamo un match</div>
           </div>
           <div className={styles.stepItem}>
             <div className={styles.stepNumber}>3</div>
-            <div className={styles.stepText}>You'll meet at the designated exit</div>
+            <div className={styles.stepText}>Vi trovate al punto di ritiro assegnato</div>
           </div>
         </div>
       </div>
 
       <div className={styles.actionArea}>
-        <div className={styles.actionGrid}>
-          <MBtn variant="dark" onClick={() => navigate('/my-trips')} icon="search">
-            My trips
-          </MBtn>
-          <MBtn variant="outline" onClick={() => navigate('/check-in')} icon="plus">
-            New trip
-          </MBtn>
-        </div>
+        <MBtn variant="dark" onClick={() => navigate(-1)} icon="arrow-left">
+          Indietro
+        </MBtn>
         <button className={styles.cancelLink} onClick={handleCancel}>
           <MIcon name="trash" size={14} sw={2} />
-          Cancel booking
+          Cancella prenotazione
         </button>
       </div>
 
