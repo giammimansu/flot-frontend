@@ -969,49 +969,15 @@
 .luggageCounter {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  height: 56px;
-  padding: 0 8px 0 14px;
-  border: 1.5px solid var(--neutral-200);
-  border-radius: var(--radius-md);
-  background: #fff;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 150ms var(--ease-out);
-}
-
-.luggageInfo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-width: 0;
+  gap: 12px;
 }
 
 .luggageIcon {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 34px;
-  height: 34px;
-  border-radius: var(--radius-full);
-  background: var(--primary-50);
-  color: var(--primary-600);
-  flex-shrink: 0;
-}
-
-.luggageText {
-  font-family: var(--font-body);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--neutral-700);
-  white-space: nowrap;
-}
-
-.luggageControls {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
+  color: var(--neutral-500);
+  margin-right: 4px;
 }
 
 .luggageBtn {
