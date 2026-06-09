@@ -1058,15 +1058,6 @@ export function EntryPoint() {
                 />
               </div>
               <div className={styles.heroFormGroup}>
-                <label className={styles.heroLabel}>Bagagli</label>
-                <div className={styles.luggageCounter}>
-                  <span className={styles.luggageIcon}><IconBag size={20} /></span>
-                  <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.max(0, n - 1))} disabled={luggage === 0} aria-label="Riduci bagagli">−</button>
-                  <span className={styles.luggageVal}>{luggage}</span>
-                  <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.min(3, n + 1))} disabled={luggage === 3} aria-label="Aggiungi bagaglio">+</button>
-                </div>
-              </div>
-              <div className={styles.heroFormGroup}>
                 <label className={styles.heroLabel} htmlFor="hero-flight">Il tuo volo</label>
                 <FlightInput
                   value={flightNumber}
@@ -1081,6 +1072,15 @@ export function EntryPoint() {
                 {formSubmitted && !resolvedFlight && (
                   <p className={styles.fieldError}>Inserisci un numero di volo valido</p>
                 )}
+              </div>
+              <div className={styles.heroFormGroup}>
+                <label className={styles.heroLabel}>Bagagli</label>
+                <div className={styles.luggageCounter}>
+                  <span className={styles.luggageIcon}><IconBag size={20} /></span>
+                  <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.max(0, n - 1))} disabled={luggage === 0} aria-label="Riduci bagagli">−</button>
+                  <span className={styles.luggageVal}>{luggage}</span>
+                  <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.min(3, n + 1))} disabled={luggage === 3} aria-label="Aggiungi bagaglio">+</button>
+                </div>
               </div>
               <button
                 type="submit"
