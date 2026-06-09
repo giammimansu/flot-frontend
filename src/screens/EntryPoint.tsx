@@ -793,6 +793,7 @@ export function EntryPoint() {
   const [flightNumber, setFlightNumber] = useState('');
   const [flightDate, setFlightDate] = useState('');
   const [resolvedFlight, setResolvedFlight] = useState<ResolvedFlight | null>(null);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Booking (POST /trips) state
   const [bookingState, setBookingState] = useState<BookingState>('idle');
@@ -822,6 +823,7 @@ export function EntryPoint() {
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
+    setFormSubmitted(true);
     if (!address || !resolvedFlight) return;
     // Persist the draft so the booking survives the OAuth redirect, then show
     // the result panel. The actual POST /trips happens once authenticated.
@@ -1031,6 +1033,9 @@ export function EntryPoint() {
                   onChange={setAddress}
                   placeholder="Es. Via Tortona 12, Milano"
                 />
+                {formSubmitted && !address && (
+                  <p className={styles.fieldError}>Inserisci la via di partenza</p>
+                )}
               </div>
               <div className={styles.heroFormGroup}>
                 <label className={styles.heroLabel} htmlFor="hero-date">Data del volo</label>
@@ -1055,11 +1060,14 @@ export function EntryPoint() {
                   airportCode="MXP"
                   airportName="Milan Malpensa"
                 />
+                {formSubmitted && !resolvedFlight && (
+                  <p className={styles.fieldError}>Inserisci un numero di volo valido</p>
+                )}
               </div>
               <button
                 type="submit"
                 className={styles.btnPrimary}
-                disabled={!address || !resolvedFlight}
+                disabled={false}
               >
                 Trova il tuo compagno
                 <IconArrowRight size={19} />
