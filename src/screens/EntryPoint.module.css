@@ -961,7 +961,9 @@
   outline: none;
   transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out);
   width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
+  -webkit-appearance: none;
 }
 
 .heroInput::placeholder { color: var(--neutral-400); }
