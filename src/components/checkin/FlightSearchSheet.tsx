@@ -106,6 +106,7 @@ export function FlightSearchSheet({
       flightNumber: row.number.replace(/\s/g, ''),
       origin: row.originIata,
       originName: row.originName,
+      destination: row.destIata,
       flightTime,
       displayTime,
       date: row.scheduledTimeLocal?.substring(0, 10) ?? selectedDate,
