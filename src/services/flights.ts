@@ -12,6 +12,8 @@ interface LookupResponse {
   flightNumber: string;
   arrivalTimeLocal: string | null;
   arrivalTimeUtc: string | null;
+  departureTimeLocal?: string | null;
+  departureTimeUtc?: string | null;
   status?: string;
   delayMinutes?: number | null;
   origin?: string | null;
@@ -40,6 +42,8 @@ export async function fetchFlightByNumber(
     const flightTime = toIso(data.arrivalTimeUtc);
     if (!flightTime) return null;
 
+    const departureTime = data.departureTimeUtc ? toIso(data.departureTimeUtc) : undefined;
+
     return {
       flightNumber: data.flightNumber ?? flightNumber.toUpperCase(),
       origin: data.origin ?? '',
@@ -47,6 +51,8 @@ export async function fetchFlightByNumber(
       destination: data.destination ?? '',
       flightTime,
       displayTime: (data.arrivalTimeLocal ?? '').substring(11, 16),
+      departureTime: departureTime || undefined,
+      departureDisplayTime: data.departureTimeLocal ? (data.departureTimeLocal).substring(11, 16) : undefined,
       date: flightTime.substring(0, 10),
       status: data.status,
     };

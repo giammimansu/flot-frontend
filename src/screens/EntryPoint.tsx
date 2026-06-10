@@ -663,37 +663,34 @@ function ResultPanel({
 }) {
   return (
     <div className={styles.resultPanel} id="hero-form">
-      {/* TODO: replace with backend-assigned pick-up based on address */}
-      <div className={styles.resultCard}>
-        <div className={styles.resultIconWrap}><IconMapPin size={18} /></div>
-        <div className={styles.resultBody}>
-          <div className={styles.resultLabel}>Pick-up assegnato</div>
-          <div className={styles.resultValue}>Navigli — Via Vigevano</div>
-          <div className={styles.resultSub}>A circa 4 min dalla tua via</div>
-        </div>
-      </div>
-
       <div className={styles.resultCard}>
         <div className={styles.resultIconWrap}><IconPlane size={18} /></div>
         <div className={styles.resultBody}>
           <div className={styles.resultLabel}>Volo agganciato</div>
           <div className={styles.resultValue}>{resolvedFlight.flightNumber} · MXP</div>
           <div className={styles.resultSub}>
-            {resolvedFlight.displayTime ? `Decollo ore ${resolvedFlight.displayTime}` : 'Monitorato in tempo reale'}
+            {resolvedFlight.departureDisplayTime ? `Decollo ore ${resolvedFlight.departureDisplayTime}` : 'Monitorato in tempo reale'}
             {resolvedFlight.status ? ` · ${resolvedFlight.status}` : ''}
           </div>
         </div>
       </div>
 
-      {/* TODO: replace with backend-calculated departure time (flight departure − transfer − buffer) */}
-      <div className={styles.resultCard}>
-        <div className={styles.resultIconWrap}><IconClock size={18} /></div>
-        <div className={styles.resultBody}>
-          <div className={styles.resultLabel}>Partenza da Milano</div>
-          <div className={styles.resultValue}>ore 06:45</div>
-          <div className={styles.resultSub}>Con 3h di anticipo sul volo</div>
-        </div>
-      </div>
+      {resolvedFlight.departureTime && (() => {
+        const depMs = new Date(resolvedFlight.departureTime).getTime();
+        const milanDep = new Date(depMs - 3 * 60 * 60 * 1000);
+        const hh = String(milanDep.getUTCHours()).padStart(2, '0');
+        const mm = String(milanDep.getUTCMinutes()).padStart(2, '0');
+        return (
+          <div className={styles.resultCard}>
+            <div className={styles.resultIconWrap}><IconClock size={18} /></div>
+            <div className={styles.resultBody}>
+              <div className={styles.resultLabel}>Partenza da Milano</div>
+              <div className={styles.resultValue}>ore {hh}:{mm}</div>
+              <div className={styles.resultSub}>Con 3h di anticipo sul volo</div>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Not logged in — login required to save the booking in the database. */}
       {!isAuthenticated && (
@@ -887,9 +884,7 @@ export function EntryPoint() {
       mode: 'scheduled',
       flightNumber: resolvedFlight.flightNumber,
       flightDate: flightDate || resolvedFlight.date,
-      // TODO: for FROM_MILAN the relevant time is the MXP departure; flight_lookup
-      // currently returns the arrival time. Passed as a hint for now.
-      flightTime: resolvedFlight.flightTime || undefined,
+      flightTime: resolvedFlight.departureTime || resolvedFlight.flightTime || undefined,
     };
 
     submitTrip(req)

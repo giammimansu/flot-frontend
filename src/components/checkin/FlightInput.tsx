@@ -122,8 +122,8 @@ export function FlightInput({
           <span className={styles.flightInfoHighlight}>{resolved.flightNumber}</span>
           {' · '}
           {resolved.origin}→{resolved.destination || airportCode}
-          {' · partenza '}
-          <span className={styles.flightInfoHighlight}>{resolved.displayTime}</span>
+          {' · decollo '}
+          <span className={styles.flightInfoHighlight}>{resolved.departureDisplayTime ?? resolved.displayTime}</span>
         </div>
       )}
 
