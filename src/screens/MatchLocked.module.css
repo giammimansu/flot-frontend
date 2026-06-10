@@ -41,7 +41,6 @@
   animation: sheetUp 450ms var(--ease-out);
   position: relative;
   z-index: 5;
-  /* sheet fills the space below nav */
   flex: 1;
 }
 .handle {
@@ -52,7 +51,7 @@
   margin: 0 auto var(--space-4);
 }
 
-/* ── Celebration header (compact inline) ── */
+/* ── Celebration header ── */
 .celebration {
   display: flex;
   align-items: center;
@@ -89,66 +88,49 @@
   margin: 3px 0 0;
 }
 
-/* ── Deal tile ── */
-.dealTile {
-  background: var(--success-soft);
-  border-radius: 20px;
-  padding: 16px;
+/* ── A) My flight recap ── */
+.recapTile {
+  background: var(--surface-2);
+  border: 1px solid var(--hairline);
+  border-radius: 18px;
+  padding: 14px 16px;
   margin-bottom: var(--space-3);
-}
-.dealRow {
   display: flex;
-  align-items: center;
-  gap: 0;
+  flex-direction: column;
+  gap: 7px;
 }
-.dealCol {
-  flex: 1;
-  text-align: center;
-}
-.dealDivider {
-  width: 1px;
-  height: 40px;
-  background: rgba(22, 163, 74, 0.2);
-  margin: 0 12px;
-  flex-shrink: 0;
-}
-.dealLabel {
+.recapLabel {
   font-family: var(--font-body);
   font-size: 10px;
   font-weight: var(--fw-semibold);
-  color: var(--success);
   letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--ink-subtle);
 }
-.dealSavings {
+.recapRoute {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink-muted);
+}
+.recapAirport,
+.recapDest {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: 18px;
   font-weight: 800;
-  color: var(--success);
-  line-height: 1;
-  font-feature-settings: "tnum" 1;
-  margin-top: 4px;
-}
-.dealDest {
-  font-family: var(--font-display);
-  font-size: 15px;
-  font-weight: var(--fw-bold);
   color: var(--ink);
-  margin-top: 4px;
+  line-height: 1;
 }
-.tripStrip {
+.recapMeta {
   display: flex;
   align-items: center;
   gap: 5px;
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid rgba(22, 163, 74, 0.15);
   font-family: var(--font-body);
   font-size: var(--fs-12);
-  color: var(--success-dark, #166534);
+  color: var(--ink-muted);
 }
 
-/* ── Partner card ── */
+/* ── B) Partner card ── */
 .partnerCard {
   background: var(--surface-2);
   border: 1px solid var(--hairline);
@@ -159,20 +141,21 @@
   gap: 14px;
   position: relative;
   overflow: hidden;
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-3);
 }
 .avatarWrap {
   position: relative;
-  width: 52px;
-  height: 52px;
+  width: 56px;
+  height: 56px;
   flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
 }
-.avatarBlur {
-  width: 52px;
-  height: 52px;
+.avatar {
+  width: 56px;
+  height: 56px;
   border-radius: var(--radius-pill);
   background: linear-gradient(135deg, #CBD5E1 0%, #94A3B8 100%);
-  filter: blur(6px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -181,7 +164,18 @@
   font-weight: 800;
   color: var(--ink-inverse);
 }
-.avatarLock {
+/* CSS blur — removed on unlock to reveal the same image sharp. */
+.avatarBlurred {
+  filter: blur(7px);
+}
+.avatarPhotoBlurred {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  object-fit: cover;
+  filter: blur(7px);
+}
+.avatarLockOverlay {
   position: absolute;
   inset: 0;
   border-radius: var(--radius-pill);
@@ -225,22 +219,70 @@
   font-size: var(--fs-12);
   color: var(--ink-muted);
   margin-top: 3px;
-  flex-wrap: wrap;
+}
+.trustSignal {
+  color: var(--amber-dark, #92400e);
+  font-weight: var(--fw-semibold);
 }
 .metaDot {
   color: var(--ink-subtle);
 }
-.lockBadge {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-pill);
-  background: var(--surface-2);
-  border: 1px solid var(--hairline);
+.meetingRow {
   display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  gap: 5px;
+  margin-top: 6px;
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--success-dark, #166534);
+}
+
+/* ── C) Locked content list ── */
+.lockedList {
+  border: 1px dashed var(--hairline-strong, rgba(15, 23, 42, 0.16));
+  border-radius: 18px;
+  padding: 14px 16px;
+  margin-bottom: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.lockedListHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-subtle);
+}
+.lockedItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   color: var(--ink-muted);
+}
+.lockedItemText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.lockedItemTitle {
+  font-family: var(--font-body);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+}
+.lockedItemBlur {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--ink-muted);
+  filter: blur(3.5px);
+  user-select: none;
 }
 
 /* ── CTA ── */
@@ -311,99 +353,4 @@
 @keyframes shimmer {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
-}
-
-/* ── Stripe Payment Sheet Overlay ── */
-.paymentOverlay {
-  position: fixed;
-  inset: 0;
-  background: var(--surface-scrim);
-  z-index: 100;
-  display: flex;
-  align-items: flex-end;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-.paymentSheet {
-  width: 100%;
-  background: var(--surface-1);
-  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
-  padding: var(--space-6) var(--space-5) var(--space-6);
-  box-shadow: var(--shadow-sheet);
-  animation: sheetUp 360ms var(--ease-out);
-}
-.paymentHeader {
-  text-align: center;
-  margin-bottom: var(--space-5);
-}
-.paymentTitle {
-  font-family: var(--font-display);
-  font-size: var(--fs-20);
-  font-weight: var(--fw-bold);
-  color: var(--ink);
-}
-.paymentSub {
-  font-family: var(--font-body);
-  font-size: var(--fs-14);
-  color: var(--ink-muted);
-  margin-top: var(--space-1);
-}
-.payError {
-  margin-top: var(--space-3);
-  padding: var(--space-2) var(--space-3);
-  border-radius: var(--radius-sm);
-  background: var(--error-soft);
-  color: var(--error);
-  font-family: var(--font-body);
-  font-size: var(--fs-12);
-  text-align: center;
-}
-.paymentActions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  margin-top: var(--space-4);
-}
-.payBtn {
-  width: 100%;
-  height: 52px;
-  border-radius: var(--radius-md);
-  background: var(--amber);
-  color: var(--ink);
-  border: none;
-  font-family: var(--font-body);
-  font-size: var(--fs-16);
-  font-weight: var(--fw-semibold);
-  cursor: pointer;
-  transition: opacity var(--dur-press);
-}
-.payBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-.payCancel {
-  width: 100%;
-  height: 44px;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--ink-muted);
-  border: none;
-  font-family: var(--font-body);
-  font-size: var(--fs-14);
-  cursor: pointer;
-}
-
-/* ── Beta unlock sheet ── */
-.betaIconRow {
-  display: flex;
-  justify-content: center;
-  margin-bottom: var(--space-3);
-}
-.betaIcon {
-  font-size: 48px;
-  line-height: 1;
-}
-.betaBody {
-  font-family: var(--font-body);
-  font-size: var(--fs-14);
-  color: var(--ink-muted);
-  margin-top: var(--space-2);
-  line-height: 1.55;
-  text-align: center;
 }

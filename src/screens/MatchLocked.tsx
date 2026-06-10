@@ -12,7 +12,6 @@ import { fetchUser } from '../services/users';
 import { parseApiError } from '../services/api';
 import { PaymentSheet } from '../components/PaymentSheet/PaymentSheet';
 import { formatCurrency } from '../lib/formatters';
-import { computeSavings } from '../lib/savings';
 import { useCountdown } from '../hooks/useCountdown';
 import type { Match, PublicUser } from '../types/api';
 import styles from './MatchLocked.module.css';
@@ -20,6 +19,24 @@ import styles from './MatchLocked.module.css';
 const TERMINAL_STATES = ['unlock_expired', 'dissolved', 'expired'] as const;
 function isTerminal(status: string): boolean {
   return (TERMINAL_STATES as readonly string[]).includes(status);
+}
+
+function formatFlightDate(dateStr: string): string {
+  if (!dateStr) return '—';
+  const today = new Date().toISOString().split('T')[0];
+  const tomorrow = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  if (dateStr === today) return 'oggi';
+  if (dateStr === tomorrow) return 'domani';
+  return new Date(dateStr).toLocaleDateString('it-IT', { day: 'numeric', month: 'short' });
+}
+
+function formatTime(isoStr?: string): string {
+  if (!isoStr) return '—';
+  try {
+    return new Date(isoStr).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '—';
+  }
 }
 
 function DeadlineCountdown({ deadline }: { deadline: string | null }) {
@@ -36,7 +53,7 @@ function DeadlineCountdown({ deadline }: { deadline: string | null }) {
   return (
     <span className={styles.deadlinePill}>
       <MIcon name="clock" size={12} sw={2} />
-      Expires in {display}
+      Scade in {display}
     </span>
   );
 }
@@ -61,7 +78,6 @@ export function MatchLocked() {
   const [error, setError] = useState<string | null>(null);
   const [unlocking, setUnlocking] = useState(false);
   const [declining, setDeclining] = useState(false);
-  // Real Stripe auth-hold (F4): set when backend returns a PaymentIntent client secret.
   const [paymentClientSecret, setPaymentClientSecret] = useState<string | null>(null);
   const [pendingStatus, setPendingStatus] = useState<'partially_unlocked' | 'unlocked' | null>(null);
 
@@ -93,11 +109,10 @@ export function MatchLocked() {
   const iAmUnlocker = !!(currentUser && match?.unlockedBy?.includes(currentUser.userId));
   const isPending = match?.status === 'pending';
   const isPartial = match?.status === 'partially_unlocked';
-  const waiting = isPartial && iAmUnlocker;        // I paid, waiting for partner
-  const urgent = isPartial && !iAmUnlocker;        // partner paid, my turn (pressure)
+  const waiting = isPartial && iAmUnlocker;
+  const urgent = isPartial && !iAmUnlocker;
   const canUnlock = isPending || urgent;
 
-  // Load partner profile while the match is still locked/partial.
   useEffect(() => {
     if (!match || !currentUser || !(isPending || isPartial)) return;
     const partnerUserId = match.userId1 === currentUser.userId ? match.userId2 : match.userId1;
@@ -108,17 +123,13 @@ export function MatchLocked() {
       .finally(() => setPartnerLoading(false));
   }, [match, currentUser, isPending, isPartial]);
 
-  // Route on resolved states.
   useEffect(() => {
     if (!match) return;
     if (match.status === 'unlocked') {
       navigate(`/connection/${match.matchId}`, { replace: true });
     }
-    // terminal + completed are rendered inline (see below).
   }, [match, navigate]);
 
-  // While I'm waiting for the partner, backend pushes no "fully unlocked" WS event
-  // to me → poll until the match flips to unlocked (or a terminal state).
   useEffect(() => {
     if (!waiting) return;
     const id = window.setInterval(() => {
@@ -127,7 +138,6 @@ export function MatchLocked() {
     return () => window.clearInterval(id);
   }, [waiting, refetch]);
 
-  // Partner unlocked first → refetch so the urgent CTA / deadline update.
   useEffect(() => {
     const off = ws.on('match.partner_unlocked', (data) => {
       if (data.matchId === matchId) refetch().catch(() => { /* noop */ });
@@ -138,14 +148,12 @@ export function MatchLocked() {
   const airport =
     (match && airports.find((a) => a.code === match.airportCode)) || selectedAirport || null;
   const currency = airport?.currency ?? 'EUR';
-  const savingsEuros = airport?.baseFare ? computeSavings(airport.baseFare, 2) : 0;
 
-  // Navigate based on the match status the backend reported.
   const resolveByStatus = useCallback(async (status: 'partially_unlocked' | 'unlocked' | undefined) => {
     if (status === 'unlocked') {
       navigate(`/connection/${matchId}`, { replace: true });
     } else {
-      await refetch(); // partially_unlocked → waiting panel
+      await refetch();
     }
   }, [matchId, navigate, refetch]);
 
@@ -156,16 +164,14 @@ export function MatchLocked() {
     try {
       const res = await unlockTrip(tripId, { matchId });
       if (res.paymentIntentClientSecret) {
-        // Real payment: authorize the hold via Stripe, then resolve by status.
         setPendingStatus(res.matchStatus ?? null);
         setPaymentClientSecret(res.paymentIntentClientSecret);
         return;
       }
-      // Beta / fake-door: backend already applied the unlock.
       await resolveByStatus(res.matchStatus);
     } catch (err) {
       const { message } = await parseApiError(err);
-      setError(message || 'Unlock failed');
+      setError(message || 'Sblocco fallito');
     } finally {
       setUnlocking(false);
     }
@@ -185,7 +191,7 @@ export function MatchLocked() {
       await declineMatch(matchId);
       navigate('/my-trips', { replace: true });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Decline failed');
+      setError(err instanceof Error ? err.message : 'Rifiuto fallito');
       setDeclining(false);
     }
   };
@@ -210,7 +216,6 @@ export function MatchLocked() {
 
   if (!match) return null;
 
-  // ── Terminal states (timeout / dissolved / expired) ──────────────────
   if (isTerminal(match.status)) {
     const msg =
       match.status === 'unlock_expired'
@@ -237,7 +242,6 @@ export function MatchLocked() {
     );
   }
 
-  // ── Completed (review handled later — F5) ────────────────────────────
   if (match.status === 'completed') {
     return (
       <div className={styles.screen}>
@@ -258,25 +262,32 @@ export function MatchLocked() {
     );
   }
 
-  // status === 'unlocked' is handled by the routing effect (redirect).
   if (match.status === 'unlocked') return null;
 
-  const partnerTrip = currentUser
-    ? (match.userId1 === currentUser.userId ? match.trip2 : match.trip1)
-    : match.trip2;
   const myTrip = currentUser
     ? (match.userId1 === currentUser.userId ? match.trip1 : match.trip2)
     : match.trip1;
 
-  const partnerFirstName = partnerLoading ? '…' : (partner?.firstName ?? '?');
+  const partnerFirstName = partnerLoading ? '…' : (partner?.firstName ?? 'Partner');
   const initial = partner?.firstName?.[0]?.toUpperCase() ?? '?';
-  const partnerDestination = partnerTrip?.destination ?? '—';
-  const partnerLuggage = partnerTrip?.luggage ?? 0;
-  const fromTerminal = myTrip?.terminal ?? '—';
+  const partnerPhoto = partner?.photoUrl ?? partner?.blurredPhotoUrl ?? null;
+
+  // ── My flight recap (A) ──
+  const airportCode = match.airportCode || airport?.code || '—';
+  const myTerminal = myTrip?.terminal ?? '';
+  const myDate = formatFlightDate(myTrip?.flightDate ?? '');
+  const myTime = formatTime(myTrip?.flightTime);
+  const myDestination = myTrip?.destination ?? '—';
+
+  // ── Meeting time (B) — free decisional filter; placeholder until backend wires it.
+  const meetingTime = myTrip?.flightTime ? formatTime(myTrip.flightTime) : '—';
+
+  // Trust signal — placeholder until rating/trip count is wired.
+  const trustSignal = '★ Nuovo profilo';
 
   const unlockFeeDisplay = airport?.unlockFee
     ? formatCurrency(airport.unlockFee, currency)
-    : '€0.99';
+    : '€1,99';
 
   // ── Waiting panel: I paid, partner hasn't ────────────────────────────
   if (waiting) {
@@ -296,7 +307,7 @@ export function MatchLocked() {
           </div>
           <div className={styles.partnerCard}>
             <div className={styles.avatarWrap}>
-              <div className={styles.avatarBlur}>{initial}</div>
+              <div className={styles.avatar}>{initial}</div>
             </div>
             <div className={styles.partnerInfo}>
               <div className={styles.partnerNameRow}>
@@ -314,55 +325,56 @@ export function MatchLocked() {
 
   return (
     <div className={styles.screen}>
-      <TopNav showLogo showBack right={
-        <DeadlineCountdown deadline={match.unlockDeadline} />
-      } />
+      <TopNav showLogo showBack right={<DeadlineCountdown deadline={match.unlockDeadline} />} />
 
       <div className={styles.sheet}>
         <div className={styles.handle} />
 
-        {/* Header: small icon + title inline */}
+        {/* Header */}
         <div className={styles.celebration}>
           <div className={styles.celebrationIcon}>
             <MIcon name="check" size={22} sw={2.5} />
           </div>
           <div className={styles.celebrationText}>
-            <h2 className={styles.celebrationTitle}>{urgent ? `${partnerFirstName} ha già sbloccato!` : 'Match found!'}</h2>
+            <h2 className={styles.celebrationTitle}>
+              {urgent ? `${partnerFirstName} ha già sbloccato!` : 'Match trovato!'}
+            </h2>
             <p className={styles.celebrationCopy}>
-              {urgent ? 'Sblocca ora per non perdere il match — paghi solo se sbloccate entrambi.' : 'Unlock to meet your ride partner.'}
+              {urgent
+                ? 'Sblocca ora — paghi solo se sbloccate entrambi.'
+                : 'Condividete la stessa tratta.'}
             </p>
           </div>
         </div>
 
-        {/* Deal tile: savings + destination combined */}
-        <div className={styles.dealTile}>
-          <div className={styles.dealRow}>
-            <div className={styles.dealCol}>
-              <div className={styles.dealLabel}>You save</div>
-              <div className={styles.dealSavings}>
-                {savingsEuros > 0 ? formatCurrency(savingsEuros, currency) : '—'}
-              </div>
-            </div>
-            <div className={styles.dealDivider} />
-            <div className={styles.dealCol}>
-              <div className={styles.dealLabel}>Destination</div>
-              <div className={styles.dealDest}>{partnerDestination}</div>
-            </div>
+        {/* ── A) My flight recap ── */}
+        <div className={styles.recapTile}>
+          <div className={styles.recapLabel}>Il tuo volo</div>
+          <div className={styles.recapRoute}>
+            <span className={styles.recapAirport}>{airportCode}{myTerminal ? ` ${myTerminal}` : ''}</span>
+            <MIcon name="arrow-right" size={14} sw={2} />
+            <span className={styles.recapDest}>{myDestination}</span>
           </div>
-          {/* Trip summary strip */}
-          <div className={styles.tripStrip}>
-            <MIcon name="map-pin" size={12} sw={2} />
-            <span>{fromTerminal} → {partnerDestination}</span>
+          <div className={styles.recapMeta}>
+            <MIcon name="clock" size={13} sw={2} />
+            <span>{myDate} · {myTime}</span>
+            {myTrip?.flightNumber && (
+              <>
+                <span className={styles.metaDot}>·</span>
+                <span>{myTrip.flightNumber}</span>
+              </>
+            )}
           </div>
         </div>
 
-        {/* Partner card */}
+        {/* ── B) Match partner (partially visible) ── */}
         <div className={styles.partnerCard}>
           <div className={styles.avatarWrap}>
-            <div className={styles.avatarBlur}>{initial}</div>
-            <div className={styles.avatarLock}>
-              <MIcon name="eye" size={18} sw={2} />
-            </div>
+            {partnerPhoto ? (
+              <img src={partnerPhoto} alt="" className={styles.avatarPhotoBlurred} />
+            ) : (
+              <div className={`${styles.avatar} ${styles.avatarBlurred}`}>{initial}</div>
+            )}
           </div>
           <div className={styles.partnerInfo}>
             <div className={styles.partnerNameRow}>
@@ -370,25 +382,39 @@ export function MatchLocked() {
               {partner?.verified && (
                 <span className={styles.verifiedBadge}>
                   <MIcon name="shield" size={12} sw={2} />
-                  Verified
+                  Verificato
                 </span>
               )}
             </div>
             <div className={styles.partnerMeta}>
-              <span>→ {partnerDestination}</span>
-              {partnerLuggage > 0 && (
-                <span className={styles.metaDot}>·</span>
-              )}
-              {partnerLuggage > 0 && (
-                <span>
-                  <MIcon name="luggage" size={12} sw={2} />
-                  {' '}{partnerLuggage} bag{partnerLuggage !== 1 ? 's' : ''}
-                </span>
-              )}
+              <span className={styles.trustSignal}>{trustSignal}</span>
+            </div>
+            <div className={styles.meetingRow}>
+              <MIcon name="clock" size={13} sw={2} />
+              <span>Ritrovo: {myDate} {meetingTime}</span>
             </div>
           </div>
-          <div className={styles.lockBadge}>
-            <MIcon name="lock" size={16} sw={2} />
+        </div>
+
+        {/* ── C) Locked content list ── */}
+        <div className={styles.lockedList}>
+          <div className={styles.lockedListHeader}>
+            <MIcon name="lock" size={13} sw={2} />
+            Sblocca per vedere
+          </div>
+          <div className={styles.lockedItem}>
+            <MIcon name="map-pin" size={16} sw={2} />
+            <div className={styles.lockedItemText}>
+              <span className={styles.lockedItemTitle}>Pick-up point</span>
+              <span className={styles.lockedItemBlur}>Punto di incontro preciso</span>
+            </div>
+          </div>
+          <div className={styles.lockedItem}>
+            <MIcon name="message-circle" size={16} sw={2} />
+            <div className={styles.lockedItemText}>
+              <span className={styles.lockedItemTitle}>Chat con {partnerFirstName}</span>
+              <span className={styles.lockedItemBlur}>Scrivi per coordinarvi</span>
+            </div>
           </div>
         </div>
 
@@ -399,7 +425,7 @@ export function MatchLocked() {
           disabled={unlocking || !canUnlock}
         >
           <MIcon name="zap" size={20} sw={2} />
-          {unlocking ? 'Unlocking…' : `Unlock for ${unlockFeeDisplay}`}
+          {unlocking ? 'Sblocco…' : `Sblocca per ${unlockFeeDisplay}`}
         </button>
 
         {error && <div className={styles.errorBox}>{error}</div>}
@@ -414,7 +440,7 @@ export function MatchLocked() {
           onClick={handleDecline}
           disabled={declining || unlocking}
         >
-          {declining ? 'Declining…' : 'Decline match'}
+          {declining ? 'Rifiuto…' : 'Rifiuta match'}
         </button>
       </div>
 
