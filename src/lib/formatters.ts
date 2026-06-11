@@ -39,8 +39,8 @@ export function formatCurrency(amount: number, currency: string = 'EUR'): string
   return new Intl.NumberFormat('it-IT', {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
   }).format(amount);
 }
 

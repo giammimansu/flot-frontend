@@ -58,6 +58,16 @@ function DeadlineCountdown({ deadline }: { deadline: string | null }) {
   );
 }
 
+function WaitingExpiry({ deadline }: { deadline: string }) {
+  const totalSeconds = useMemo(() => {
+    const diff = Math.floor((new Date(deadline).getTime() - Date.now()) / 1000);
+    return Math.max(0, diff);
+  }, [deadline]);
+  const { display, isComplete } = useCountdown({ totalSeconds });
+  if (isComplete) return <span>Match scaduto</span>;
+  return <span>Il match scade tra {display}</span>;
+}
+
 export function MatchLocked() {
   const navigate = useNavigate();
   const { matchId } = useParams<{ matchId: string }>();
@@ -73,7 +83,6 @@ export function MatchLocked() {
     cachedMatch && cachedMatch.matchId === matchId ? cachedMatch : null,
   );
   const [partner, setPartner] = useState<PublicUser | null>(null);
-  const [partnerLoading, setPartnerLoading] = useState(false);
   const [loading, setLoading] = useState(!match);
   const [error, setError] = useState<string | null>(null);
   const [unlocking, setUnlocking] = useState(false);
@@ -116,11 +125,9 @@ export function MatchLocked() {
   useEffect(() => {
     if (!match || !currentUser || !(isPending || isPartial)) return;
     const partnerUserId = match.userId1 === currentUser.userId ? match.userId2 : match.userId1;
-    setPartnerLoading(true);
     fetchUser(partnerUserId)
       .then(setPartner)
-      .catch((e) => console.warn('[MatchLocked] fetchUser failed', e))
-      .finally(() => setPartnerLoading(false));
+      .catch((e) => console.warn('[MatchLocked] fetchUser failed', e));
   }, [match, currentUser, isPending, isPartial]);
 
   useEffect(() => {
@@ -268,7 +275,7 @@ export function MatchLocked() {
     ? (match.userId1 === currentUser.userId ? match.trip1 : match.trip2)
     : match.trip1;
 
-  const partnerFirstName = partnerLoading ? '…' : (partner?.firstName ?? 'Partner');
+  const partnerFirstName = partner?.firstName ?? 'il tuo match';
   const initial = partner?.firstName?.[0]?.toUpperCase() ?? '?';
   const partnerPhoto = partner?.photoUrl ?? partner?.blurredPhotoUrl ?? null;
 
@@ -286,38 +293,79 @@ export function MatchLocked() {
   const trustSignal = '★ Nuovo profilo';
 
   const unlockFeeDisplay = airport?.unlockFee
-    ? formatCurrency(airport.unlockFee, currency)
+    ? formatCurrency(airport.unlockFee / 100, currency)
     : '€1,99';
 
   // ── Waiting panel: I paid, partner hasn't ────────────────────────────
+  // NOTE: when isUnlockedByPartner flips true the routing effect above sends
+  // status === 'unlocked' → navigate(`/connection/:matchId`). No extra work here.
   if (waiting) {
     return (
       <div className={styles.screen}>
         <TopNav showLogo showBack right={<DeadlineCountdown deadline={match.unlockDeadline} />} />
         <div className={styles.sheet}>
           <div className={styles.handle} />
+
+          {/* A) Confirmation header */}
           <div className={styles.celebration}>
             <div className={styles.celebrationIcon}><MIcon name="check" size={22} sw={2.5} /></div>
             <div className={styles.celebrationText}>
-              <h2 className={styles.celebrationTitle}>Hai sbloccato ✓</h2>
+              <h2 className={styles.celebrationTitle}>Hai sbloccato</h2>
               <p className={styles.celebrationCopy}>
                 Aspettiamo che {partnerFirstName} sblocchi. <strong>€0 finché non sblocca anche lui</strong> — se non risponde in tempo, nessun addebito.
               </p>
             </div>
           </div>
+
+          {/* B) Partner status card */}
           <div className={styles.partnerCard}>
             <div className={styles.avatarWrap}>
-              <div className={styles.avatar}>{initial}</div>
+              {partnerPhoto ? (
+                <img src={partnerPhoto} alt="" className={styles.avatarPhotoBlurred} />
+              ) : (
+                <div className={`${styles.avatar} ${styles.avatarBlurred}`}>{initial}</div>
+              )}
             </div>
             <div className={styles.partnerInfo}>
               <div className={styles.partnerNameRow}>
                 <span className={styles.partnerName}>{partnerFirstName}</span>
               </div>
-              <div className={styles.partnerMeta}><span>In attesa di sblocco…</span></div>
+              <div className={styles.waitingStatus}>
+                <span className={styles.waitingSpinner} />
+                <span>In attesa di sblocco…</span>
+              </div>
             </div>
-            <div className={styles.lockBadge}><MIcon name="clock" size={16} sw={2} /></div>
           </div>
-          <div className={styles.unlockNote}>Ti avviseremo appena {partnerFirstName} sblocca.</div>
+
+          {/* C) What happens now */}
+          <div className={styles.infoTile}>
+            <div className={styles.infoRow}>
+              <MIcon name="clock" size={16} sw={2} />
+              <span>Di solito entro pochi minuti.</span>
+            </div>
+            <div className={styles.infoRow}>
+              <MIcon name="bell" size={16} sw={2} />
+              <span>Ti invieremo una notifica appena {partnerFirstName} sblocca — puoi chiudere l'app.</span>
+            </div>
+          </div>
+
+          {/* D) Timeout / exit */}
+          <div className={styles.expiryRow}>
+            <MIcon name="clock" size={13} sw={2} />
+            {match.unlockDeadline
+              ? <WaitingExpiry deadline={match.unlockDeadline} />
+              : <span>Il match scade a breve</span>}
+          </div>
+          <div className={styles.unlockNote}>Alla scadenza senza sblocco non c'è nessun addebito.</div>
+
+          <button
+            type="button"
+            className={styles.declineBtn}
+            onClick={handleDecline}
+            disabled={declining}
+          >
+            {declining ? 'Annullo…' : 'Annulla match'}
+          </button>
         </div>
       </div>
     );
