@@ -23,6 +23,18 @@ export interface MeetingPoint {
   walkMinutes: number;
 }
 
+/** Computed pickup point for a match — sent by backend on GET /matches/:id */
+export interface MatchPickupPoint {
+  address: string | null;
+  lat: string | number;
+  lng: string | number;
+  placeId: string | null;
+  zoneLabel: string | null;
+  zoneCode: string | null;
+  source: string;
+  landmarks: string[];
+}
+
 /** Airport configuration returned by GET /airports */
 export interface Airport {
   code: string;
@@ -134,9 +146,11 @@ export interface Rating {
 
 /** Full partner (unlocked view of GET /users/:id — shares an active match) */
 export interface UnlockedPartner extends PublicUser {
-  age?: number;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  ageGroup?: '18-25' | '26-35' | '36-45' | '46-55' | '56+';
+  lang?: string;
   city?: string;
-  languages?: string[];
+  bio?: string;
   rating?: Rating;
 }
 
@@ -169,6 +183,8 @@ export interface Match {
   createdAt: string;
   completedAt?: string;
   savings?: number;  // optional convenience; not guaranteed by backend
+  pickupPoint?: MatchPickupPoint | null;
+  pickupTime?: string | null;  // ISO UTC
 }
 
 /** @deprecated use `Match`. Kept as alias for existing call-sites. */
@@ -184,6 +200,8 @@ export interface ConnectionView {
   status: MatchStatus;
   partner: UnlockedPartner;
   meetingPoint: MeetingPoint | null;
+  pickupPoint: MatchPickupPoint | null;
+  pickupTime: string | null;
   savings: number;    // cents
   yourShare: number;  // cents
   fullFare: number;   // cents

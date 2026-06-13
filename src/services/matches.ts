@@ -60,6 +60,8 @@ export function composeConnectionView(
     status: match.status,
     partner,
     meetingPoint,
+    pickupPoint: match.pickupPoint ?? null,
+    pickupTime: match.pickupTime ?? null,
     savings,
     yourShare,
     fullFare,

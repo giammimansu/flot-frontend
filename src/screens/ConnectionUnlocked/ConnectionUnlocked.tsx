@@ -6,6 +6,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { TopNav } from '../../components/layout/TopNav';
+import { PartnerProfileSheet } from '../../components/PartnerProfileSheet/PartnerProfileSheet';
 import { HomeIndicator } from '../../components/layout/HomeIndicator';
 import { useWebSocket } from '../../hooks/useWebSocket';
 import { useMatchStore } from '../../stores/matchStore';
@@ -30,6 +31,35 @@ interface ChatMessage {
   timestamp: string;
   isOwn: boolean;
   pending?: boolean;     // optimistic, not yet echoed by the server
+}
+
+/* ── Inline vector icons (stroke = currentColor, coherent set) ── */
+function PinIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M12 21s7-5.686 7-11a7 7 0 1 0-14 0c0 5.314 7 11 7 11Z" />
+      <circle cx="12" cy="10" r="2.5" />
+    </svg>
+  );
+}
+function ClockIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </svg>
+  );
+}
+function ArrowIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12h14" />
+      <path d="m13 6 6 6-6 6" />
+    </svg>
+  );
 }
 
 function StarRating({ value, count }: { value: number | null; count: number }) {
@@ -77,6 +107,7 @@ export function ConnectionUnlocked() {
   const [inputText, setInputText] = useState('');
   const [sending, setSending] = useState(false);
   const [partnerTyping, setPartnerTyping] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastTypingSentRef = useRef(0);
@@ -286,7 +317,32 @@ export function ConnectionUnlocked() {
     );
   }
 
-  const { partner, meetingPoint, savings, yourShare, fullFare } = view;
+  const { partner, pickupPoint, pickupTime, savings, yourShare, fullFare } = view;
+  // Hide system messages (match confirmed / unlock notices) — chat only.
+  const userMessages = messages.filter((m) => m.kind !== 'system');
+
+  // Pickup address: prefer the resolved address, fall back to zone + landmarks.
+  const pickupAddress =
+    pickupPoint?.address?.trim() ||
+    (pickupPoint?.zoneLabel ? `Zona ${pickupPoint.zoneLabel}` : null) ||
+    null;
+  const pickupTimeFmt = pickupTime
+    ? new Date(pickupTime).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+    : null;
+  const pickupDateFmt = pickupTime
+    ? new Date(pickupTime).toLocaleDateString('it-IT', { weekday: 'long', day: 'numeric', month: 'long' })
+    : null;
+
+  // Google Maps directions: prefer lat,lng (more precise), fall back to address.
+  const hasCoords =
+    pickupPoint?.lat != null && pickupPoint?.lng != null &&
+    pickupPoint.lat !== '' && pickupPoint.lng !== '';
+  const directionsDest = hasCoords
+    ? `${pickupPoint!.lat},${pickupPoint!.lng}`
+    : pickupAddress;
+  const directionsUrl = directionsDest
+    ? `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(directionsDest)}`
+    : null;
   const partnerInitials = `${partner.firstName?.[0] ?? ''}${partner.lastName?.[0] ?? ''}`.toUpperCase();
 
   const eur = (cents: number) =>
@@ -301,16 +357,20 @@ export function ConnectionUnlocked() {
         showBack
         showLogo={false}
         title="Connessione"
-        showAvatar={false}
+        showAvatar
         right={
-          <span className={styles.matchBadge}>#{matchId?.slice(-6).toUpperCase()}</span>
+          <span className={styles.matchBadge}>Codice #{matchId?.slice(-6).toUpperCase()}</span>
         }
       />
 
-      <div className={styles.scrollArea}>
+      <div className={styles.topSection}>
         {/* Partner card */}
         <div className={styles.partnerCard}>
-          <div className={styles.avatarWrap}>
+          <button
+            className={styles.avatarWrap}
+            onClick={() => setProfileOpen(true)}
+            aria-label={`Vedi profilo di ${partner.firstName}`}
+          >
             {partner.photoUrl ? (
               <img src={partner.photoUrl} alt={partner.firstName} className={styles.avatar} />
             ) : (
@@ -319,39 +379,50 @@ export function ConnectionUnlocked() {
             {partner.verified && (
               <span className={styles.verifiedBadge} aria-label="Verificato">✓</span>
             )}
-          </div>
+          </button>
 
           <div className={styles.partnerInfo}>
-            <div className={styles.partnerName}>
-              {partner.firstName} {partner.lastName ?? ''}
-              {partner.age ? <span className={styles.age}>, {partner.age}</span> : null}
-            </div>
+            <button className={styles.partnerNameBtn} onClick={() => setProfileOpen(true)}>
+              <span className={styles.partnerName}>
+                {partner.firstName} {partner.lastName ?? ''}
+                {partner.ageGroup ? <span className={styles.age}>, {partner.ageGroup}</span> : null}
+              </span>
+            </button>
             {partner.city && <div className={styles.partnerCity}>{partner.city}</div>}
 
             <StarRating value={partner.rating?.average ?? null} count={partner.rating?.count ?? 0} />
-
-            {partner.languages && partner.languages.length > 0 && (
-              <div className={styles.languageRow}>
-                {partner.languages.map((lang) => (
-                  <span key={lang} className={styles.langBadge}>{lang}</span>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 
-        {/* Meeting point */}
-        {meetingPoint && (
+        {/* Pickup point — computed for this match */}
+        {pickupAddress && (
           <>
-            <div className={styles.sectionLabel}>Punto d&apos;incontro</div>
+            <div className={styles.sectionLabel}>Punto di ritrovo</div>
             <div className={styles.meetingCard}>
-              <div className={styles.meetingIcon}>📍</div>
+              <PinIcon className={styles.meetingIcon} />
               <div className={styles.meetingInfo}>
-                <div className={styles.meetingLabel}>{meetingPoint.label}</div>
-                <div className={styles.meetingDesc}>{meetingPoint.description}</div>
-                <div className={styles.walkTime}>
-                  🚶 {meetingPoint.walkMinutes} min a piedi
-                </div>
+                <div className={styles.meetingLabel}>{pickupAddress}</div>
+                {pickupTimeFmt && (
+                  <div className={styles.pickupTime}>
+                    <ClockIcon className={styles.pickupTimeIcon} />
+                    <div className={styles.pickupTimeText}>
+                      <span className={styles.pickupTimeLabel}>Ritrovo</span>
+                      <span className={styles.pickupTimeValue}>
+                        {pickupDateFmt} · ore {pickupTimeFmt}
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {directionsUrl && (
+                  <a
+                    className={styles.directionsBtn}
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <ArrowIcon /> Come arrivare
+                  </a>
+                )}
               </div>
             </div>
           </>
@@ -368,41 +439,32 @@ export function ConnectionUnlocked() {
           </div>
           <div className={styles.savingsIcon}>🎉</div>
         </div>
+      </div>
 
-        {/* Chat */}
-        <div className={styles.sectionLabel}>Chat</div>
-        <div className={styles.chatBox}>
-          {historyLoaded && messages.length === 0 ? (
+      {/* Chat — only scrolling area */}
+      <div className={styles.chatBox}>
+          {historyLoaded && userMessages.length === 0 ? (
             <div className={styles.chatEmpty}>
               Nessun messaggio ancora. Di&apos; ciao a {partner.firstName}!
             </div>
           ) : (
-            messages.map((msg) =>
-              msg.kind === 'system' ? (
-                <div key={msg.id} className={styles.systemMsg}>
-                  {msg.text}
-                </div>
-              ) : (
-                <div
-                  key={msg.id}
-                  className={`${styles.msgBubble} ${msg.isOwn ? styles.msgOwn : styles.msgTheirs} ${msg.pending ? styles.msgPending : ''}`}
-                >
-                  <span className={styles.msgText}>{msg.text}</span>
-                  <span className={styles.msgTime}>
-                    {new Date(msg.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              ),
-            )
+            userMessages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`${styles.msgBubble} ${msg.isOwn ? styles.msgOwn : styles.msgTheirs} ${msg.pending ? styles.msgPending : ''}`}
+              >
+                <span className={styles.msgText}>{msg.text}</span>
+                <span className={styles.msgTime}>
+                  {new Date(msg.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            ))
           )}
           {partnerTyping && (
             <div className={styles.typing}>{partner.firstName} sta scrivendo…</div>
           )}
           <div ref={messagesEndRef} />
         </div>
-
-        <HomeIndicator />
-      </div>
 
       {/* Chat input — sticky at bottom */}
       <div className={styles.inputBar}>
@@ -424,6 +486,13 @@ export function ConnectionUnlocked() {
           ➤
         </button>
       </div>
+      <HomeIndicator />
+
+      <PartnerProfileSheet
+        open={profileOpen}
+        partner={partner}
+        onClose={() => setProfileOpen(false)}
+      />
     </div>
   );
 }

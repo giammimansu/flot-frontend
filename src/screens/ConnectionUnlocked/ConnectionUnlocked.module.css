@@ -6,9 +6,9 @@
   overflow: hidden;
 }
 
-.scrollArea {
-  flex: 1;
-  overflow-y: auto;
+/* Pinned header cards — partner / pickup / savings (do not scroll) */
+.topSection {
+  flex-shrink: 0;
   padding: var(--space-4);
   display: flex;
   flex-direction: column;
@@ -83,6 +83,21 @@
 .avatarWrap {
   position: relative;
   flex-shrink: 0;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  line-height: 0;
+}
+.avatarWrap:active {
+  transform: scale(0.97);
+}
+.partnerNameBtn {
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
 }
 .avatar {
   width: 72px;
@@ -261,6 +276,60 @@
   color: var(--ink-subtle);
   margin-top: 2px;
 }
+.pickupTime {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--amber-soft, var(--surface-2));
+  border-radius: var(--radius-md);
+}
+.pickupTimeIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.pickupTimeText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.pickupTimeLabel {
+  font-family: var(--font-body);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--ink-subtle);
+}
+.pickupTimeValue {
+  font-family: var(--font-display);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  text-transform: capitalize;
+}
+.directionsBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--amber);
+  color: var(--ink-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  font-family: var(--font-body);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-semibold);
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity var(--dur-press);
+}
+.directionsBtn:active {
+  transform: scale(0.97);
+}
 
 /* ── Savings row ── */
 .savingsRow {
@@ -296,13 +365,10 @@
 
 /* ── Chat ── */
 .chatBox {
-  background: var(--surface-1);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
-  padding: var(--space-3);
-  min-height: 180px;
-  max-height: 320px;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
+  padding: 0 var(--space-4) var(--space-3);
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
