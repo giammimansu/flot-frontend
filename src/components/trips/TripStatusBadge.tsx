@@ -8,9 +8,9 @@ interface TripStatusBadgeProps {
 
 const CONFIG: Record<TripStatus, { label: string; variant: string; dot?: boolean }> = {
   scheduled: { label: 'Programmato', variant: 'warning', dot: true },
-  searching: { label: 'Ricerca in corso', variant: 'info', dot: true },
+  searching: { label: 'In cerca', variant: 'warning', dot: true },
   matched: { label: 'Match trovato', variant: 'success', dot: true },
-  unlocked: { label: 'Sbloccato', variant: 'accent' },
+  unlocked: { label: 'Confermato', variant: 'accent' },
   completed: { label: 'Completato', variant: 'neutral' },
   expired: { label: 'Scaduto', variant: 'error' },
   cancelled: { label: 'Cancellato', variant: 'error' },

@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { MBtn } from '../ui';
 import { TripStatusBadge } from './TripStatusBadge';
 import { useAirportStore } from '../../stores/airportStore';
-import { formatDateShort, formatCurrency } from '../../lib/formatters';
+import { formatDateShort, formatTimeShort } from '../../lib/formatters';
 import styles from './TripCard.module.css';
 
 interface TripCardProps {
@@ -14,21 +14,40 @@ interface TripCardProps {
   reviewed?: boolean;
 }
 
+const STREET_ABBR: Array<[RegExp, string]> = [
+  [/^Viale\s+/i, 'V.le '],
+  [/^Corso\s+/i, 'C.so '],
+  [/^Piazza\s+/i, 'P.za '],
+  [/^Largo\s+/i, 'L.go '],
+];
+
+/** Keep the first (street) segment of a long address and abbreviate the prefix. */
+function shortenAddress(label: string): string {
+  const street = (label.split(',')[0] ?? label).trim();
+  for (const [re, repl] of STREET_ABBR) {
+    if (re.test(street)) return street.replace(re, repl);
+  }
+  return street;
+}
+
 export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripCardProps) {
   const navigate = useNavigate();
   const airport = useAirportStore((s) => s.selectedAirport);
 
-  const terminalLabel = airport?.terminals.find((t) => t.code === trip.terminal)?.label || trip.terminal || 'Airport';
-  const airportLabel = `${terminalLabel} (${trip.airportCode})`;
-  const addressLabel = trip.originLabel || 'Milano';
+  const terminalCode = trip.terminal || '';
+  // "Milano Malpensa" → "Malpensa"; fall back to the airport code.
+  const airportShort = (airport?.name?.replace(/^Milano\s+/i, '') || trip.airportCode).trim();
+  const airportLabel = terminalCode ? `${airportShort} ${terminalCode}` : airportShort;
+  const cityShort = shortenAddress(trip.originLabel || 'Milano');
   const routeLabel = trip.direction === 'FROM_MILAN'
-    ? `${addressLabel} → ${airportLabel}`
-    : `${airportLabel} → ${addressLabel}`;
+    ? `${cityShort} → ${airportLabel}`
+    : `${airportLabel} → ${cityShort}`;
+
+  const dateTimeLabel = `${formatDateShort(trip.flightTime)} · ${formatTimeShort(trip.flightTime)}`;
 
   const handleViewMatch = () => {
     if (trip.matchId) navigate(`/match/${trip.matchId}`);
   };
-
   const handleOpenChat = () => {
     if (trip.matchId) navigate(`/connection/${trip.matchId}`);
   };
@@ -37,18 +56,30 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
   const isMatched = trip.status === 'matched';
   const isUnlocked = trip.status === 'unlocked';
   const isScheduled = trip.status === 'scheduled';
+  const isSearching = trip.status === 'searching';
   const isCancelled = trip.status === 'cancelled';
 
   // Savings = half the airport's fixed fare (per-airport, never hardcoded).
   const halfFareEuros = Math.round((airport?.baseFare ?? 12000) / 2 / 100);
-  const savingsFmt = formatCurrency(halfFareEuros, airport?.currency ?? 'EUR');
-  const savingsAmount = isCompleted || isUnlocked ? savingsFmt : `~${savingsFmt}`;
+  const priceCompact = `${halfFareEuros}€`;
+
+  // Final price for confirmed/completed, estimate while searching/matched.
+  let priceText: string;
+  let priceMuted = false;
+  if (isUnlocked || isCompleted) {
+    priceText = `Risparmi ${priceCompact}`;
+  } else if (isMatched) {
+    priceText = `Risparmi ~${priceCompact}`;
+  } else {
+    priceText = `~${priceCompact} stimati`;
+    priceMuted = true;
+  }
 
   return (
     <div className={styles.card}>
       <div className={styles.topRow}>
         <TripStatusBadge status={trip.status} />
-        <div className={styles.tripId}>{trip.tripId.slice(-6).toUpperCase()}</div>
+        <div className={styles.tripId}>Cod. {trip.tripId.slice(-6).toUpperCase()}</div>
       </div>
 
       <div className={styles.routeArea}>
@@ -59,7 +90,7 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
         </div>
         <div className={styles.routeText}>
           <div className={styles.routeTo}>{routeLabel}</div>
-          <div className={styles.routeDate}>{formatDateShort(trip.flightTime)}</div>
+          <div className={styles.routeDate}>{dateTimeLabel}</div>
         </div>
       </div>
 
@@ -67,56 +98,43 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
         <div className={styles.divider} />
 
         <div className={styles.footerRow}>
-          <div className={styles.partnerInfo}>
-            {(isMatched || isUnlocked || isCompleted) ? (
-              <>
-                <div className={styles.partnerAvatar}>P</div>
-                <div className={styles.partnerText}>Match {isUnlocked ? 'Sbloccato' : 'Trovato'}</div>
-              </>
-            ) : (
-              <>
-                <div className={styles.partnerAvatar}>?</div>
-                <div className={styles.partnerText}>In attesa di match...</div>
-              </>
-            )}
+          <div className={`${styles.savings} ${priceMuted ? styles.empty : ''}`}>
+            {priceText}
           </div>
-          <div className={`${styles.savings} ${!isMatched && !isUnlocked && !isCompleted ? styles.empty : ''}`}>
-            {isMatched || isUnlocked || isCompleted ? `-${savingsAmount}` : '---'}
-          </div>
-        </div>
 
-        <div className={styles.ctaRow}>
-          {isScheduled && onCancelClick && (
-            <>
+          <div className={styles.ctaRow}>
+            {(isScheduled || isSearching) && onCancelClick && (
               <MBtn variant="ghost" small onClick={() => onCancelClick(trip.tripId)}>
-                Cancella
+                Annulla
               </MBtn>
+            )}
+            {isScheduled && (
               <MBtn variant="outline" small onClick={() => navigate(`/trip/${trip.tripId}`)} icon="arrow-right">
                 Dettagli
               </MBtn>
-            </>
-          )}
-          {isMatched && trip.matchId && (
-            <MBtn variant="primary" small onClick={() => handleViewMatch()} icon="arrow-right">
-              Vedi match
-            </MBtn>
-          )}
-          {isUnlocked && (
-            <MBtn variant="primary" small onClick={() => handleOpenChat()} icon="message-circle">
-              Apri chat
-            </MBtn>
-          )}
-          {isCompleted && trip.matchId && onReviewClick && (
-            reviewed ? (
-              <MBtn variant="ghost" small disabled icon="check">
-                Recensito
+            )}
+            {isMatched && trip.matchId && (
+              <MBtn variant="primary" small onClick={handleViewMatch} icon="arrow-right">
+                Vedi match
               </MBtn>
-            ) : (
-              <MBtn variant="primary" small onClick={() => onReviewClick(trip.matchId!)} icon="sparkles">
-                Recensisci
+            )}
+            {isUnlocked && trip.matchId && (
+              <MBtn variant="primary" small onClick={handleOpenChat} icon="arrow-right">
+                Vedi dettagli
               </MBtn>
-            )
-          )}
+            )}
+            {isCompleted && trip.matchId && onReviewClick && (
+              reviewed ? (
+                <MBtn variant="ghost" small disabled icon="check">
+                  Recensito
+                </MBtn>
+              ) : (
+                <MBtn variant="outline" small onClick={() => onReviewClick(trip.matchId!)} icon="sparkles">
+                  Lascia recensione
+                </MBtn>
+              )
+            )}
+          </div>
         </div>
       </>}
     </div>
