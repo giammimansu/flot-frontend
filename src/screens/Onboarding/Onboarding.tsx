@@ -1,6 +1,4 @@
-import { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAuth } from '../../hooks/useAuth';
 import { useAuthStore } from '../../stores/authStore';
 import { useOnboarding } from './useOnboarding';
 import { SelectPill } from './SelectPill';
@@ -25,23 +23,10 @@ export function Onboarding() {
   } = useOnboarding();
 
   const { user } = useAuthStore();
-  const { logout } = useAuth();
-  const isCompleted = useRef(false);
-
-  // If the user navigates away (e.g. using browser back button on Step 1)
-  // we log them out to trigger the landing page view in a logged out state.
-  useEffect(() => {
-    return () => {
-      if (!isCompleted.current) {
-        logout();
-      }
-    };
-  }, [logout]);
 
   const welcomeTitle = user?.name ? `Ciao ${user.name.split(' ')[0]}!` : 'Prima di iniziare';
 
   const handleSubmit = async () => {
-    isCompleted.current = true;
     await submit();
   };
 
