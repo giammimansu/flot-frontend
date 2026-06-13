@@ -152,6 +152,22 @@ export interface UnlockedPartner extends PublicUser {
   city?: string;
   bio?: string;
   rating?: Rating;
+  tripCount?: number;
+}
+
+/** A single review received by a user (anonymous) */
+export interface PartnerReview {
+  rating: number;
+  comment?: string | null;
+  airportCode?: string | null;
+  createdAt: string;
+}
+
+/** GET /users/:id/reviews response */
+export interface PartnerReviewsResponse {
+  userId: string;
+  count: number;
+  reviews: PartnerReview[];
 }
 
 /** All Match lifecycle states (mirrors backend MatchStateMachine) */

@@ -4,8 +4,10 @@
    Opened by tapping the partner avatar inside ConnectionUnlocked.
    ============================================================ */
 
+import { useEffect, useState } from 'react';
 import { BottomSheet } from '../ui/BottomSheet';
-import type { UnlockedPartner } from '../../types/api';
+import { fetchUserReviews } from '../../services/users';
+import type { UnlockedPartner, PartnerReview } from '../../types/api';
 import styles from './PartnerProfileSheet.module.css';
 
 interface PartnerProfileSheetProps {
@@ -43,9 +45,34 @@ function StarRating({ value, count }: { value: number | null; count: number }) {
   );
 }
 
+function formatReviewDate(iso: string): string {
+  const d = new Date(iso);
+  return Number.isNaN(d.getTime())
+    ? ''
+    : d.toLocaleDateString('it-IT', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 export function PartnerProfileSheet({ open, partner, onClose }: PartnerProfileSheetProps) {
   const initials = `${partner.firstName?.[0] ?? ''}${partner.lastName?.[0] ?? ''}`.toUpperCase();
   const fullName = `${partner.firstName ?? ''} ${partner.lastName ?? ''}`.trim();
+
+  const [reviews, setReviews] = useState<PartnerReview[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
+
+  // Fetch reviews lazily when the sheet opens.
+  useEffect(() => {
+    if (!open || !partner.userId) return;
+    let cancelled = false;
+    setReviewsLoading(true);
+    fetchUserReviews(partner.userId)
+      .then((res) => { if (!cancelled) setReviews(res.reviews); })
+      .catch(() => { if (!cancelled) setReviews([]); })
+      .finally(() => { if (!cancelled) setReviewsLoading(false); });
+    return () => { cancelled = true; };
+  }, [open, partner.userId]);
+
+  const tripCount = partner.tripCount ?? 0;
+  const reviewCount = partner.rating?.count ?? 0;
 
   const facts: Array<{ label: string; value: string }> = [];
   if (partner.ageGroup) facts.push({ label: 'Età', value: partner.ageGroup });
@@ -72,6 +99,18 @@ export function PartnerProfileSheet({ open, partner, onClose }: PartnerProfileSh
         <h2 className={styles.name}>{fullName}</h2>
         <StarRating value={partner.rating?.average ?? null} count={partner.rating?.count ?? 0} />
 
+        <div className={styles.stats}>
+          <div className={styles.stat}>
+            <span className={styles.statValue}>{tripCount}</span>
+            <span className={styles.statLabel}>{tripCount === 1 ? 'Viaggio' : 'Viaggi'}</span>
+          </div>
+          <div className={styles.statDivider} />
+          <div className={styles.stat}>
+            <span className={styles.statValue}>{reviewCount}</span>
+            <span className={styles.statLabel}>{reviewCount === 1 ? 'Recensione' : 'Recensioni'}</span>
+          </div>
+        </div>
+
         {partner.bio && <p className={styles.bio}>{partner.bio}</p>}
 
         {facts.length > 0 && (
@@ -83,6 +122,31 @@ export function PartnerProfileSheet({ open, partner, onClose }: PartnerProfileSh
               </div>
             ))}
           </dl>
+        )}
+
+        {(reviewsLoading || reviews.length > 0) && (
+          <div className={styles.reviews}>
+            <h3 className={styles.reviewsTitle}>Recensioni</h3>
+            {reviewsLoading ? (
+              <div className={styles.reviewsEmpty}>Caricamento…</div>
+            ) : (
+              reviews.map((r, i) => (
+                <div key={i} className={styles.reviewItem}>
+                  <div className={styles.reviewHead}>
+                    <span className={styles.reviewStars} aria-label={`${r.rating} su 5`}>
+                      {[1, 2, 3, 4, 5].map((s) => (
+                        <span key={s} className={s <= r.rating ? styles.starFilled : styles.starEmpty}>★</span>
+                      ))}
+                    </span>
+                    {r.createdAt && (
+                      <span className={styles.reviewDate}>{formatReviewDate(r.createdAt)}</span>
+                    )}
+                  </div>
+                  {r.comment && <p className={styles.reviewComment}>{r.comment}</p>}
+                </div>
+              ))
+            )}
+          </div>
         )}
 
         <button className={styles.closeBtn} onClick={onClose}>
