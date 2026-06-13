@@ -143,7 +143,7 @@ function OnboardingRedirector() {
         }
       } else {
         if (location.pathname === '/onboarding') {
-          navigate('/check-in', { replace: true });
+          navigate('/', { replace: true });
         }
       }
     } else {

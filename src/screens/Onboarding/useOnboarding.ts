@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuthStore } from '../../stores/authStore';
-import { useAirportStore } from '../../stores/airportStore';
 import { useAuth } from '../../hooks/useAuth';
 import { updateProfile } from '../../services/users';
 
@@ -68,13 +67,11 @@ export function useOnboarding() {
       }
 
       updateUser(updatedUser as any);
-      
-      const selectedAirport = useAirportStore.getState().selectedAirport;
-      if (selectedAirport) {
-        navigate('/check-in', { replace: true });
-      } else {
-        navigate('/airport', { replace: true });
-      }
+
+      // Back to EntryPoint: if a booking draft survived the login redirect it
+      // creates the trip from the draft and redirects to /trip/:id; otherwise
+      // '/' is the home screen.
+      navigate('/', { replace: true });
     } catch (err: any) {
       console.error('[Onboarding] Error submitting onboarding:', err);
       let errorMsg = 'Si è verificato un errore durante il salvataggio.';
