@@ -276,6 +276,27 @@
   color: var(--ink-subtle);
   margin-top: 2px;
 }
+.pickupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  color: var(--ink);
+}
+.chevron {
+  flex-shrink: 0;
+  color: var(--ink-subtle);
+  transition: transform var(--dur-press, 0.2s) ease;
+}
+.chevronOpen {
+  transform: rotate(180deg);
+}
 .pickupTime {
   display: flex;
   align-items: center;

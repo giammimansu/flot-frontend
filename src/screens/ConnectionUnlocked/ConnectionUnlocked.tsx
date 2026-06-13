@@ -62,6 +62,15 @@ function ArrowIcon({ className }: { className?: string }) {
   );
 }
 
+function ChevronIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} width="18" height="18" viewBox="0 0 24 24" fill="none"
+      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="m6 9 6 6 6-6" />
+    </svg>
+  );
+}
+
 function StarRating({ value, count }: { value: number | null; count: number }) {
   if (value == null || count === 0) {
     return <span className={styles.noRating}>Nessuna recensione</span>;
@@ -108,6 +117,7 @@ export function ConnectionUnlocked() {
   const [sending, setSending] = useState(false);
   const [partnerTyping, setPartnerTyping] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [pickupExpanded, setPickupExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const lastTypingSentRef = useRef(0);
@@ -317,7 +327,7 @@ export function ConnectionUnlocked() {
     );
   }
 
-  const { partner, pickupPoint, pickupTime, savings, yourShare, fullFare } = view;
+  const { partner, pickupPoint, pickupTime } = view;
   // Hide system messages (match confirmed / unlock notices) — chat only.
   const userMessages = messages.filter((m) => m.kind !== 'system');
 
@@ -345,11 +355,6 @@ export function ConnectionUnlocked() {
     : null;
   const partnerInitials = `${partner.firstName?.[0] ?? ''}${partner.lastName?.[0] ?? ''}`.toUpperCase();
 
-  const eur = (cents: number) =>
-    new Intl.NumberFormat('it-IT', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(cents / 100);
-  const savingsFmt = eur(savings);
-  const yourShareFmt = eur(yourShare);
-  const fullFareFmt = eur(fullFare);
 
   return (
     <div className={styles.root}>
@@ -394,51 +399,54 @@ export function ConnectionUnlocked() {
           </div>
         </div>
 
-        {/* Pickup point — computed for this match */}
+        {/* Pickup point — computed for this match (collapsible) */}
         {pickupAddress && (
           <>
             <div className={styles.sectionLabel}>Punto di ritrovo</div>
             <div className={styles.meetingCard}>
               <PinIcon className={styles.meetingIcon} />
               <div className={styles.meetingInfo}>
-                <div className={styles.meetingLabel}>{pickupAddress}</div>
-                {pickupTimeFmt && (
-                  <div className={styles.pickupTime}>
-                    <ClockIcon className={styles.pickupTimeIcon} />
-                    <div className={styles.pickupTimeText}>
-                      <span className={styles.pickupTimeLabel}>Ritrovo</span>
-                      <span className={styles.pickupTimeValue}>
-                        {pickupDateFmt} · ore {pickupTimeFmt}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                {directionsUrl && (
-                  <a
-                    className={styles.directionsBtn}
-                    href={directionsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ArrowIcon /> Come arrivare
-                  </a>
+                <button
+                  className={styles.pickupHeader}
+                  onClick={() => setPickupExpanded((v) => !v)}
+                  aria-expanded={pickupExpanded}
+                >
+                  <span className={styles.meetingLabel}>{pickupAddress}</span>
+                  <ChevronIcon
+                    className={`${styles.chevron} ${pickupExpanded ? styles.chevronOpen : ''}`}
+                  />
+                </button>
+
+                {pickupExpanded && (
+                  <>
+                    {pickupTimeFmt && (
+                      <div className={styles.pickupTime}>
+                        <ClockIcon className={styles.pickupTimeIcon} />
+                        <div className={styles.pickupTimeText}>
+                          <span className={styles.pickupTimeLabel}>Ritrovo</span>
+                          <span className={styles.pickupTimeValue}>
+                            {pickupDateFmt} · ore {pickupTimeFmt}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {directionsUrl && (
+                      <a
+                        className={styles.directionsBtn}
+                        href={directionsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <ArrowIcon /> Come arrivare
+                      </a>
+                    )}
+                  </>
                 )}
               </div>
             </div>
           </>
         )}
 
-        {/* Savings row */}
-        <div className={styles.savingsRow}>
-          <div className={styles.savingsLeft}>
-            <div className={styles.savingsAmount}>{savingsFmt} risparmiati</div>
-            <div className={styles.fareLine}>
-              La tua quota <strong>{yourShareFmt}</strong>{' '}
-              <span className={styles.fullFareStrike}>{fullFareFmt}</span>
-            </div>
-          </div>
-          <div className={styles.savingsIcon}>🎉</div>
-        </div>
       </div>
 
       {/* Chat — only scrolling area */}
