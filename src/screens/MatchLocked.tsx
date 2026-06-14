@@ -11,7 +11,6 @@ import { fetchMatch, unlockTrip, declineMatch } from '../services/matches';
 import { fetchUser } from '../services/users';
 import { parseApiError } from '../services/api';
 import { PaymentSheet } from '../components/PaymentSheet/PaymentSheet';
-import { formatCurrency } from '../lib/formatters';
 import { useCountdown } from '../hooks/useCountdown';
 import type { Match, PublicUser } from '../types/api';
 import styles from './MatchLocked.module.css';
@@ -154,7 +153,6 @@ export function MatchLocked() {
 
   const airport =
     (match && airports.find((a) => a.code === match.airportCode)) || selectedAirport || null;
-  const currency = airport?.currency ?? 'EUR';
 
   const resolveByStatus = useCallback(async (status: 'partially_unlocked' | 'unlocked' | undefined) => {
     if (status === 'unlocked') {
@@ -294,9 +292,9 @@ export function MatchLocked() {
   // Trust signal — placeholder until rating/trip count is wired.
   const trustSignal = '★ Nuovo profilo';
 
-  const unlockFeeDisplay = airport?.unlockFee
-    ? formatCurrency(airport.unlockFee / 100, currency)
-    : '€1,99';
+  // Display fee is fixed at €1,99 for the MVP. Actual charge still comes from
+  // the backend PaymentIntent — keep airport.unlockFee = 199 in sync.
+  const unlockFeeDisplay = '€1,99';
 
   // ── Waiting panel: I paid, partner hasn't ────────────────────────────
   // NOTE: when isUnlockedByPartner flips true the routing effect above sends
@@ -323,7 +321,7 @@ export function MatchLocked() {
           <div className={styles.partnerCard}>
             <div className={styles.avatarWrap}>
               {partnerPhoto ? (
-                <img src={partnerPhoto} alt="" className={styles.avatarPhotoBlurred} />
+                <img src={partnerPhoto} alt="" referrerPolicy="no-referrer" className={styles.avatarPhotoBlurred} />
               ) : (
                 <div className={`${styles.avatar} ${styles.avatarBlurred}`}>{initial}</div>
               )}
@@ -431,7 +429,7 @@ export function MatchLocked() {
         <div className={styles.partnerCard}>
           <div className={styles.avatarWrap}>
             {partnerPhoto ? (
-              <img src={partnerPhoto} alt="" className={styles.avatarPhotoBlurred} />
+              <img src={partnerPhoto} alt="" referrerPolicy="no-referrer" className={styles.avatarPhotoBlurred} />
             ) : (
               <div className={`${styles.avatar} ${styles.avatarBlurred}`}>{initial}</div>
             )}
