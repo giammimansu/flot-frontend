@@ -1,16 +1,12 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { messaging, getToken, onMessage } from '../lib/firebase';
+import { messaging, getToken } from '../lib/firebase';
 import { registerPushToken } from '../services/users';
-import { useNotificationStore } from '../stores/notificationStore';
 import { getSwRegistration } from '../services/pushNotifications';
 
 export function usePushNotifications() {
   const [permission, setPermission] = useState<NotificationPermission>(
     'Notification' in window ? Notification.permission : 'default'
   );
-  const showToast = useNotificationStore((s) => s.showToast);
-  const navigate = useNavigate();
 
   // Check initial permission and auto-register if already granted
   useEffect(() => {
@@ -57,29 +53,9 @@ export function usePushNotifications() {
     return false;
   };
 
-  // Setup foreground message listener
-  useEffect(() => {
-    if (!messaging) return;
-
-    const unsubscribe = onMessage(messaging, (payload) => {
-      const title = payload.notification?.title || 'FLOT';
-      const body = payload.notification?.body || '';
-
-      showToast({
-        title,
-        body,
-        onClick: () => {
-          if (payload.data?.action === 'open_match' && payload.data?.matchId) {
-            navigate(`/match/${payload.data.matchId}`);
-          }
-        }
-      });
-    });
-
-    return () => {
-      unsubscribe();
-    };
-  }, [showToast, navigate]);
+  // Foreground message listener lives in App.tsx <ForegroundNotifications>
+  // (mounted once). Registering it here too caused duplicate toasts when
+  // the hook was mounted in multiple components (Profile + PushPrompt).
 
   return {
     permission,

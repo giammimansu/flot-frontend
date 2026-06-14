@@ -21,8 +21,11 @@ try {
   const messaging = firebase.messaging();
 
   messaging.onBackgroundMessage((payload) => {
-    const title = payload.notification?.title ?? 'FLOT';
-    const body = payload.notification?.body ?? 'You have a new update.';
+    // Backend sends data-only messages (no `notification` block) to avoid
+    // duplicate notifications. Title/body live in payload.data.
+    const data = payload.data ?? {};
+    const title = data.title ?? payload.notification?.title ?? 'FLOT';
+    const body = data.body ?? payload.notification?.body ?? 'You have a new update.';
 
     self.registration.showNotification(title, {
       body,

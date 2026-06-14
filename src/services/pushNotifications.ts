@@ -87,9 +87,10 @@ export function setupForegroundNotifications(handler: ForegroundHandler): () => 
   if (!messaging) return () => {};
 
   const unsubscribe = onMessage(messaging, (payload) => {
-    const title = payload.notification?.title ?? 'FLOT';
-    const body = payload.notification?.body ?? '';
+    // Backend sends data-only messages; fall back to notification block for safety.
     const data = payload.data ?? {};
+    const title = data['title'] ?? payload.notification?.title ?? 'FLOT';
+    const body = data['body'] ?? payload.notification?.body ?? '';
 
     handler({
       title,
