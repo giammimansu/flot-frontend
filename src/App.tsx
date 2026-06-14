@@ -1,7 +1,8 @@
-import { lazy, Suspense, useEffect, type ReactNode } from 'react';
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react';
 import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { useAuth, useAuthInit } from './hooks/useAuth';
+import { Splash } from './components/Splash';
 import { Toast } from './components/ui';
 import { TabBar } from './components/layout/TabBar';
 import { setupForegroundNotifications } from './services/pushNotifications';
@@ -76,6 +77,21 @@ function wrap(node: ReactNode) {
 function AuthInit() {
   useAuthInit();
   return null;
+}
+
+/** Shows the launch splash (with version) until auth boot finishes and a
+ *  minimum display time has elapsed, so the splash never just flickers. */
+function SplashGate() {
+  const { isLoading } = useAuth();
+  const [minElapsed, setMinElapsed] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setMinElapsed(true), 900);
+    return () => clearTimeout(t);
+  }, []);
+
+  if (!isLoading && minElapsed) return null;
+  return <Splash />;
 }
 
 function ForegroundNotifications() {
@@ -161,6 +177,7 @@ export function App() {
     <HashRouter>
       <ErrorBoundary>
         <AuthInit />
+        <SplashGate />
         <OnboardingRedirector />
         <ForegroundNotifications />
         <Toast />

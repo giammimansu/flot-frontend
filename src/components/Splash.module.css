@@ -1,0 +1,39 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-1, #f7f8f8);
+}
+
+.logo {
+  width: 140px;
+  height: auto;
+}
+
+.spinner {
+  position: absolute;
+  bottom: 84px;
+  width: 32px;
+  height: 32px;
+  border: 3px solid var(--primary-500, #0b8a7b);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: splash-spin 0.7s linear infinite;
+}
+
+.version {
+  position: absolute;
+  bottom: 32px;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  color: var(--text-3, #6b7280);
+}
+
+@keyframes splash-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
