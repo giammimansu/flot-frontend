@@ -285,6 +285,8 @@ export function MatchLocked() {
   const myDate = formatFlightDate(myTrip?.flightDate ?? '');
   const myTime = formatTime(myTrip?.flightTime);
   const myDestination = myTrip?.destination ?? '—';
+  // TO_AIRPORT trip: departure is the city street (originLabel), arrival is the airport.
+  const myOrigin = myTrip?.originLabel ?? null;
 
   // ── Meeting time (B) — free decisional filter; placeholder until backend wires it.
   const meetingTime = myTrip?.flightTime ? formatTime(myTrip.flightTime) : '—';
@@ -399,9 +401,19 @@ export function MatchLocked() {
         <div className={styles.recapTile}>
           <div className={styles.recapLabel}>Il tuo volo</div>
           <div className={styles.recapRoute}>
-            <span className={styles.recapAirport}>{airportCode}{myTerminal ? ` ${myTerminal}` : ''}</span>
-            <MIcon name="arrow-right" size={14} sw={2} />
-            <span className={styles.recapDest}>{myDestination}</span>
+            {myOrigin ? (
+              <>
+                <span className={styles.recapDest}>{myOrigin}</span>
+                <MIcon name="arrow-right" size={14} sw={2} />
+                <span className={styles.recapAirport}>{airportCode}{myTerminal ? ` ${myTerminal}` : ''}</span>
+              </>
+            ) : (
+              <>
+                <span className={styles.recapAirport}>{airportCode}{myTerminal ? ` ${myTerminal}` : ''}</span>
+                <MIcon name="arrow-right" size={14} sw={2} />
+                <span className={styles.recapDest}>{myDestination}</span>
+              </>
+            )}
           </div>
           <div className={styles.recapMeta}>
             <MIcon name="clock" size={13} sw={2} />

@@ -126,6 +126,11 @@ export interface MatchTrip {
   luggage: number;
   paxCount: number;
   mode: string;
+  // MVP TO_AIRPORT origin (departure address in city)
+  originLat?: number | null;
+  originLng?: number | null;
+  originPlaceId?: string | null;
+  originLabel?: string | null;
 }
 
 /** Public profile of another user (locked view: GET /users/:id) */
