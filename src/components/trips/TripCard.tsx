@@ -58,6 +58,8 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
   const isScheduled = trip.status === 'scheduled';
   const isSearching = trip.status === 'searching';
   const isCancelled = trip.status === 'cancelled';
+  const isExpired = trip.status === 'expired';
+  const isPast = isCompleted || isExpired || isCancelled;
 
   // Savings = half the airport's fixed fare (per-airport, never hardcoded).
   const halfFareEuros = Math.round((airport?.baseFare ?? 12000) / 2 / 100);
@@ -76,7 +78,13 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
   }
 
   return (
-    <div className={styles.card}>
+    <div
+      className={styles.card}
+      onClick={isPast ? () => navigate(`/trip-past/${trip.tripId}`) : undefined}
+      role={isPast ? 'button' : undefined}
+      tabIndex={isPast ? 0 : undefined}
+      style={isPast ? { cursor: 'pointer' } : undefined}
+    >
       <div className={styles.topRow}>
         <TripStatusBadge status={trip.status} />
         <div className={styles.tripId}>Cod. {trip.tripId.slice(-6).toUpperCase()}</div>
@@ -98,9 +106,11 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
         <div className={styles.divider} />
 
         <div className={styles.footerRow}>
-          <div className={`${styles.savings} ${priceMuted ? styles.empty : ''}`}>
-            {priceText}
-          </div>
+          {isPast ? <div /> : (
+            <div className={`${styles.savings} ${priceMuted ? styles.empty : ''}`}>
+              {priceText}
+            </div>
+          )}
 
           <div className={styles.ctaRow}>
             {(isScheduled || isSearching) && onCancelClick && (
@@ -129,7 +139,7 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
                   Recensito
                 </MBtn>
               ) : (
-                <MBtn variant="outline" small onClick={() => onReviewClick(trip.matchId!)} icon="sparkles">
+                <MBtn variant="outline" small onClick={(e) => { e.stopPropagation(); onReviewClick(trip.matchId!); }} icon="sparkles">
                   Lascia recensione
                 </MBtn>
               )

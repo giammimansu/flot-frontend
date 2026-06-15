@@ -63,6 +63,25 @@
 }
 .starFilled { color: var(--amber); }
 .starEmpty { color: var(--hairline); }
+
+/* Fractional star: filled layer overlaid on the empty one, clipped by width. */
+.fracStars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.fracStar {
+  position: relative;
+  display: inline-block;
+  line-height: 1;
+}
+.fracStar .starFilled {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
 .ratingCount {
   margin-left: 6px;
   font-family: var(--font-body);
@@ -192,6 +211,39 @@
   font-weight: var(--fw-semibold);
   color: var(--ink);
   margin: 0;
+}
+
+.dimensions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+}
+.dimensionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+.dimensionLabel {
+  font-family: var(--font-body);
+  font-size: var(--fs-13);
+  color: var(--ink-subtle);
+}
+.dimStars {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 14px;
+}
+.dimValue {
+  margin-left: 6px;
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
 }
 
 .closeBtn {

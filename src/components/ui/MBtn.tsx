@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { MouseEvent, ReactNode } from 'react';
 import { MIcon } from './MIcon';
 import type { IconName } from './MIcon';
 import styles from './MBtn.module.css';
@@ -8,7 +8,7 @@ type BtnVariant = 'primary' | 'dark' | 'secondary' | 'ghost' | 'outline';
 interface MBtnProps {
   variant?: BtnVariant;
   children: ReactNode;
-  onClick?: () => void;
+  onClick?: (e: MouseEvent<HTMLButtonElement>) => void;
   icon?: IconName;
   full?: boolean;
   disabled?: boolean;

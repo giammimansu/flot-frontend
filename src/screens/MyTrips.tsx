@@ -11,6 +11,7 @@ import type { NotificationItem } from '../types/api';
 import { useAuth } from '../hooks/useAuth';
 import { useAirportStore } from '../stores/airportStore';
 import { getMyTrips, cancelTrip } from '../services/trips';
+import { getReviewedMatchIds, markMatchReviewed } from '../lib/reviewedMatches';
 import type { MyTripsResponse } from '../types/api';
 import { TopNav } from '../components/layout/TopNav';
 import styles from './MyTrips.module.css';
@@ -28,7 +29,7 @@ export function MyTrips() {
   const [cancelTripId, setCancelTripId] = useState<string | null>(null);
   const [cancelling, setCancelling] = useState(false);
   const [reviewMatchId, setReviewMatchId] = useState<string | null>(null);
-  const [reviewedMatchIds, setReviewedMatchIds] = useState<Set<string>>(new Set());
+  const [reviewedMatchIds, setReviewedMatchIds] = useState<Set<string>>(() => getReviewedMatchIds());
   const [notifs, setNotifs] = useState<NotificationItem[]>([]);
   const [notifsLoading, setNotifsLoading] = useState(true);
   const [notifsOpen, setNotifsOpen] = useState(false);
@@ -213,6 +214,7 @@ export function MyTrips() {
         matchId={reviewMatchId}
         onClose={() => setReviewMatchId(null)}
         onSubmitted={(matchId) => {
+          markMatchReviewed(matchId);
           setReviewedMatchIds((prev) => new Set(prev).add(matchId));
           setReviewMatchId(null);
         }}

@@ -111,9 +111,9 @@ export function ReviewSheet({ open, matchId, partnerName, onClose, onSubmitted }
     } catch (err) {
       const { status, message } = await parseApiError(err);
       if (status === 409) {
-        // Already reviewed — treat as done.
-        onSubmitted(matchId);
-        reset();
+        // Already reviewed — treat as success, still show the thank-you.
+        setSubmitting(false);
+        setSubmitted(true);
         return;
       }
       if (status === 410) {

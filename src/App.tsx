@@ -30,6 +30,9 @@ const NoMatchFound = lazy(() =>
 const TripScheduled = lazy(() =>
   import('./screens/TripScheduled').then((m) => ({ default: m.TripScheduled }))
 );
+const TripPast = lazy(() =>
+  import('./screens/TripPast').then((m) => ({ default: m.TripPast }))
+);
 const MyTrips = lazy(() =>
   import('./screens/MyTrips').then((m) => ({ default: m.MyTrips }))
 );
@@ -189,6 +192,7 @@ export function App() {
             <Route path="/check-in" element={wrap(<ProtectedRoute><TravelCheckin /></ProtectedRoute>)} />
             <Route path="/search" element={wrap(<ProtectedRoute><ActiveSearch /></ProtectedRoute>)} />
             <Route path="/trip/:tripId" element={wrap(<ProtectedRoute><TripScheduled /></ProtectedRoute>)} />
+            <Route path="/trip-past/:tripId" element={wrap(<ProtectedRoute><TripPast /></ProtectedRoute>)} />
             <Route path="/match/:matchId" element={wrap(<ProtectedRoute><MatchLocked /></ProtectedRoute>)} />
             <Route path="/connection/:matchId" element={wrap(<ProtectedRoute><ConnectionUnlocked /></ProtectedRoute>)} />
             <Route path="/no-match" element={wrap(<ProtectedRoute><NoMatchFound /></ProtectedRoute>)} />
