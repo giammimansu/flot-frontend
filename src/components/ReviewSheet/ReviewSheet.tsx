@@ -71,6 +71,7 @@ export function ReviewSheet({ open, matchId, partnerName, onClose, onSubmitted }
     cleanliness: 0,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const reset = () => {
@@ -79,9 +80,13 @@ export function ReviewSheet({ open, matchId, partnerName, onClose, onSubmitted }
     setDims({ punctuality: 0, sociability: 0, reliability: 0, cleanliness: 0 });
     setError(null);
     setSubmitting(false);
+    setSubmitted(false);
   };
 
   const close = () => {
+    // The parent is notified on the thank-you screen's dismissal too, so a
+    // backdrop tap after a successful submit still marks the review as done.
+    if (submitted && matchId) onSubmitted(matchId);
     reset();
     onClose();
   };
@@ -100,8 +105,9 @@ export function ReviewSheet({ open, matchId, partnerName, onClose, onSubmitted }
         comment: comment.trim() || undefined,
         dimensions: Object.keys(dimensions).length ? dimensions : undefined,
       });
-      onSubmitted(matchId);
-      reset();
+      // Show the thank-you screen; the parent is notified when it's dismissed.
+      setSubmitting(false);
+      setSubmitted(true);
     } catch (err) {
       const { status, message } = await parseApiError(err);
       if (status === 409) {
@@ -118,6 +124,24 @@ export function ReviewSheet({ open, matchId, partnerName, onClose, onSubmitted }
       setSubmitting(false);
     }
   };
+
+  if (submitted) {
+    return (
+      <BottomSheet open={open} onClose={close} aria-label="Recensione inviata">
+        <div className={styles.sheet}>
+          <div className={styles.thanksIcon} aria-hidden="true">✓</div>
+          <h2 className={styles.title}>Grazie!</h2>
+          <p className={styles.sub}>
+            Il tuo feedback è molto importante per noi: ci aiuta a costruire una
+            rete di utenti sicura e affidabile.
+          </p>
+          <MBtn variant="dark" onClick={close}>
+            Chiudi
+          </MBtn>
+        </div>
+      </BottomSheet>
+    );
+  }
 
   return (
     <BottomSheet open={open} onClose={close} aria-label="Lascia una recensione">
