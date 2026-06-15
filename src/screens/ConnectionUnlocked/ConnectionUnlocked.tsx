@@ -19,8 +19,21 @@ import {
   composeConnectionView,
   getFullChatHistory,
 } from '../../services/matches';
-import type { ConnectionView, ChatHistoryMessage } from '../../types/api';
+import { getUserRating } from '../../services/reviews';
+import type {
+  ConnectionView,
+  ChatHistoryMessage,
+  UserRating,
+  ReviewDimensionName,
+} from '../../types/api';
 import styles from './ConnectionUnlocked.module.css';
+
+const DIMENSION_LABELS: { key: ReviewDimensionName; label: string }[] = [
+  { key: 'punctuality', label: 'Puntualità' },
+  { key: 'sociability', label: 'Socialità' },
+  { key: 'reliability', label: 'Affidabilità' },
+  { key: 'cleanliness', label: 'Pulizia/Comfort' },
+];
 
 interface ChatMessage {
   id: string;            // messageId when confirmed, else a temp id
@@ -87,6 +100,28 @@ function StarRating({ value, count }: { value: number | null; count: number }) {
   );
 }
 
+/** Compact per-dimension breakdown; hides dimensions never voted (count 0 / null). */
+function DimensionBreakdown({ rating }: { rating: UserRating | null }) {
+  if (!rating?.dimensions) return null;
+  const rows = DIMENSION_LABELS
+    .map(({ key, label }) => ({ label, dim: rating.dimensions![key] }))
+    .filter((r) => r.dim && r.dim.count > 0 && r.dim.average != null);
+  if (rows.length === 0) return null;
+  return (
+    <div className={styles.dimBreakdown}>
+      {rows.map(({ label, dim }) => (
+        <div key={label} className={styles.dimRow}>
+          <span className={styles.dimLabel}>{label}</span>
+          <span className={styles.dimValue}>
+            ★ {dim!.average!.toFixed(1)}
+            <span className={styles.dimCount}>({dim!.count})</span>
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function historyToMessage(m: ChatHistoryMessage, myId: string | undefined): ChatMessage {
   return {
     id: m.messageId,
@@ -109,6 +144,7 @@ export function ConnectionUnlocked() {
   const ws = useWebSocket();
 
   const [view, setView] = useState<ConnectionView | null>(null);
+  const [partnerRating, setPartnerRating] = useState<UserRating | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -165,10 +201,19 @@ export function ConnectionUnlocked() {
         }
         const airport = pool.find((a) => a.code === match.airportCode) ?? null;
 
-        const partner = await fetchPartnerProfile(partnerIdOf(match, currentUser!.userId));
+        const partnerId = partnerIdOf(match, currentUser!.userId);
+        const partner = await fetchPartnerProfile(partnerId);
         const composed = composeConnectionView(match, currentUser!.userId, partner, airport);
         if (cancelled) return;
         setView(composed);
+
+        // Per-dimension breakdown (best-effort; overall star still shows without it).
+        try {
+          const rating = await getUserRating(partnerId);
+          if (!cancelled) setPartnerRating(rating);
+        } catch {
+          // ignore — breakdown is optional
+        }
 
         // Chat history (oldest-first), mapped to view-model.
         try {
@@ -396,6 +441,7 @@ export function ConnectionUnlocked() {
             {partner.city && <div className={styles.partnerCity}>{partner.city}</div>}
 
             <StarRating value={partner.rating?.average ?? null} count={partner.rating?.count ?? 0} />
+            <DimensionBreakdown rating={partnerRating} />
           </div>
         </div>
 

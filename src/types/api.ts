@@ -143,10 +143,27 @@ export interface PublicUser {
   verified: boolean;
 }
 
+/** The four optional review dimensions. */
+export type ReviewDimensionName =
+  | 'punctuality'
+  | 'sociability'
+  | 'reliability'
+  | 'cleanliness';
+
+/** Aggregate for a single rating dimension. */
+export interface RatingDimension {
+  average: number | null;  // null when count === 0
+  count: number;
+}
+
+/** Per-dimension breakdown; a dimension may be absent until first voted. */
+export type RatingDimensions = Partial<Record<ReviewDimensionName, RatingDimension>>;
+
 /** Aggregate rating from GET /users/:id/rating (or embedded in unlocked profile) */
 export interface Rating {
-  average: number | null;  // null when no reviews yet
+  average: number | null;  // null when no reviews yet — overall, unchanged
   count: number;
+  dimensions?: RatingDimensions;  // optional per-dimension breakdown
 }
 
 /** Full partner (unlocked view of GET /users/:id — shares an active match) */
@@ -246,8 +263,9 @@ export interface ChatHistoryResponse {
 
 /** POST /matches/:matchId/review request (P2 #11) */
 export interface CreateReviewRequest {
-  rating: number;        // 1-5
+  rating: number;        // 1-5 — overall, required
   comment?: string;      // max 500
+  dimensions?: Partial<Record<ReviewDimensionName, number>>;  // optional, each 1-5
 }
 
 /** POST /matches/:matchId/review response */
@@ -260,8 +278,9 @@ export interface CreateReviewResponse {
 /** GET /users/:userId/rating response */
 export interface UserRating {
   userId: string;
-  average: number | null;
+  average: number | null;  // overall, unchanged
   count: number;
+  dimensions?: RatingDimensions;  // optional per-dimension breakdown
 }
 
 /** POST /trips/:tripId/unlock */

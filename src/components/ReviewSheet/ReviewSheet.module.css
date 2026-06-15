@@ -52,6 +52,36 @@
 }
 .comment:focus { outline: none; border-color: var(--accent, #0ea5a4); }
 
+.dimensions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid var(--hairline, #e2e8f0);
+  padding-top: 8px;
+}
+
+.dimensionRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.dimensionLabel {
+  font-size: var(--fs-14, 14px);
+  color: var(--ink-muted, #64748b);
+}
+
+/* Smaller, right-aligned stars for the optional dimension rows. */
+.dimensionRow .stars {
+  margin: 0;
+  gap: 4px;
+  justify-content: flex-end;
+}
+.dimensionRow .star {
+  font-size: 24px;
+}
+
 .error {
   font-size: var(--fs-13, 13px);
   color: var(--danger, #b91c1c);
