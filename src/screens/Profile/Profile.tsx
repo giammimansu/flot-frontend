@@ -4,6 +4,7 @@
    ============================================================ */
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { TopNav } from '../../components/layout/TopNav';
 import { TabBar } from '../../components/layout/TabBar';
@@ -18,26 +19,24 @@ import { getMyTrips } from '../../services/trips';
 import { getUserRating } from '../../services/reviews';
 import { parseApiError } from '../../services/api';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
+import { changeAppLanguage, normalizeLang, type AppLang } from '../../i18n/config';
 import type { User } from '../../types/api';
 import styles from './Profile.module.css';
 
 const LANG_OPTIONS = [
   { value: 'it', label: 'Italiano' },
   { value: 'en', label: 'English' },
-  { value: 'fr', label: 'Français' },
-  { value: 'de', label: 'Deutsch' },
-  { value: 'es', label: 'Español' },
 ];
-const GENDER_OPTIONS = [
-  { value: 'male', label: 'Uomo' },
-  { value: 'female', label: 'Donna' },
-  { value: 'other', label: 'Altro' },
-  { value: 'prefer_not_to_say', label: 'Preferisco non dirlo' },
-];
+const GENDER_OPTION_VALUES = ['male', 'female', 'other', 'prefer_not_to_say'] as const;
+const GENDER_LABEL_KEY: Record<string, 'profile:genderMale' | 'profile:genderFemale' | 'profile:genderOther' | 'profile:genderPreferNot'> = {
+  male: 'profile:genderMale',
+  female: 'profile:genderFemale',
+  other: 'profile:genderOther',
+  prefer_not_to_say: 'profile:genderPreferNot',
+};
 const AGE_OPTIONS = ['18-25', '26-35', '36-45', '46-55', '56+'].map((v) => ({ value: v, label: v }));
 
-const labelOf = (opts: { value: string; label: string }[], v?: string) =>
-  opts.find((o) => o.value === v)?.label ?? '—';
+const langLabelOf = (v?: string) => LANG_OPTIONS.find((o) => o.value === v)?.label ?? '—';
 
 /* ── Sub-components ── */
 
@@ -110,6 +109,7 @@ function Toggle({ checked, onChange, label }: ToggleProps) {
 /* ── Main screen ── */
 
 export function Profile() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const authUser = useAuthStore((s) => s.user);
   const authReset = useAuthStore((s) => s.reset);
@@ -127,6 +127,7 @@ export function Profile() {
 
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState({ lang: '', gender: '', ageGroup: '' });
+  const langAtOpenRef = useRef<string>('');
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const { permission, requestPermission, isSupported } = usePushNotifications();
@@ -157,11 +158,11 @@ export function Profile() {
 
     const allowed = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
     if (!allowed.includes(file.type)) {
-      setPhotoError('Formato non supportato. Usa JPG, PNG o WebP.');
+      setPhotoError(t('profile:photoBadFormat'));
       return;
     }
     if (file.size > 10 * 1024 * 1024) {
-      setPhotoError('Immagine troppo grande. Massimo 10 MB.');
+      setPhotoError(t('profile:photoTooLarge'));
       return;
     }
 
@@ -183,7 +184,7 @@ export function Profile() {
         setPhotoLoadError(false); // processed photo is live — retry <img> render
       }).catch(() => { /* Lambda timeout — optimistic URL stays */ });
     } catch {
-      setPhotoError('Upload fallito. Riprova.');
+      setPhotoError(t('profile:photoUploadFailed'));
     } finally {
       setPhotoUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -191,6 +192,7 @@ export function Profile() {
   }
 
   function openEdit() {
+    langAtOpenRef.current = user?.lang ?? '';
     setForm({
       lang: user?.lang ?? '',
       gender: user?.gender ?? '',
@@ -198,6 +200,26 @@ export function Profile() {
     });
     setSaveError(null);
     setEditing(true);
+  }
+
+  /** Restore the UI language to whatever it was when the edit sheet opened. */
+  function revertLanguage() {
+    if (langAtOpenRef.current) {
+      void changeAppLanguage(normalizeLang(langAtOpenRef.current));
+    }
+  }
+
+  /** Live preview: switch the UI immediately as the user picks a language. */
+  function handleLangChange(value: string) {
+    setForm((f) => ({ ...f, lang: value }));
+    if (value === 'it' || value === 'en') {
+      void changeAppLanguage(value as AppLang);
+    }
+  }
+
+  function handleCancelEdit() {
+    revertLanguage();
+    setEditing(false);
   }
 
   async function handleSaveProfile() {
@@ -212,10 +234,13 @@ export function Profile() {
       });
       setUser(updated);
       updateUser(updated);
+      langAtOpenRef.current = updated.lang ?? form.lang;
       setEditing(false);
     } catch (err) {
+      // Optimistic UI switched the language live — revert it on failure.
+      revertLanguage();
       const { message } = await parseApiError(err);
-      setSaveError(message || 'Salvataggio fallito. Riprova.');
+      setSaveError(message || t('errors:saveFailed'));
     } finally {
       setSaving(false);
     }
@@ -256,7 +281,7 @@ export function Profile() {
             )}
             <button
               className={`${styles.editBadge} ${photoUploading ? styles.editBadgeLoading : ''}`}
-              aria-label="Modifica foto profilo"
+              aria-label={t('profile:editPhotoAria')}
               type="button"
               disabled={photoUploading}
               onClick={() => fileInputRef.current?.click()}
@@ -277,34 +302,34 @@ export function Profile() {
           <div className={styles.profileEmail}>{user?.email ?? ''}</div>
 
           {user?.verified && (
-            <span className={styles.verifiedBadge}>✓ Verified</span>
+            <span className={styles.verifiedBadge}>✓ {t('profile:verified')}</span>
           )}
 
           <div className={styles.statsStrip}>
             <div className={styles.statItem}>
               <div className={styles.statValue}>{tripCount ?? '—'}</div>
-              <div className={styles.statLabel}>Trips</div>
+              <div className={styles.statLabel}>{t('profile:statTrips')}</div>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.statItem}>
               <div className={styles.statValue}>{totalSaved != null ? `€${totalSaved}` : '—'}</div>
-              <div className={styles.statLabel}>Saved</div>
+              <div className={styles.statLabel}>{t('profile:statSaved')}</div>
             </div>
             <div className={styles.statDivider} />
             <div className={styles.statItem}>
               <div className={styles.statValue}>{ratingAvg != null ? ratingAvg.toFixed(1) : '—'}</div>
-              <div className={styles.statLabel}>Rating</div>
+              <div className={styles.statLabel}>{t('profile:statRating')}</div>
             </div>
           </div>
         </div>
 
         {/* Account */}
-        <div className={styles.sectionLabel}>Account</div>
+        <div className={styles.sectionLabel}>{t('profile:sectionAccount')}</div>
         <div className={styles.section}>
-          <Row icon="🌐" label="Lingua" sub={labelOf(LANG_OPTIONS, user?.lang)} />
-          <Row icon="👤" label="Genere" sub={labelOf(GENDER_OPTIONS, user?.gender)} />
-          <Row icon="🎂" label="Fascia d'età" sub={user?.ageGroup ?? '—'} />
-          <Row icon="✎" label="Modifica profilo" onClick={openEdit} />
+          <Row icon="🌐" label={t('profile:rowLanguage')} sub={langLabelOf(user?.lang)} />
+          <Row icon="👤" label={t('profile:rowGender')} sub={user?.gender ? t(GENDER_LABEL_KEY[user.gender]) : '—'} />
+          <Row icon="🎂" label={t('profile:rowAgeGroup')} sub={user?.ageGroup ?? '—'} />
+          <Row icon="✎" label={t('profile:rowEditProfile')} onClick={openEdit} />
         </div>
 
         {/* Install prompt */}
@@ -313,22 +338,22 @@ export function Profile() {
         {/* Notifications */}
         {isSupported && (
           <>
-            <div className={styles.sectionLabel}>Notifiche</div>
+            <div className={styles.sectionLabel}>{t('profile:sectionNotifications')}</div>
             <div className={styles.section}>
               <Row
                 icon="🔔"
-                label="Notifiche push"
+                label={t('profile:rowPush')}
                 sub={
-                  permission === 'granted' ? 'Attive' :
-                  permission === 'denied' ? 'Bloccate — cambia nelle impostazioni del browser' :
-                  'Tocca per attivare'
+                  permission === 'granted' ? t('profile:pushOn') :
+                  permission === 'denied' ? t('profile:pushBlocked') :
+                  t('profile:pushTap')
                 }
                 right={
                   permission === 'denied' ? null :
                   <Toggle
                     checked={permission === 'granted'}
                     onChange={(v) => { if (v) requestPermission(); }}
-                    label="Notifiche push"
+                    label={t('profile:rowPush')}
                   />
                 }
                 onClick={permission === 'default' ? () => requestPermission() : undefined}
@@ -339,24 +364,24 @@ export function Profile() {
 
         {/* Logout */}
         <div className={styles.section}>
-          <Row icon="🚪" label="Esci" onClick={handleLogout} danger />
+          <Row icon="🚪" label={t('profile:logout')} onClick={handleLogout} danger />
         </div>
 
-        <div className={styles.version}>FLOT v1.0.0-beta · Made in Milan</div>
+        <div className={styles.version}>{t('profile:version')}</div>
 
         <HomeIndicator />
       </div>
 
-      <BottomSheet open={editing} onClose={() => setEditing(false)} aria-label="Modifica profilo">
+      <BottomSheet open={editing} onClose={handleCancelEdit} aria-label={t('profile:editAria')}>
         <div className={styles.editSheet}>
-          <h2 className={styles.editTitle}>Modifica profilo</h2>
+          <h2 className={styles.editTitle}>{t('profile:editTitle')}</h2>
 
           <label className={styles.editField}>
-            <span className={styles.editLabel}>Lingua</span>
+            <span className={styles.editLabel}>{t('profile:rowLanguage')}</span>
             <select
               className={styles.editSelect}
               value={form.lang}
-              onChange={(e) => setForm((f) => ({ ...f, lang: e.target.value }))}
+              onChange={(e) => handleLangChange(e.target.value)}
             >
               <option value="">—</option>
               {LANG_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -364,19 +389,19 @@ export function Profile() {
           </label>
 
           <label className={styles.editField}>
-            <span className={styles.editLabel}>Genere</span>
+            <span className={styles.editLabel}>{t('profile:rowGender')}</span>
             <select
               className={styles.editSelect}
               value={form.gender}
               onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))}
             >
               <option value="">—</option>
-              {GENDER_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              {GENDER_OPTION_VALUES.map((v) => <option key={v} value={v}>{t(GENDER_LABEL_KEY[v])}</option>)}
             </select>
           </label>
 
           <label className={styles.editField}>
-            <span className={styles.editLabel}>Fascia d'età</span>
+            <span className={styles.editLabel}>{t('profile:rowAgeGroup')}</span>
             <select
               className={styles.editSelect}
               value={form.ageGroup}
@@ -390,10 +415,10 @@ export function Profile() {
           {saveError && <div className={styles.editError}>{saveError}</div>}
 
           <MBtn variant="dark" onClick={handleSaveProfile} loading={saving} disabled={saving}>
-            Salva
+            {t('common:save')}
           </MBtn>
-          <MBtn variant="secondary" onClick={() => setEditing(false)} disabled={saving}>
-            Annulla
+          <MBtn variant="secondary" onClick={handleCancelEdit} disabled={saving}>
+            {t('common:cancel')}
           </MBtn>
         </div>
       </BottomSheet>

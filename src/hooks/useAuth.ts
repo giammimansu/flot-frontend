@@ -15,6 +15,7 @@ import {
 } from '../services/auth';
 import type { SocialProvider } from '../services/auth';
 import { getMe } from '../services/users';
+import { syncLanguageFromUser } from '../i18n/config';
 import { Hub } from 'aws-amplify/utils';
 
 /** Call this ONCE at app boot (in AuthInit). Runs the Cognito session check. */
@@ -37,6 +38,7 @@ export function useAuthInit() {
               devUser.onboarding = false;
             }
             setAuthenticated(devUser, 'mock-token');
+            syncLanguageFromUser(devUser.lang);
             return;
           } catch {
             // ignore
@@ -106,6 +108,8 @@ export function useAuthInit() {
           const profile = await getMe();
           if (!cancelled) {
             setAuthenticated(profile, token ?? '');
+            // Backend is the source of truth for a logged-in user's language.
+            syncLanguageFromUser(profile.lang);
           }
         } catch (error) {
           console.error('[useAuthInit] Failed to fetch profile from backend:', error);

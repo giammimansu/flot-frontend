@@ -1,0 +1,67 @@
+{
+  "common": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "retry": "Riprova",
+    "continue": "Continua",
+    "back": "Indietro",
+    "next": "Avanti",
+    "close": "Chiudi",
+    "loading": "Caricamento…",
+    "dash": "—",
+    "madeInMilan": "Made in Milan"
+  },
+  "nav": {
+    "home": "Home",
+    "trips": "Viaggi",
+    "profile": "Profilo"
+  },
+  "errors": {
+    "generic": "Qualcosa è andato storto. Riprova.",
+    "saveFailed": "Salvataggio fallito. Riprova.",
+    "network": "Connessione assente. Controlla la rete."
+  },
+  "profile": {
+    "verified": "Verificato",
+    "statTrips": "Viaggi",
+    "statSaved": "Risparmiati",
+    "statRating": "Valutazione",
+    "sectionAccount": "Account",
+    "sectionNotifications": "Notifiche",
+    "rowLanguage": "Lingua",
+    "rowGender": "Genere",
+    "rowAgeGroup": "Fascia d'età",
+    "rowEditProfile": "Modifica profilo",
+    "rowPush": "Notifiche push",
+    "pushOn": "Attive",
+    "pushBlocked": "Bloccate — cambia nelle impostazioni del browser",
+    "pushTap": "Tocca per attivare",
+    "logout": "Esci",
+    "version": "FLOT v1.0.0-beta · Made in Milan",
+    "editPhotoAria": "Modifica foto profilo",
+    "photoBadFormat": "Formato non supportato. Usa JPG, PNG o WebP.",
+    "photoTooLarge": "Immagine troppo grande. Massimo 10 MB.",
+    "photoUploadFailed": "Upload fallito. Riprova.",
+    "editTitle": "Modifica profilo",
+    "editAria": "Modifica profilo",
+    "genderMale": "Uomo",
+    "genderFemale": "Donna",
+    "genderOther": "Altro",
+    "genderPreferNot": "Preferisco non dirlo"
+  },
+  "onboarding": {},
+  "entry": {},
+  "airport": {},
+  "checkin": {},
+  "search": {},
+  "trip": {},
+  "match": {
+    "savings": "Risparmia ~€{{amount}}"
+  },
+  "connection": {},
+  "myTrips": {
+    "tripCount_one": "{{count}} viaggio",
+    "tripCount_other": "{{count}} viaggi"
+  },
+  "notifications": {}
+}

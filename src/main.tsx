@@ -2,6 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
 import { configureAuth } from './services/auth';
+import './i18n/config';
 import './styles/global.css';
 
 // Initialize Amplify auth before rendering
