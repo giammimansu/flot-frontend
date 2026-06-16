@@ -1,6 +1,12 @@
 importScripts('https://www.gstatic.com/firebasejs/10.10.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.10.0/firebase-messaging-compat.js');
 
+// Take control immediately so a new SW version replaces the old one without
+// waiting for all tabs to close. Prevents stale SWs from rendering outdated
+// notification copy (e.g. the old "You have a new update." fallback).
+self.addEventListener('install', () => self.skipWaiting());
+self.addEventListener('activate', (event) => event.waitUntil(self.clients.claim()));
+
 // Config injected at registration time via query string params.
 // See src/services/pushNotifications.ts → navigator.serviceWorker.register(url + '?...')
 function getConfig() {
