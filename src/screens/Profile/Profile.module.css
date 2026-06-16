@@ -1,259 +1,428 @@
+/* ============================================================
+   FLOT — Profile Screen
+   /profile  (ProtectedRoute, TabBar shown)
+   ============================================================ */
+
 .root {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: var(--surface-0);
-  font-family: var(--font-display);
-}
-/* Forza Sora su tutto il contenuto della schermata Profilo. */
-.root * {
-  font-family: var(--font-display);
+  background: var(--neutral-50);
+  font-family: var(--font-body);
 }
 
 .scrollArea {
   flex: 1;
   overflow-y: auto;
-  padding: var(--space-4) var(--space-4) calc(60px + env(safe-area-inset-bottom));
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-3);
+  padding-bottom: calc(74px + env(safe-area-inset-bottom));
 }
 
-/* ── Profile card ── */
-.profileCard {
-  background: var(--surface-1);
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-xl);
-  padding: var(--space-5) var(--space-4);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--space-2);
-  box-shadow: var(--shadow-card);
+/* ── Teal identity header ── */
+.header {
+  background: var(--primary-500);
+  color: #fff;
+  padding: calc(28px + env(safe-area-inset-top)) var(--space-5) 70px;
 }
-
-.avatarWrap {
-  position: relative;
-}
-.avatar {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-.avatarInitials {
-  width: 64px;
-  height: 64px;
-  border-radius: var(--radius-pill);
-  background: var(--amber-soft);
-  border: 2px solid var(--hairline);
+.headerTop {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-6);
+}
+.headerTitle {
+  margin: 0;
   font-family: var(--font-display);
-  font-size: var(--fs-22);
+  font-size: 23px;
   font-weight: var(--fw-bold);
-  color: var(--amber-pressed);
+  letter-spacing: -0.015em;
 }
-.editBadge {
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 22px;
-  height: 22px;
+.gearBtn {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
-  background: var(--amber);
-  color: var(--ink);
-  border: 2px solid var(--surface-1);
-  font-size: 12px;
+  background: rgba(255, 255, 255, 0.16);
+  border: none;
+  color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: opacity var(--dur-press);
+  transition: background var(--dur-fast) var(--ease-out);
 }
-.editBadgeLoading {
-  opacity: 0.6;
-  cursor: default;
-}
-.fileInput {
-  display: none;
-}
-.photoError {
-  font-family: var(--font-body);
-  font-size: var(--fs-12);
-  color: var(--error);
-  text-align: center;
-}
+.gearBtn:hover { background: rgba(255, 255, 255, 0.28); }
 
-.profileName {
+.identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.avatarWrap {
+  position: relative;
+  flex-shrink: 0;
+}
+.avatar,
+.avatarInitials {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.55);
+}
+.avatar { object-fit: cover; }
+.avatarInitials {
+  background: var(--primary-100);
+  color: var(--primary-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: var(--fs-28);
+  font-weight: var(--fw-bold);
+}
+.cameraBtn {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--accent-500);
+  border: 2.5px solid var(--primary-500);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.cameraBtn:hover { transform: scale(1.08); }
+.cameraBtn:active { transform: scale(0.95); }
+.cameraBtnLoading { opacity: 0.6; cursor: default; }
+.fileInput { display: none; }
+
+.identityText {
+  flex: 1;
+  min-width: 0;
+}
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.name {
   font-family: var(--font-display);
   font-size: var(--fs-20);
   font-weight: var(--fw-bold);
-  color: var(--ink);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
-.profileEmail {
-  font-family: var(--font-body);
-  font-size: var(--fs-13);
-  color: var(--ink-muted);
+.proBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--accent-500);
+  color: #fff;
+  font-size: 11px;
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.04em;
+  flex-shrink: 0;
 }
-.verifiedBadge {
-  font-family: var(--font-body);
-  font-size: var(--fs-12);
-  font-weight: var(--fw-semibold);
-  color: var(--success);
-  background: var(--success-soft);
-  border-radius: var(--radius-pill);
-  padding: 3px 10px;
+.email {
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.78);
+  margin-top: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* ── Stats strip ── */
-.statsStrip {
+.editBtn {
+  width: 100%;
+  height: 46px;
+  margin-top: var(--space-5);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.5);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
   display: flex;
   align-items: center;
-  gap: 0;
-  margin-top: var(--space-2);
-  width: 100%;
-  background: var(--surface-2);
-  border-radius: var(--radius-lg);
-  padding: var(--space-3);
+  justify-content: center;
+  gap: var(--space-2);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.editBtn:hover { background: rgba(255, 255, 255, 0.12); }
+.editBtn:active { background: rgba(255, 255, 255, 0.2); }
+
+/* ── Stats card (overlaps header) ── */
+.statsCard {
+  position: relative;
+  z-index: 5;
+  margin: -46px var(--space-4) 0;
+  background: #fff;
+  border: 1px solid var(--neutral-100);
+  border-radius: 18px;
+  box-shadow: 0 10px 30px rgba(10, 22, 36, 0.12);
+  display: flex;
+  padding: var(--space-4) var(--space-1);
 }
 .statItem {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
+  text-align: center;
+  padding: var(--space-1) 0;
 }
 .statValue {
-  font-family: var(--font-display);
-  font-size: var(--fs-16);
+  font-family: var(--font-mono);
+  font-size: 23px;
   font-weight: var(--fw-bold);
-  color: var(--ink);
+  color: var(--neutral-900);
+}
+.statValueBrand { color: var(--primary-600); }
+.statValueRating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
 }
 .statLabel {
-  font-family: var(--font-body);
-  font-size: var(--fs-11);
-  color: var(--ink-subtle);
+  font-size: 11.5px;
+  color: var(--neutral-500);
+  margin-top: 3px;
 }
 .statDivider {
   width: 1px;
-  height: 32px;
-  background: var(--hairline);
-  margin: 0 var(--space-2);
-}
-
-/* ── Section label ── */
-.sectionLabel {
-  font-family: var(--font-body);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-semibold);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--ink-subtle);
-  padding: 0 2px;
-  margin-top: var(--space-1);
+  background: var(--neutral-100);
+  margin: var(--space-1) 0;
 }
 
 /* ── Sections ── */
-.section {
-  background: var(--surface-1);
-  border: 1px solid var(--hairline);
+.sections {
+  padding: var(--space-6) var(--space-4) var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+.sectionLabel {
+  font-size: 12px;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--neutral-500);
+  margin: 0 var(--space-1) 9px;
+}
+.card {
+  background: #fff;
   border-radius: var(--radius-lg);
+  border: 1px solid var(--neutral-100);
+  box-shadow: 0 2px 8px rgba(10, 22, 36, 0.05);
   overflow: hidden;
 }
-.section .row + .row {
-  border-top: 1px solid var(--hairline);
-}
 
-/* ── Row ── */
+/* ── PRO banner ── */
+.proBanner {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  background: var(--accent-50);
+  border: 1px solid var(--accent-100);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  cursor: pointer;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.proBanner:active { transform: scale(0.99); }
+.proBannerIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: var(--accent-500);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.proBannerText { flex: 1; min-width: 0; }
+.proBannerTitle {
+  font-size: var(--fs-16);
+  font-weight: var(--fw-bold);
+  color: var(--accent-800);
+}
+.proBannerSub {
+  font-size: 12.5px;
+  color: var(--accent-700);
+  margin-top: 1px;
+}
+.proBannerChevron { color: var(--accent-400); flex-shrink: 0; }
+
+/* ── List row ── */
 .row {
   display: flex;
   align-items: center;
+  gap: 14px;
   width: 100%;
   padding: 14px var(--space-4);
   background: transparent;
   border: none;
-  cursor: default;
   text-align: left;
-  gap: var(--space-3);
-  min-height: 52px;
+  cursor: default;
+  font-family: var(--font-body);
 }
-.row[onClick], .row:has(+ .row), .rowDanger {
-  cursor: pointer;
-}
-.row:active {
-  background: var(--surface-2);
-}
-.rowIcon {
-  font-size: 18px;
-  width: 24px;
-  text-align: center;
+.card > .row + .row { border-top: 1px solid var(--neutral-100); }
+button.row { cursor: pointer; }
+button.row:active { background: var(--neutral-50); }
+.rowChip {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: var(--neutral-100);
+  color: var(--neutral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+}
+.rowChipBrand {
+  background: var(--primary-50);
+  color: var(--primary-600);
 }
 .rowBody {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
 }
 .rowLabel {
-  font-family: var(--font-body);
-  font-size: var(--fs-15);
-  color: var(--ink);
-}
-.rowDanger .rowLabel {
-  color: var(--error);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+  color: var(--neutral-800);
 }
 .rowSub {
-  font-family: var(--font-body);
-  font-size: var(--fs-12);
-  color: var(--ink-muted);
+  font-size: 12.5px;
+  color: var(--neutral-500);
+  margin-top: 1px;
 }
-.chevron {
-  font-size: 20px;
-  color: var(--ink-subtle);
+.rowRight {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   flex-shrink: 0;
 }
+.rowValue {
+  font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  color: var(--neutral-500);
+}
+.chevron { color: var(--neutral-300); }
 
 /* ── Toggle ── */
 .toggle {
-  width: 46px;
-  height: 28px;
-  border-radius: var(--radius-pill);
-  border: none;
-  cursor: pointer;
   position: relative;
+  width: 46px;
+  height: 26px;
+  border-radius: 13px;
+  border: none;
+  background: var(--neutral-300);
+  cursor: pointer;
   flex-shrink: 0;
-  transition: background var(--dur-press);
-  display: flex;
-  align-items: center;
-  padding: 0 3px;
+  transition: background var(--dur-fast) var(--ease-out);
 }
-.toggleOn { background: var(--success); }
-.toggleOff { background: var(--hairline-strong); }
+.toggleOn { background: var(--primary-500); }
+.toggle:disabled { opacity: 0.5; cursor: default; }
 .toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--surface-1);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
-  transition: transform var(--dur-press);
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+  transition: left var(--dur-fast) var(--ease-out);
 }
-.toggleOn .toggleThumb { transform: translateX(18px); }
-.toggleOff .toggleThumb { transform: translateX(0); }
+.toggleOn .toggleThumb { left: 22px; }
+
+/* ── Add to Home Screen ── */
+.addHome {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  background: var(--primary-50);
+  border: 1px solid var(--primary-100);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+}
+.addHomeIcon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--radius-md);
+  background: #fff;
+  border: 1px solid var(--primary-100);
+  color: var(--primary-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.addHomeText { flex: 1; min-width: 0; }
+.addHomeTitle {
+  font-size: var(--fs-16);
+  font-weight: var(--fw-bold);
+  color: var(--primary-800);
+}
+.addHomeBody {
+  font-size: 13px;
+  color: var(--primary-700);
+  line-height: 1.5;
+  margin-top: 3px;
+}
+.addHomeInlineIcon {
+  vertical-align: -2px;
+  color: var(--primary-700);
+}
+.addHomeStrong { font-weight: var(--fw-semibold); }
+
+/* ── Logout ── */
+.logoutRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  padding: 15px var(--space-4);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--error-700);
+  font-family: var(--font-body);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.logoutRow :global(svg) { color: var(--error-500); }
+.logoutRow:active { background: var(--error-50); }
 
 /* ── Version ── */
 .version {
   text-align: center;
-  font-family: var(--font-body);
-  font-size: var(--fs-12);
-  color: var(--ink-subtle);
-  padding: var(--space-2) 0;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--neutral-400);
+  margin-top: -4px;
 }
 
-.installPrompt { margin: var(--space-4) var(--space-5) 0; }
+.photoError {
+  font-family: var(--font-body);
+  font-size: var(--fs-12);
+  color: var(--error);
+  text-align: center;
+  padding: 0 var(--space-4) var(--space-3);
+}
 
 /* ── Edit profile sheet ── */
 .editSheet {
@@ -282,7 +451,7 @@
 }
 .editSelect {
   font-family: var(--font-body);
-  font-size: var(--fs-15);
+  font-size: var(--fs-16);
   color: var(--ink);
   background: var(--surface-1);
   border: 1px solid var(--hairline);
@@ -290,7 +459,7 @@
   padding: 12px 14px;
   appearance: none;
 }
-.editSelect:focus { outline: none; border-color: var(--amber); }
+.editSelect:focus { outline: none; border-color: var(--primary-400); }
 .editError {
   font-family: var(--font-body);
   font-size: var(--fs-12);

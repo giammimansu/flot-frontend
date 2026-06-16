@@ -6,12 +6,11 @@
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { TopNav } from '../../components/layout/TopNav';
 import { TabBar } from '../../components/layout/TabBar';
 import { HomeIndicator } from '../../components/layout/HomeIndicator';
-import { InstallPrompt } from '../../components/ui/InstallPrompt';
 import { BottomSheet } from '../../components/ui/BottomSheet';
-import { MBtn } from '../../components/ui';
+import { MBtn, MIcon } from '../../components/ui';
+import type { IconName } from '../../components/ui';
 import { useAuthStore } from '../../stores/authStore';
 import { useAirportStore } from '../../stores/airportStore';
 import { getMe, requestPhotoUploadUrl, uploadPhotoToS3, waitForPhotoUpdate, updateProfile } from '../../services/users';
@@ -40,63 +39,57 @@ const langLabelOf = (v?: string) => LANG_OPTIONS.find((o) => o.value === v)?.lab
 
 /* ── Sub-components ── */
 
-interface RowProps {
-  icon: string;
+interface ListRowProps {
+  icon: IconName;
+  /** Icon chip tint: neutral (default) or brand (teal). */
+  tint?: 'neutral' | 'brand';
   label: string;
   sub?: string;
+  value?: string;
   right?: React.ReactNode;
   onClick?: () => void;
-  danger?: boolean;
 }
-function Row({ icon, label, sub, right, onClick, danger }: RowProps) {
-  const hasInteractiveRight = right != null;
-  const className = `${styles.row} ${danger ? styles.rowDanger : ''}`;
-  const inner = (
-    <>
-      <span className={styles.rowIcon}>{icon}</span>
+function ListRow({ icon, tint = 'neutral', label, sub, value, right, onClick }: ListRowProps) {
+  const interactive = !!onClick;
+  const Tag = interactive ? 'button' : 'div';
+  return (
+    <Tag
+      className={styles.row}
+      onClick={onClick}
+      type={interactive ? 'button' : undefined}
+    >
+      <span className={`${styles.rowChip} ${tint === 'brand' ? styles.rowChipBrand : ''}`}>
+        <MIcon name={icon} size={18} sw={2} />
+      </span>
       <span className={styles.rowBody}>
         <span className={styles.rowLabel}>{label}</span>
         {sub && <span className={styles.rowSub}>{sub}</span>}
       </span>
-      {right !== undefined ? right : onClick ? <span className={styles.chevron}>›</span> : null}
-    </>
-  );
-  if (hasInteractiveRight) {
-    const handleKeyDown = onClick
-      ? (e: React.KeyboardEvent<HTMLDivElement>) => {
-          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); }
-        }
-      : undefined;
-    return (
-      <div
-        className={className}
-        role={onClick ? 'button' : undefined}
-        tabIndex={onClick ? 0 : undefined}
-        onClick={onClick}
-        onKeyDown={handleKeyDown}
-      >
-        {inner}
-      </div>
-    );
-  }
-  return (
-    <button className={className} onClick={onClick} type="button">
-      {inner}
-    </button>
+      {right !== undefined ? (
+        right
+      ) : (
+        <span className={styles.rowRight}>
+          {value && <span className={styles.rowValue}>{value}</span>}
+          {interactive && <MIcon name="chevron-right" size={18} className={styles.chevron} />}
+        </span>
+      )}
+    </Tag>
   );
 }
 
 interface ToggleProps {
   checked: boolean;
+  disabled?: boolean;
   onChange: (v: boolean) => void;
   label: string;
 }
-function Toggle({ checked, onChange, label }: ToggleProps) {
+function Toggle({ checked, disabled, onChange, label }: ToggleProps) {
   return (
     <button
       role="switch"
       aria-checked={checked}
       aria-label={label}
+      disabled={disabled}
       className={`${styles.toggle} ${checked ? styles.toggleOn : styles.toggleOff}`}
       onClick={(e) => { e.stopPropagation(); onChange(!checked); }}
       type="button"
@@ -251,6 +244,8 @@ export function Profile() {
     navigate('/');
   }
 
+  const notifBlocked = permission === 'denied';
+
   const initials = user
     ? (
         user.firstName && user.lastName
@@ -260,114 +255,189 @@ export function Profile() {
     : '?';
 
   const fullName = user?.name ?? '';
+  const isPro = !!user?.isPro;
 
   return (
     <div className={styles.root}>
-      <TopNav showLogo showBack={false} />
-
       <div className={styles.scrollArea}>
-        {/* Profile card */}
-        <div className={styles.profileCard}>
-          <div className={styles.avatarWrap}>
-            {user?.photoUrl && !photoLoadError ? (
-              <img
-                src={user.photoUrl}
-                alt={fullName}
-                className={styles.avatar}
-                onError={() => setPhotoLoadError(true)}
-              />
-            ) : (
-              <div className={styles.avatarInitials}>{initials}</div>
-            )}
+        {/* ── Teal identity header ── */}
+        <header className={styles.header}>
+          <div className={styles.headerTop}>
+            <h1 className={styles.headerTitle}>{t('profile:title')}</h1>
             <button
-              className={`${styles.editBadge} ${photoUploading ? styles.editBadgeLoading : ''}`}
-              aria-label={t('profile:editPhotoAria')}
+              className={styles.gearBtn}
               type="button"
-              disabled={photoUploading}
-              onClick={() => fileInputRef.current?.click()}
+              aria-label={t('profile:settingsAria')}
+              onClick={openEdit}
             >
-              {photoUploading ? '…' : '✎'}
+              <MIcon name="settings" size={20} />
             </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/jpeg,image/png,image/webp,image/heic"
-              className={styles.fileInput}
-              onChange={handlePhotoChange}
-            />
           </div>
-          {photoError && <div className={styles.photoError}>{photoError}</div>}
 
-          <div className={styles.profileName}>{fullName || '—'}</div>
-          <div className={styles.profileEmail}>{user?.email ?? ''}</div>
+          <div className={styles.identity}>
+            <div className={styles.avatarWrap}>
+              {user?.photoUrl && !photoLoadError ? (
+                <img
+                  src={user.photoUrl}
+                  alt={fullName}
+                  className={styles.avatar}
+                  onError={() => setPhotoLoadError(true)}
+                />
+              ) : (
+                <div className={styles.avatarInitials}>{initials}</div>
+              )}
+              <button
+                className={`${styles.cameraBtn} ${photoUploading ? styles.cameraBtnLoading : ''}`}
+                aria-label={t('profile:editPhotoAria')}
+                type="button"
+                disabled={photoUploading}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <MIcon name="camera" size={14} sw={2} />
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic"
+                className={styles.fileInput}
+                onChange={handlePhotoChange}
+              />
+            </div>
 
-          {user?.verified && (
-            <span className={styles.verifiedBadge}>✓ {t('profile:verified')}</span>
+            <div className={styles.identityText}>
+              <div className={styles.nameRow}>
+                <span className={styles.name}>{fullName || '—'}</span>
+                {isPro && (
+                  <span className={styles.proBadge}>
+                    <MIcon name="star" size={11} fill="currentColor" sw={0} /> PRO
+                  </span>
+                )}
+              </div>
+              <div className={styles.email}>{user?.email ?? ''}</div>
+            </div>
+          </div>
+
+          <button className={styles.editBtn} type="button" onClick={openEdit}>
+            <MIcon name="pencil" size={16} sw={2} />
+            {t('profile:rowEditProfile')}
+          </button>
+        </header>
+
+        {/* ── Stats card (overlaps header) ── */}
+        <div className={styles.statsCard}>
+          <div className={styles.statItem}>
+            <div className={styles.statValue}>{tripCount ?? '—'}</div>
+            <div className={styles.statLabel}>{t('profile:statTrips')}</div>
+          </div>
+          <div className={styles.statDivider} />
+          <div className={styles.statItem}>
+            <div className={`${styles.statValue} ${styles.statValueBrand}`}>{totalSaved != null ? `€${totalSaved}` : '—'}</div>
+            <div className={styles.statLabel}>{t('profile:statSaved')}</div>
+          </div>
+          <div className={styles.statDivider} />
+          <div className={styles.statItem}>
+            <div className={styles.statValueRating}>
+              <span className={styles.statValue}>{ratingAvg != null ? ratingAvg.toFixed(1) : '—'}</span>
+              <MIcon name="star" size={15} fill="var(--accent-500)" color="var(--accent-500)" sw={0} />
+            </div>
+            <div className={styles.statLabel}>{t('profile:statRating')}</div>
+          </div>
+        </div>
+
+        {/* ── Sections ── */}
+        <div className={styles.sections}>
+          {/* PRO banner */}
+          {isPro && (
+            <div className={styles.proBanner}>
+              <span className={styles.proBannerIcon}>
+                <MIcon name="star" size={20} fill="#fff" color="#fff" sw={0} />
+              </span>
+              <div className={styles.proBannerText}>
+                <div className={styles.proBannerTitle}>{t('profile:proActive')}</div>
+                <div className={styles.proBannerSub}>{t('profile:proSub')}</div>
+              </div>
+              <MIcon name="chevron-right" size={18} className={styles.proBannerChevron} />
+            </div>
           )}
 
-          <div className={styles.statsStrip}>
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{tripCount ?? '—'}</div>
-              <div className={styles.statLabel}>{t('profile:statTrips')}</div>
+          {/* Account */}
+          <section>
+            <div className={styles.sectionLabel}>{t('profile:sectionAccount')}</div>
+            <div className={styles.card}>
+              <ListRow icon="languages" label={t('profile:rowLanguage')} value={langLabelOf(user?.lang)} onClick={openEdit} />
+              <ListRow icon="user" label={t('profile:rowGender')} value={user?.gender ? t(GENDER_LABEL_KEY[user.gender]) : '—'} onClick={openEdit} />
+              <ListRow icon="calendar" label={t('profile:rowAgeGroup')} value={user?.ageGroup ?? '—'} onClick={openEdit} />
             </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{totalSaved != null ? `€${totalSaved}` : '—'}</div>
-              <div className={styles.statLabel}>{t('profile:statSaved')}</div>
-            </div>
-            <div className={styles.statDivider} />
-            <div className={styles.statItem}>
-              <div className={styles.statValue}>{ratingAvg != null ? ratingAvg.toFixed(1) : '—'}</div>
-              <div className={styles.statLabel}>{t('profile:statRating')}</div>
+          </section>
+
+          {/* Notifications */}
+          {isSupported && (
+            <section>
+              <div className={styles.sectionLabel}>{t('profile:sectionNotifications')}</div>
+              <div className={styles.card}>
+                <ListRow
+                  icon="bell"
+                  tint="brand"
+                  label={t('profile:notifGeneral')}
+                  sub={
+                    notifBlocked ? t('profile:pushBlocked') :
+                    permission === 'granted' ? t('profile:notifGeneralSub') :
+                    t('profile:pushTap')
+                  }
+                  right={
+                    <Toggle
+                      checked={permission === 'granted'}
+                      disabled={notifBlocked}
+                      onChange={(v) => { if (v && permission === 'default') requestPermission(); }}
+                      label={t('profile:notifGeneral')}
+                    />
+                  }
+                  onClick={permission === 'default' ? () => requestPermission() : undefined}
+                />
+              </div>
+            </section>
+          )}
+
+          {/* Add to Home Screen */}
+          <div className={styles.addHome}>
+            <span className={styles.addHomeIcon}>
+              <MIcon name="smartphone" size={20} sw={2} />
+            </span>
+            <div className={styles.addHomeText}>
+              <div className={styles.addHomeTitle}>{t('profile:addHomeTitle')}</div>
+              <div className={styles.addHomeBody}>
+                {t('profile:addHomeBefore')}{' '}
+                <MIcon name="share" size={14} className={styles.addHomeInlineIcon} />{' '}
+                {t('profile:addHomeAfter')}{' '}
+                <span className={styles.addHomeStrong}>{t('profile:addHomeAction')}</span>{' '}
+                {t('profile:addHomeEnd')}
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* Account */}
-        <div className={styles.sectionLabel}>{t('profile:sectionAccount')}</div>
-        <div className={styles.section}>
-          <Row icon="🌐" label={t('profile:rowLanguage')} sub={langLabelOf(user?.lang)} />
-          <Row icon="👤" label={t('profile:rowGender')} sub={user?.gender ? t(GENDER_LABEL_KEY[user.gender]) : '—'} />
-          <Row icon="🎂" label={t('profile:rowAgeGroup')} sub={user?.ageGroup ?? '—'} />
-          <Row icon="✎" label={t('profile:rowEditProfile')} onClick={openEdit} />
-        </div>
-
-        {/* Install prompt */}
-        <InstallPrompt className={styles.installPrompt} />
-
-        {/* Notifications */}
-        {isSupported && (
-          <>
-            <div className={styles.sectionLabel}>{t('profile:sectionNotifications')}</div>
-            <div className={styles.section}>
-              <Row
-                icon="🔔"
-                label={t('profile:rowPush')}
-                sub={
-                  permission === 'granted' ? t('profile:pushOn') :
-                  permission === 'denied' ? t('profile:pushBlocked') :
-                  t('profile:pushTap')
-                }
-                right={
-                  permission === 'denied' ? null :
-                  <Toggle
-                    checked={permission === 'granted'}
-                    onChange={(v) => { if (v) requestPermission(); }}
-                    label={t('profile:rowPush')}
-                  />
-                }
-                onClick={permission === 'default' ? () => requestPermission() : undefined}
-              />
+          {/* General */}
+          <section>
+            <div className={styles.sectionLabel}>{t('profile:sectionGeneral')}</div>
+            <div className={styles.card}>
+              <ListRow icon="credit-card" label={t('profile:rowPayment')} onClick={() => {}} />
+              <ListRow icon="shield-check" label={t('profile:rowPrivacy')} onClick={() => {}} />
+              <ListRow icon="help-circle" label={t('profile:rowSupport')} onClick={() => {}} />
+              <ListRow icon="file-text" label={t('profile:rowTerms')} onClick={() => {}} />
             </div>
-          </>
-        )}
+          </section>
 
-        {/* Logout */}
-        <div className={styles.section}>
-          <Row icon="🚪" label={t('profile:logout')} onClick={handleLogout} danger />
+          {/* Logout */}
+          <div className={styles.card}>
+            <button className={styles.logoutRow} type="button" onClick={handleLogout}>
+              <MIcon name="log-out" size={18} sw={2} />
+              <span>{t('profile:logoutAccount')}</span>
+            </button>
+          </div>
+
+          <div className={styles.version}>{t('profile:version')}</div>
         </div>
 
-        <div className={styles.version}>{t('profile:version')}</div>
+        {photoError && <div className={styles.photoError}>{photoError}</div>}
 
         <HomeIndicator />
       </div>

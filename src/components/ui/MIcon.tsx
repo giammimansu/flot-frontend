@@ -37,13 +37,26 @@ export type IconName =
   | 'check-circle'
   | 'alert-circle'
   | 'wifi-off'
-  | 'radio';
+  | 'radio'
+  | 'camera'
+  | 'pencil'
+  | 'star'
+  | 'languages'
+  | 'plane-takeoff'
+  | 'route'
+  | 'smartphone'
+  | 'share'
+  | 'credit-card'
+  | 'shield-check'
+  | 'file-text';
 
 interface MIconProps {
   name: IconName;
   size?: number;
   sw?: number;
   color?: string;
+  /** Fill color for solid icons (e.g. a filled star). Defaults to "none". */
+  fill?: string;
   className?: string;
   'aria-label'?: string;
 }
@@ -264,6 +277,78 @@ const iconPaths: Record<IconName, JSX.Element> = {
       <path d="M16.24 7.76a6 6 0 0 1 0 8.49" />
     </g>
   ),
+  camera: (
+    <g>
+      <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3z" />
+      <circle cx="12" cy="13" r="3" />
+    </g>
+  ),
+  pencil: (
+    <g>
+      <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z" />
+      <path d="m15 5 4 4" />
+    </g>
+  ),
+  star: (
+    <path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />
+  ),
+  languages: (
+    <g>
+      <path d="m5 8 6 6" />
+      <path d="m4 14 6-6 2-3" />
+      <path d="M2 5h12" />
+      <path d="M7 2h1" />
+      <path d="m22 22-5-10-5 10" />
+      <path d="M14 18h6" />
+    </g>
+  ),
+  'plane-takeoff': (
+    <g>
+      <path d="M2 22h20" />
+      <path d="M6.36 17.4 4 17l-2-4 1.1-.55a2 2 0 0 1 1.8 0l.17.1a2 2 0 0 0 1.8 0L8 12 5 6l.9-.45a2 2 0 0 1 2.09.2l4.02 3a2 2 0 0 0 2.1.2l4.19-2.06a2.41 2.41 0 0 1 1.73-.17L21 7a1.4 1.4 0 0 1 .87 1.99l-.38.76c-.23.46-.6.84-1.07 1.08L7.58 17.2a2 2 0 0 1-1.22.18Z" />
+    </g>
+  ),
+  route: (
+    <g>
+      <circle cx="6" cy="19" r="3" />
+      <path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" />
+      <circle cx="18" cy="5" r="3" />
+    </g>
+  ),
+  smartphone: (
+    <g>
+      <rect width="14" height="20" x="5" y="2" rx="2" ry="2" />
+      <path d="M12 18h.01" />
+    </g>
+  ),
+  share: (
+    <g>
+      <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+      <polyline points="16 6 12 2 8 6" />
+      <line x1="12" x2="12" y1="2" y2="15" />
+    </g>
+  ),
+  'credit-card': (
+    <g>
+      <rect width="20" height="14" x="2" y="5" rx="2" />
+      <line x1="2" x2="22" y1="10" y2="10" />
+    </g>
+  ),
+  'shield-check': (
+    <g>
+      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+      <path d="m9 12 2 2 4-4" />
+    </g>
+  ),
+  'file-text': (
+    <g>
+      <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+      <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+      <path d="M10 9H8" />
+      <path d="M16 13H8" />
+      <path d="M16 17H8" />
+    </g>
+  ),
 };
 
 export function MIcon({
@@ -271,6 +356,7 @@ export function MIcon({
   size = 24,
   sw = 1.75,
   color,
+  fill = 'none',
   className,
   'aria-label': ariaLabel,
 }: MIconProps) {
@@ -279,7 +365,7 @@ export function MIcon({
       width={size}
       height={size}
       viewBox="0 0 24 24"
-      fill="none"
+      fill={fill}
       stroke={color ?? 'currentColor'}
       strokeWidth={sw}
       strokeLinecap="round"
