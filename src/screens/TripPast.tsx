@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { MIcon, MBtn } from '../components/ui';
 import { ReviewSheet } from '../components/ReviewSheet/ReviewSheet';
 import { PartnerProfileSheet } from '../components/PartnerProfileSheet/PartnerProfileSheet';
@@ -16,7 +16,6 @@ import styles from './TripPast.module.css';
 type PastTrip = MyTripsResponse['trips'][0];
 
 export function TripPast() {
-  const navigate = useNavigate();
   const { tripId } = useParams<{ tripId: string }>();
   const airport = useAirportStore((s) => s.selectedAirport);
   const airports = useAirportStore((s) => s.airports);
