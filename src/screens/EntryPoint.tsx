@@ -999,12 +999,7 @@ export function EntryPoint() {
       {/* ── HERO ── */}
       <section className={styles.heroSection}>
         <div className={styles.wrap}>
-          <div className={styles.heroBadge}>
-            <IconPlane size={15} />
-            Da Milano a Malpensa
-          </div>
-
-          <h1 className={styles.heroH1}>
+        <h1 className={styles.heroH1}>
             Vai a Malpensa.<br />
             <span className={styles.heroAccent}>A metà prezzo.</span>
           </h1>
