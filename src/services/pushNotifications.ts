@@ -75,6 +75,7 @@ export async function requestPushPermission(): Promise<string | null> {
 type ForegroundHandler = (payload: {
   title: string;
   body: string;
+  type?: string;
   matchId?: string;
   tripId?: string;
 }) => void;
@@ -95,6 +96,7 @@ export function setupForegroundNotifications(handler: ForegroundHandler): () => 
     handler({
       title,
       body,
+      type: data['type'],
       matchId: data['matchId'],
       tripId: data['tripId'],
     });

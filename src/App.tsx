@@ -106,12 +106,13 @@ function ForegroundNotifications() {
     if (!isAuthenticated) return;
 
     // Listen for FCM foreground messages
-    const unsubscribe = setupForegroundNotifications(({ title, body, matchId, tripId }) => {
+    const unsubscribe = setupForegroundNotifications(({ title, body, type, matchId, tripId }) => {
       showToast({
         title,
         body,
         onClick: () => {
-          if (matchId) navigate(`/match/${matchId}`);
+          if (type === 'review_requested' && matchId) navigate(`/my-trips?review=${matchId}`);
+          else if (matchId) navigate(`/match/${matchId}`);
           else if (tripId) navigate(`/trip/${tripId}`);
         },
       });

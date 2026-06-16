@@ -25,7 +25,7 @@ try {
     // duplicate notifications. Title/body live in payload.data.
     const data = payload.data ?? {};
     const title = data.title ?? payload.notification?.title ?? 'FLOT';
-    const body = data.body ?? payload.notification?.body ?? 'You have a new update.';
+    const body = data.body ?? payload.notification?.body ?? '';
 
     self.registration.showNotification(title, {
       body,
@@ -47,7 +47,10 @@ self.addEventListener('notificationclick', (event) => {
   const data = event.notification.data ?? {};
   let path = '/#/my-trips';
 
-  if (data.matchId) {
+  if (data.type === 'review_requested' && data.matchId) {
+    // Review reminder → open My Trips with the review sheet for this match.
+    path = `/#/my-trips?review=${data.matchId}`;
+  } else if (data.matchId) {
     path = `/#/match/${data.matchId}`;
   } else if (data.tripId) {
     path = `/#/trip/${data.tripId}`;

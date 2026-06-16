@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { MIcon, MSegment, MBtn } from '../components/ui';
 import { BottomSheet } from '../components/ui/BottomSheet';
 import { TripCard } from '../components/trips/TripCard';
@@ -19,6 +19,7 @@ import styles from './MyTrips.module.css';
 export function MyTrips() {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchParams, setSearchParams] = useSearchParams();
   const cancelledTripId = (location.state as { cancelledTripId?: string } | null)?.cancelledTripId;
   const { user } = useAuth();
   const airport = useAirportStore((s) => s.selectedAirport);
@@ -63,6 +64,17 @@ export function MyTrips() {
       .catch(() => { /* feed is best-effort */ })
       .finally(() => setNotifsLoading(false));
   }, []);
+
+  // Deep-link from a review-reminder push: /my-trips?review=<matchId>
+  useEffect(() => {
+    const reviewParam = searchParams.get('review');
+    if (!reviewParam) return;
+    setTab('past');
+    setReviewMatchId(reviewParam);
+    // Consume the param so refresh/back doesn't re-open the sheet.
+    searchParams.delete('review');
+    setSearchParams(searchParams, { replace: true });
+  }, [searchParams, setSearchParams]);
 
   const openNotifs = () => {
     setNotifsOpen(true);
