@@ -74,7 +74,16 @@
       "Bash(cd *)",
       "Bash(npx eslint *)",
       "Bash(git rev-list *)",
-      "Bash(grep -rni \"path=\\\\|to=\\\\\"/\\\\|navigate\\('\\\\|navigate\\(\\\\`\" src --include=\"*.tsx\")"
+      "Bash(grep -rni \"path=\\\\|to=\\\\\"/\\\\|navigate\\('\\\\|navigate\\(\\\\`\" src --include=\"*.tsx\")",
+      "Bash(python3 -)",
+      "Bash(echo \"FE_TSC_DONE=$?\")",
+      "Bash(python3 -m py_compile src/handlers/flights/day_flights.py)",
+      "Bash(python3 -c \"import yaml,sys; yaml.SafeLoader.add_multi_constructor\\('!', lambda l,s,n: None\\); yaml.safe_load\\(open\\('template.yaml'\\)\\); print\\('YAML_OK'\\)\")",
+      "Bash(command -v sam)",
+      "Bash(sam validate *)",
+      "Bash(curl -s \"https://su8ahr0iy9.execute-api.eu-south-1.amazonaws.com/dev/flights/day?direction=departures&date=2026-06-19&airport=MXP\")",
+      "Bash(python3 -c 'import sys,json *)",
+      "Bash(echo \"TSC_EXIT=$?\")"
     ]
   }
 }

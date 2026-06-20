@@ -51,7 +51,7 @@ function clearDraft() {
   try { localStorage.removeItem(DRAFT_KEY); } catch { /* ignore */ }
 }
 
-/* ── Icons ── */
+/* ── Icons (lucide-style strokes) ── */
 function IconGoogle() {
   return (
     <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
@@ -71,408 +71,81 @@ function IconApple() {
   );
 }
 
-function IconArrowRight({ size = 19 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
-    </svg>
-  );
+type IconProps = { size?: number };
+function s(size: number) {
+  return { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.75, strokeLinecap: 'round' as const, strokeLinejoin: 'round' as const, 'aria-hidden': true };
 }
 
-function IconPlane({ size = 15 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" />
-    </svg>
-  );
+function IconArrowRight({ size = 20 }: IconProps) {
+  return <svg {...s(size)}><path d="M5 12h14" /><path d="m12 5 7 7-7 7" /></svg>;
 }
-
-function IconShieldCheck({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
-      <path d="m9 12 2 2 4-4" />
-    </svg>
-  );
+function IconPlane({ size = 18 }: IconProps) {
+  return <svg {...s(size)}><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z" /></svg>;
 }
-
-function IconCircleCheck({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" />
-    </svg>
-  );
+function IconShieldCheck({ size = 18 }: IconProps) {
+  return <svg {...s(size)}><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg>;
 }
-
-function IconUsers({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
-  );
+function IconCircleCheck({ size = 18 }: IconProps) {
+  return <svg {...s(size)}><circle cx="12" cy="12" r="10" /><path d="m9 12 2 2 4-4" /></svg>;
 }
-
-function IconSearch({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
-    </svg>
-  );
+function IconUsers({ size = 18 }: IconProps) {
+  return <svg {...s(size)}><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg>;
 }
-
-function IconNavigation({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="m3 11 19-9-9 19-2-8-8-2z" />
-    </svg>
-  );
+function IconMapPin({ size = 18 }: IconProps) {
+  return <svg {...s(size)}><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="3" /></svg>;
 }
-
-function IconMapPin({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0z" /><circle cx="12" cy="10" r="3" />
-    </svg>
-  );
+function IconMessageCircle({ size = 22 }: IconProps) {
+  return <svg {...s(size)}><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>;
 }
-
-function IconMessageCircle({ size = 22 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />
-    </svg>
-  );
+function IconPlus({ size = 18 }: IconProps) {
+  return <svg {...s(size)} strokeWidth={2}><path d="M5 12h14" /><path d="M12 5v14" /></svg>;
 }
-
-function IconPlus({ size = 16 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M5 12h14" /><path d="M12 5v14" />
-    </svg>
-  );
+function IconMinus({ size = 18 }: IconProps) {
+  return <svg {...s(size)} strokeWidth={2}><path d="M5 12h14" /></svg>;
 }
-
-function IconBag({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" /><line x1="3" y1="6" x2="21" y2="6" /><path d="M16 10a4 4 0 0 1-8 0" />
-    </svg>
-  );
+function IconClock({ size = 22 }: IconProps) {
+  return <svg {...s(size)}><circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" /></svg>;
 }
-
-function IconClock({ size = 18 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
-    </svg>
-  );
+function IconRoute({ size = 21 }: IconProps) {
+  return <svg {...s(size)}><circle cx="6" cy="19" r="3" /><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" /><circle cx="18" cy="5" r="3" /></svg>;
 }
-
-/* ── Count-up hook ── */
-function useCountUp(target: number, duration = 1400) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    let raf: number;
-    const t = setTimeout(() => {
-      const start = performance.now();
-      const tick = (now: number) => {
-        const p = Math.min(1, (now - start) / duration);
-        const eased = 1 - Math.pow(1 - p, 3);
-        setVal(target * eased);
-        if (p < 1) raf = requestAnimationFrame(tick);
-      };
-      raf = requestAnimationFrame(tick);
-    }, 500);
-    return () => { clearTimeout(t); if (raf) cancelAnimationFrame(raf); };
-  }, [target, duration]);
-  return Math.round(val).toLocaleString('it-IT');
+function IconCalendar({ size = 18 }: IconProps) {
+  return <svg {...s(size)}><path d="M8 2v4" /><path d="M16 2v4" /><rect width="18" height="18" x="3" y="4" rx="2" /><path d="M3 10h18" /></svg>;
 }
-
-/* ── Live Feed ── */
-type FeedItemData =
-  | { type: 'match'; a: string; b: string }
-  | { type: 'save'; who: string; amt: number }
-  | { type: 'search'; flight: string };
-
-type FeedItem = FeedItemData & { key: number };
-
-// TODO: replace with real-time backend events (WebSocket)
-const FEED_POOL: FeedItemData[] = [
-  { type: 'match', a: 'Navigli', b: 'Malpensa T1' },
-  { type: 'save',  who: 'Giulia & Marco', amt: 60 },
-  { type: 'search', flight: 'AZ 1574' },
-  { type: 'match', a: 'Porta Nuova', b: 'Malpensa T2' },
-  { type: 'save',  who: 'Sofia & Luca', amt: 58 },
-  { type: 'match', a: 'Città Studi', b: 'Malpensa T1' },
-  { type: 'search', flight: 'FR 8821' },
-  { type: 'save',  who: 'Anna & Davide', amt: 60 },
-  { type: 'match', a: 'Lambrate', b: 'Malpensa T1' },
-];
-
-function FeedRow({ item, fresh }: { item: FeedItem; fresh: boolean }) {
-  let icon: React.ReactNode;
-  let colorClass: string;
-  let primary: React.ReactNode;
-  let meta: React.ReactNode;
-
-  if (item.type === 'match') {
-    icon = <IconCircleCheck />;
-    colorClass = styles.feedIconSuccess;
-    primary = 'Match trovato';
-    meta = `${item.a} → ${item.b}`;
-  } else if (item.type === 'save') {
-    icon = <IconUsers />;
-    colorClass = styles.feedIconAccent;
-    primary = `${item.who} dividono un taxi`;
-    meta = <span className={styles.feedMono}>−€{item.amt} a testa</span>;
-  } else {
-    icon = <IconSearch />;
-    colorClass = styles.feedIconPrimary;
-    primary = 'Nuovo viaggiatore in cerca';
-    meta = `Volo ${item.flight} · verso Malpensa`;
-  }
-
-  return (
-    <div className={`${styles.feedRow} ${fresh ? styles.feedRowFresh : ''}`}>
-      <div className={`${styles.feedIconWrap} ${colorClass}`}>{icon}</div>
-      <div className={styles.feedContent}>
-        <div className={styles.feedPrimary}>{primary}</div>
-        <div className={styles.feedMeta}>{meta}</div>
-      </div>
-      <span className={styles.feedNow}>ora</span>
-    </div>
-  );
+function IconBriefcase({ size = 20 }: IconProps) {
+  return <svg {...s(size)}><path d="M16 20V4a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" /><rect width="20" height="14" x="2" y="6" rx="2" /></svg>;
 }
-
-function LiveFeed() {
-  const [items, setItems] = useState<FeedItem[]>(() =>
-    FEED_POOL.slice(0, 4).map((it, i) => ({ ...it, key: i }) as FeedItem),
-  );
-  const counter = useRef(FEED_POOL.length);
-
-  useEffect(() => {
-    const id = setInterval(() => {
-      setItems((prev) => {
-        const next = FEED_POOL[counter.current % FEED_POOL.length];
-        counter.current += 1;
-        return [{ ...next, key: counter.current } as FeedItem, ...prev].slice(0, 4);
-      });
-    }, 2600);
-    return () => clearInterval(id);
-  }, []);
-
-  // TODO: replace with real stats from backend analytics API
-  const saved = useCountUp(8400);
-  const rides = useCountUp(1240);
-
-  return (
-    <section className={styles.liveSection}>
-      <div className={styles.wrap}>
-        <div className={styles.liveLabel}>
-          <span className={styles.liveDot} />
-          <span>Attività sulla piattaforma</span>
-        </div>
-        <h2 className={styles.liveH2}>Chi va a Malpensa non va da solo.</h2>
-        <div className={styles.feedList}>
-          {items.map((it, i) => <FeedRow key={it.key} item={it} fresh={i === 0} />)}
-        </div>
-        {/* TODO: replace with real stats once backend analytics is live */}
-        <div className={styles.liveStats}>
-          <div className={styles.statTile}>
-            <div className={styles.statNum}>€{saved}</div>
-            <div className={styles.statLbl}>risparmio stimato a regime</div>
-          </div>
-          <div className={styles.statTile}>
-            <div className={styles.statNum}>{rides}+</div>
-            <div className={styles.statLbl}>corse potenziali al mese</div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+function IconLock({ size = 14 }: IconProps) {
+  return <svg {...s(size)}><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 10 0v4" /></svg>;
 }
-
-/* ── How It Works ── */
-const STEPS = [
-  {
-    icon: <IconPlane size={20} />,
-    t: 'Inserisci via e numero del volo',
-    d: 'Digita la via di partenza a Milano e il numero del tuo volo per Malpensa. Il sistema calcola tutto il resto.',
-  },
-  {
-    icon: <IconUsers size={20} />,
-    t: 'Ricevi match e punto di ritiro',
-    d: 'Ti abbiniamo a chi è diretto allo stesso terminal. Ti assegniamo il punto di ritiro più comodo, vicino a te.',
-  },
-  {
-    icon: <IconNavigation size={20} />,
-    t: 'Dividete il taxi verso Malpensa',
-    d: 'Vi trovate al pick-up assegnato a Milano, salite sul taxi ufficiale e dividete la tariffa direttamente col tassista.',
-  },
-];
-
-function HowItWorks() {
-  return (
-    <section className={styles.stepsSection}>
-      <div className={styles.wrap}>
-        <SectionTitle eyebrow="Come funziona" title="Tre passi, zero attriti" />
-        <div className={styles.stepsList}>
-          {STEPS.map((s, i) => (
-            <div key={i} className={styles.step}>
-              <div className={styles.stepLeft}>
-                <div className={styles.stepNum}>{i + 1}</div>
-                {i < STEPS.length - 1 && <div className={styles.stepConnector} />}
-              </div>
-              <div className={`${styles.stepBody} ${i < STEPS.length - 1 ? styles.stepBodyGap : ''}`}>
-                <div className={styles.stepTitleRow}>
-                  <span className={styles.stepTitleIcon}>{s.icon}</span>
-                  <h3 className={styles.stepTitle}>{s.t}</h3>
-                </div>
-                <p className={styles.stepDesc}>{s.d}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+function IconLockOpen({ size = 22 }: IconProps) {
+  return <svg {...s(size)}><rect width="18" height="11" x="3" y="11" rx="2" ry="2" /><path d="M7 11V7a5 5 0 0 1 9.9-1" /></svg>;
 }
-
-/* ── Why Choose ── */
-const REASONS = [
-  { icon: <IconShieldCheck size={22} />, t: 'Sicurezza e community', d: 'Viaggi con chi è diretto allo stesso terminal. Profili verificati e recensioni reciproche dopo ogni corsa.' },
-  { icon: <IconMessageCircle size={22} />, t: 'Zero stress', d: 'Sai con chi dividi il taxi prima ancora di uscire di casa. Niente ricerche last-minute, niente trattative col tassista.' },
-  { icon: <IconMapPin size={22} />, t: 'Pick-up vicino a te', d: "Il sistema assegna il punto di ritiro più comodo in base alla tua via. Nessuna deviazione, nessun tempo perso." },
-];
-
-function WhyChoose() {
-  return (
-    <section className={styles.whySection}>
-      <div className={styles.wrap}>
-        <SectionTitle eyebrow="Perché Flot" title="Pensato per chi non vuole perdere l'aereo" />
-        <div className={styles.whyGrid}>
-          {REASONS.map((r, i) => (
-            <div key={i} className={styles.whyCard}>
-              <div className={styles.whyCardIcon}>{r.icon}</div>
-              <h3 className={styles.whyCardTitle}>{r.t}</h3>
-              <p className={styles.whyCardDesc}>{r.d}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+function IconPenLine({ size = 22 }: IconProps) {
+  return <svg {...s(size)}><path d="M12 20h9" /><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" /></svg>;
 }
-
-/* ── Flight Monitor ── */
-function FlightMonitor() {
-  return (
-    <section className={styles.flightMonitorSection}>
-      <div className={styles.wrap}>
-        <div className={styles.fmInner}>
-          <span className={styles.fmBadge}>
-            <IconPlane size={12} /> Monitoraggio live
-          </span>
-          <h2 className={styles.fmTitle}>Voliamo con te,<br />anche se l'orario cambia.</h2>
-          <p className={styles.fmDesc}>
-            Monitoriamo il tuo volo in tempo reale. Anticipo o ritardo? Ricalcoliamo quando devi partire da Milano e aggiorniamo il match automaticamente.
-          </p>
-          <div className={styles.fmCards}>
-            <div className={styles.fmCard}>
-              <div className={styles.fmCardIcon}><IconClock size={18} /></div>
-              <div>
-                <p className={styles.fmCardTitle}>Partenza ricalcolata</p>
-                <p className={styles.fmCardDesc}>Ti diciamo esattamente quando uscire di casa, con il margine giusto per il check-in.</p>
-              </div>
-            </div>
-            <div className={styles.fmCard}>
-              <div className={styles.fmCardIcon}><IconMessageCircle size={18} /></div>
-              <div>
-                <p className={styles.fmCardTitle}>Match sempre sincronizzato</p>
-                <p className={styles.fmCardDesc}>Se il volo di uno dei due cambia, aggiorniamo entrambi e ricalcoliamo il pick-up.</p>
-              </div>
-            </div>
-            <div className={styles.fmCard}>
-              <div className={styles.fmCardIcon}><IconShieldCheck size={18} /></div>
-              <div>
-                <p className={styles.fmCardTitle}>Notifiche in anticipo</p>
-                <p className={styles.fmCardDesc}>Push alert in tempo utile, così hai sempre il tempo di organizzarti senza correre.</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
+function IconCarTaxi({ size = 22 }: IconProps) {
+  return <svg {...s(size)}><path d="M10 2h4" /><path d="m21 8-2 2-1.5-3.7A2 2 0 0 0 15.646 5H8.4a2 2 0 0 0-1.903 1.257L5 10 3 8" /><path d="M7 14h.01" /><path d="M17 14h.01" /><rect width="18" height="8" x="3" y="10" rx="2" /><path d="M5 18v2" /><path d="M19 18v2" /></svg>;
 }
-
-/* ── FAQ ── */
-const FAQS = [
-  {
-    q: 'Cosa succede se il mio volo cambia orario?',
-    a: "Nessun problema. Monitoriamo il tuo volo in tempo reale: se anticipa o ritarda, ricalcoliamo automaticamente l'orario di partenza da Milano e aggiorniamo il match. Tu e il tuo compagno ricevete una notifica e restate sincronizzati.",
-  },
-  {
-    q: 'Come ci troviamo al punto di pick-up?',
-    a: "Il sistema ti assegna il punto di ritiro più comodo in base alla tua via di partenza, solitamente a pochi minuti da te a piedi. Nella chat interna potete coordinarvi negli ultimi minuti. Semplice e diretto.",
-  },
-  {
-    q: 'È sicuro viaggiare con uno sconosciuto?',
-    a: "Sì. La community Flot è fatta di viaggiatori verificati. Prima di salire vedete il profilo, la valutazione e le recensioni dell'altra persona. Dopo la corsa vi recensite a vicenda: chi non rispetta le regole esce dalla community.",
-  },
-  {
-    q: 'I tassisti accettano la divisione della spesa?',
-    a: 'Assolutamente. Per il tassista è una normale corsa ufficiale verso Malpensa, semplicemente pagata in due. Flot lavora solo con taxi ufficiali: nessuna trattativa, nessun servizio abusivo. Pagate ciascuno la vostra metà a fine corsa.',
-  },
-  {
-    q: 'Quanto costa esattamente il servizio?',
-    a: 'Solo 1,99€, e li paghi unicamente a match trovato. Se non troviamo nessuno per te, non paghi nulla. Flot non trattiene mai i soldi della corsa: quelli vanno direttamente al tassista.',
-  },
-];
-
-function FAQItem({ item, open, onToggle }: { item: typeof FAQS[0]; open: boolean; onToggle: () => void }) {
-  const bodyRef = useRef<HTMLDivElement>(null);
-  return (
-    <div className={styles.faqItem}>
-      <button onClick={onToggle} className={styles.faqQ} aria-expanded={open}>
-        <span>{item.q}</span>
-        <span className={`${styles.faqToggle} ${open ? styles.faqToggleOpen : ''}`}>
-          <IconPlus />
-        </span>
-      </button>
-      <div
-        className={styles.faqA}
-        style={{ maxHeight: open ? (bodyRef.current ? bodyRef.current.scrollHeight + 4 : 400) : 0 }}
-      >
-        <p ref={bodyRef} className={styles.faqAText}>{item.a}</p>
-      </div>
-    </div>
-  );
+function IconStar({ size = 22 }: IconProps) {
+  return <svg {...s(size)}><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" /></svg>;
 }
-
-function FAQ() {
-  const [open, setOpen] = useState<number>(0);
-  return (
-    <section className={styles.faqSection}>
-      <div className={styles.wrap}>
-        <SectionTitle eyebrow="Domande frequenti" title="Tutto quello che vuoi sapere" />
-        <div className={styles.faqList}>
-          {FAQS.map((f, i) => (
-            <FAQItem key={i} item={f} open={open === i} onToggle={() => setOpen(open === i ? -1 : i)} />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
+function IconHandCoins({ size = 22 }: IconProps) {
+  return <svg {...s(size)}><path d="M11 15h2a2 2 0 1 0 0-4h-3c-.6 0-1.1.2-1.4.6L3 17" /><path d="m7 21 1.6-1.4c.3-.4.8-.6 1.4-.6h4c1.1 0 2.1-.4 2.8-1.2l4.6-4.4a2 2 0 0 0-2.75-2.91l-4.2 3.9" /><path d="m2 16 6 6" /><circle cx="16" cy="9" r="2.9" /><circle cx="6" cy="5" r="3" /></svg>;
+}
+function IconChevronDown({ size = 20 }: IconProps) {
+  return <svg {...s(size)}><path d="m6 9 6 6 6-6" /></svg>;
 }
 
 /* ── Section title helper ── */
-function SectionTitle({ eyebrow, title }: { eyebrow: string; title: string }) {
+function SectionTitle({ eyebrow, title, desc, center = true, light = false }: {
+  eyebrow: string; title: string; desc?: string; center?: boolean; light?: boolean;
+}) {
   return (
-    <div className={styles.sectionTitle}>
-      <div className={styles.sectionEyebrow}>{eyebrow}</div>
-      <h2 className={styles.sectionH2}>{title}</h2>
+    <div className={`${styles.sectionHead} ${center ? styles.sectionHeadCenter : ''}`}>
+      <div className={styles.eyebrow}>{eyebrow}</div>
+      <h2 className={`${styles.sectionH2} ${light ? styles.sectionH2Light : ''}`}>{title}</h2>
+      {desc && <p className={`${styles.sectionDesc} ${light ? styles.sectionDescLight : ''}`}>{desc}</p>}
     </div>
   );
 }
@@ -561,17 +234,17 @@ function AddressInput({ id, value, onChange, placeholder }: {
     fetchSuggestions(val);
   };
 
-  const handleSelect = (s: google.maps.places.AutocompletePrediction) => {
+  const handleSelect = (sg: google.maps.places.AutocompletePrediction) => {
     if (!placesRef.current) return;
     placesRef.current.getDetails(
-      { placeId: s.place_id, fields: ['name', 'formatted_address', 'geometry', 'place_id'], sessionToken: sessionTokenRef.current ?? undefined },
+      { placeId: sg.place_id, fields: ['name', 'formatted_address', 'geometry', 'place_id'], sessionToken: sessionTokenRef.current ?? undefined },
       (place, status) => {
         if (status === google.maps.places.PlacesServiceStatus.OK && place?.geometry?.location) {
           const val: AddressValue = {
             label: place.formatted_address ?? place.name ?? '',
             lat: place.geometry.location.lat(),
             lng: place.geometry.location.lng(),
-            placeId: place.place_id ?? s.place_id,
+            placeId: place.place_id ?? sg.place_id,
           };
           setQuery(val.label);
           setSuggestions([]);
@@ -597,11 +270,12 @@ function AddressInput({ id, value, onChange, placeholder }: {
 
   return (
     <div className={styles.addrWrap}>
-      <div className={styles.heroInputWrap}>
+      <div className={styles.fieldWrap}>
+        <span className={styles.fieldIcon}><IconMapPin size={18} /></span>
         <input
           id={id}
           type="text"
-          className={`${styles.heroInput} ${value ? styles.heroInputValid : ''}`}
+          className={`${styles.field} ${styles.fieldHasIcon} ${value ? styles.fieldValid : ''}`}
           placeholder={placeholder}
           value={query}
           onChange={handleChange}
@@ -614,22 +288,22 @@ function AddressInput({ id, value, onChange, placeholder }: {
           role="combobox"
           style={{ paddingRight: loading ? '44px' : undefined }}
         />
-        {loading && <div className={styles.heroInputSpinner} aria-hidden="true" />}
+        {loading && <div className={styles.fieldSpinner} aria-hidden="true" />}
       </div>
       {apiError && <p className={styles.addrErrorMsg}>Autocomplete non disponibile. Digita manualmente.</p>}
       {isOpen && suggestions.length > 0 && (
         <ul className={styles.addrSuggestions} role="listbox">
-          {suggestions.map((s, i) => (
+          {suggestions.map((sg, i) => (
             <li
-              key={s.place_id}
+              key={sg.place_id}
               id={`addr-opt-${i}`}
               role="option"
               aria-selected={i === activeIndex}
               className={`${styles.addrSuggestionItem} ${i === activeIndex ? styles.addrSuggestionActive : ''}`}
-              onPointerDown={() => handleSelect(s)}
+              onPointerDown={() => handleSelect(sg)}
             >
-              <span className={styles.addrSuggestionMain}>{s.structured_formatting.main_text}</span>
-              <span className={styles.addrSuggestionSub}>{s.structured_formatting.secondary_text}</span>
+              <span className={styles.addrSuggestionMain}>{sg.structured_formatting.main_text}</span>
+              <span className={styles.addrSuggestionSub}>{sg.structured_formatting.secondary_text}</span>
             </li>
           ))}
         </ul>
@@ -662,7 +336,7 @@ function ResultPanel({
   onLogin: (p: 'Google' | 'Apple') => void;
 }) {
   return (
-    <div className={styles.resultPanel} id="hero-form">
+    <div className={styles.resultPanel}>
       <div className={styles.resultCard}>
         <div className={styles.resultIconWrap}><IconPlane size={18} /></div>
         <div className={styles.resultBody}>
@@ -780,17 +454,179 @@ function ResultPanel({
   );
 }
 
+/* ── Static content (Claude Design handoff) ── */
+const STEPS = [
+  { n: '1', icon: <IconPenLine size={22} />, title: 'Inserisci tratta e volo', body: 'Aggiungi da dove parti, la data e il numero del tuo volo. Cercare un compagno è completamente gratuito.', tag: 'Gratis', tagKind: 'free' as const },
+  { n: '2', icon: <IconUsers size={22} />, title: 'Flot ti abbina', body: 'Ti troviamo un viaggiatore diretto al tuo stesso terminal, con orari compatibili ai tuoi.', tag: 'Gratis', tagKind: 'free' as const },
+  { n: '3', icon: <IconLockOpen size={22} />, title: 'Sblocchi il match · 1,99 €', body: 'Sblocca e ottieni chat, punto di ritrovo e orario di ritrovo per coordinarvi.', tag: 'Solo a match trovato', tagKind: 'fee' as const },
+  { n: '4', icon: <IconCarTaxi size={22} />, title: 'Prendete il taxi insieme', body: 'Vi accordate, salite sul taxi ufficiale e dividete il costo direttamente tra voi. Flot non gestisce la corsa.', tag: 'Lo gestite voi', tagKind: 'you' as const },
+];
+
+const UNLOCKS = [
+  { icon: <IconMessageCircle size={22} />, title: 'Chat con il compagno', body: 'Scrivetevi per coordinarvi prima e durante il viaggio.' },
+  { icon: <IconMapPin size={22} />, title: 'Punto di ritrovo', body: 'Il punto esatto dove incontrarvi al terminal.' },
+  { icon: <IconClock size={22} />, title: 'Orario di ritrovo', body: "L'orario concordato per trovarvi e partire insieme." },
+];
+
+const TRUST = [
+  { icon: <IconShieldCheck size={22} />, title: 'Profili verificati', body: 'Identità verificata per ogni utente: sai sempre con chi stai per condividere il taxi.' },
+  { icon: <IconStar size={22} />, title: 'Recensioni tra utenti', body: 'Dopo ogni viaggio vi valutate a vicenda. Viaggi con persone affidabili.' },
+  { icon: <IconCarTaxi size={22} />, title: 'Solo taxi ufficiale', body: "Si usa esclusivamente il taxi ufficiale dell'aeroporto. Mai passaggi privati o abusivi." },
+  { icon: <IconHandCoins size={22} />, title: 'Costo diviso tra voi', body: 'Niente intermediari sul pagamento: dividete la tariffa direttamente tra le persone.' },
+];
+
+const STATS = [
+  { value: '€720k+', label: 'Risparmiati dagli utenti Flot' },
+  { value: '12.400+', label: 'Abbinamenti completati' },
+  { value: '~€60', label: 'Risparmio medio a corsa' },
+];
+
+const FAQS = [
+  { q: 'Cercare un compagno è davvero gratis?', a: 'Sì. Creare la richiesta ed essere abbinati non costa nulla. Paghi solo quando un compagno è già stato trovato.' },
+  { q: 'Perché si paga 1,99 €?', a: "È la fee per sbloccare il match: ti dà accesso ai dettagli per incontrarvi. È una piccola somma a fronte di decine di euro risparmiati sulla corsa." },
+  { q: 'Cosa ottengo con lo sblocco?', a: 'Chat con il compagno, punto di ritrovo e orario di ritrovo: tutto ciò che serve per coordinarvi al terminal.' },
+  { q: 'E se Flot non mi trova un compagno?', a: 'Non paghi nulla. La fee si versa solo a match trovato: niente compagno, niente costo.' },
+  { q: 'Chi prenota e paga il taxi?', a: 'Lo fate voi. Flot non gestisce la corsa né il pagamento: prendete il taxi ufficiale e dividete il costo direttamente tra voi.' },
+  { q: 'Cosa succede se il volo cambia?', a: "Aggiorni volo e orario dall'app. Se l'abbinamento non è più compatibile, cerchiamo un nuovo compagno per te." },
+  { q: 'È sicuro viaggiare con uno sconosciuto?', a: 'Ogni profilo ha identità verificata e recensioni tra utenti, e si usa solo il taxi ufficiale. Condividete una corsa ufficiale, non un passaggio privato.' },
+];
+
+function HowItWorks() {
+  return (
+    <section id="come-funziona" className={`${styles.section} ${styles.sectionWhite}`}>
+      <div className={styles.wrap}>
+        <SectionTitle
+          eyebrow="Come funziona"
+          title="Flot fa il match. La corsa la organizzate voi."
+          desc="Flot è una piattaforma di matching tra viaggiatori, non un servizio di trasporto. Trova la persona giusta con cui dividere il taxi ufficiale — al pagamento della corsa pensate voi, direttamente."
+        />
+        <div className={styles.stepGrid}>
+          {STEPS.map((st) => (
+            <div key={st.n} className={styles.stepCard}>
+              <div className={styles.stepCardTop}>
+                <div className={styles.stepCardIcon}>{st.icon}</div>
+                <span className={styles.stepCardNum}>{st.n}</span>
+              </div>
+              <div className={styles.stepCardTitle}>{st.title}</div>
+              <div className={styles.stepCardBody}>{st.body}</div>
+              <span className={`${styles.stepTag} ${styles[`stepTag_${st.tagKind}`]}`}>{st.tag}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Unlocks() {
+  return (
+    <section className={`${styles.section} ${styles.sectionDark}`}>
+      <div className={styles.wrap}>
+        <div className={styles.unlockBadge}>
+          <IconLockOpen size={15} />
+          <span>Sblocco · 1,99 €</span>
+        </div>
+        <h2 className={`${styles.sectionH2} ${styles.sectionH2Light}`}>Paghi solo quando un compagno è già stato trovato.</h2>
+        <p className={`${styles.sectionDesc} ${styles.sectionDescLight}`}>
+          Cercare e farsi abbinare è gratis. Quando Flot trova la persona giusta, sblocchi il match con 1,99 € — a fronte di decine di euro risparmiati sulla corsa.
+        </p>
+        <div className={styles.savingPill}>
+          <span className={styles.savingFrom}>1,99 €</span>
+          <IconArrowRight size={16} />
+          <span className={styles.savingTo}>~60 € risparmiati</span>
+        </div>
+        <div className={styles.unlockList}>
+          {UNLOCKS.map((u) => (
+            <div key={u.title} className={styles.unlockRow}>
+              <div className={styles.unlockIcon}>{u.icon}</div>
+              <div>
+                <div className={styles.unlockTitle}>{u.title}</div>
+                <div className={styles.unlockBody}>{u.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Safety() {
+  return (
+    <section className={`${styles.section} ${styles.sectionMuted}`}>
+      <div className={styles.wrap}>
+        <SectionTitle
+          eyebrow="Perché fidarsi"
+          title="Condividi con qualcuno, in sicurezza"
+          desc="Sappiamo che stai per condividere un taxi con uno sconosciuto. Per questo ogni dettaglio è pensato per farti viaggiare tranquillo."
+        />
+        <div className={styles.trustGrid}>
+          {TRUST.map((t) => (
+            <div key={t.title} className={styles.trustCard}>
+              <div className={styles.trustCardIcon}>{t.icon}</div>
+              <div className={styles.trustCardTitle}>{t.title}</div>
+              <div className={styles.trustCardBody}>{t.body}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Stats() {
+  return (
+    <section className={styles.statsSection}>
+      <div className={styles.wrap}>
+        <div className={styles.statsGrid}>
+          {STATS.map((x) => (
+            <div key={x.label}>
+              <div className={styles.statsValue}>{x.value}</div>
+              <div className={styles.statsLabel}>{x.label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function Faq() {
+  const [open, setOpen] = useState(0);
+  return (
+    <section className={`${styles.section} ${styles.sectionWhite}`}>
+      <div className={`${styles.wrap} ${styles.wrapNarrow}`}>
+        <SectionTitle eyebrow="Domande frequenti" title="Tutto chiaro su Flot" />
+        <div className={styles.faqList}>
+          {FAQS.map((f, i) => {
+            const isOpen = open === i;
+            return (
+              <div key={f.q} className={styles.faqItem}>
+                <button className={styles.faqQ} onClick={() => setOpen(isOpen ? -1 : i)} aria-expanded={isOpen}>
+                  <span>{f.q}</span>
+                  <span className={`${styles.faqChevron} ${isOpen ? styles.faqChevronOpen : ''}`}><IconChevronDown size={20} /></span>
+                </button>
+                {isOpen && <div className={styles.faqA}>{f.a}</div>}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 /* ── Main component ── */
 export function EntryPoint() {
   const { isAuthenticated, isLoading, login } = useAuth();
   const navigate = useNavigate();
-  const selectedAirport = useAirportStore((s) => s.selectedAirport);
-  const user = useAuthStore((s) => s.user);
+  const selectedAirport = useAirportStore((st) => st.selectedAirport);
+  const user = useAuthStore((st) => st.user);
   const [menuOpen, setMenuOpen] = useState(false);
   const [loginSheetOpen, setLoginSheetOpen] = useState(false);
   const [photoError, setPhotoError] = useState(false);
 
-  const submitTrip = useTripStore((s) => s.submitTrip);
+  const submitTrip = useTripStore((st) => st.submitTrip);
 
   // Hero form state
   const [heroStep, setHeroStep] = useState<'form' | 'result'>('form');
@@ -798,7 +634,7 @@ export function EntryPoint() {
   const [flightNumber, setFlightNumber] = useState('');
   const [flightDate, setFlightDate] = useState('');
   const [resolvedFlight, setResolvedFlight] = useState<ResolvedFlight | null>(null);
-  const [luggage, setLuggage] = useState(0);
+  const [luggage, setLuggage] = useState(1);
   const [formSubmitted, setFormSubmitted] = useState(false);
 
   // Booking (POST /trips) state
@@ -895,9 +731,9 @@ export function EntryPoint() {
           // Booking persisted — show the trip screen (e.g. /trip/{tripId}).
           navigate(`/trip/${res.tripId}`);
         } else {
-          const st = useTripStore.getState();
-          setBanned(st.banned);
-          setBookingError(st.error);
+          const stt = useTripStore.getState();
+          setBanned(stt.banned);
+          setBookingError(stt.error);
           setBookingState('error');
         }
       })
@@ -905,10 +741,10 @@ export function EntryPoint() {
         setBookingError('Errore di rete. Riprova.');
         setBookingState('error');
       });
-  }, [heroStep, isAuthenticated, address, resolvedFlight, flightDate, bookingState, submitTrip, navigate]);
+  }, [heroStep, isAuthenticated, address, resolvedFlight, flightDate, bookingState, luggage, submitTrip, navigate]);
 
   const scrollToForm = () => {
-    document.getElementById('hero-form')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.getElementById('prenota')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
 
   const handleFindRide = () => {
@@ -931,8 +767,8 @@ export function EntryPoint() {
     <div className={`${styles.screen} ${isAuthenticated ? styles.screenWithTabBar : ''}`}>
 
       {/* ── NAV ── */}
-      <nav className={styles.nav}>
-        <div className={`${styles.wrap} ${styles.navInner}`}>
+      <header className={styles.nav}>
+        <div className={styles.navInner}>
           <a href="#" className={styles.navLogo} aria-label="Flot home">
             <img src={logoFull} alt="Flot" className={styles.navLogoImg} />
           </a>
@@ -953,6 +789,7 @@ export function EntryPoint() {
                     src={user!.photoUrl}
                     alt={user?.name ?? 'Profilo'}
                     className={styles.navAvatarImg}
+                    referrerPolicy="no-referrer"
                     onError={() => setPhotoError(true)}
                   />
                 ) : (
@@ -961,17 +798,12 @@ export function EntryPoint() {
               </button>
             </div>
           ) : (
-            <div className={styles.navAuthRow}>
-              <button className={styles.navMyTrips} onClick={() => setLoginSheetOpen(true)}>
-                Accedi
-              </button>
-              <button className={styles.navCta} onClick={scrollToForm}>
-                Trova il tuo compagno
-              </button>
-            </div>
+            <button className={styles.navCta} onClick={() => setLoginSheetOpen(true)}>
+              Accedi
+            </button>
           )}
         </div>
-      </nav>
+      </header>
       <ProfileMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       {/* ── LOGIN SHEET ── */}
@@ -999,13 +831,16 @@ export function EntryPoint() {
       {/* ── HERO ── */}
       <section className={styles.heroSection}>
         <div className={styles.wrap}>
-        <h1 className={styles.heroH1}>
+          <div className={styles.heroBadge}>
+            <IconUsers size={15} />
+            <span>Trova con chi condividere il taxi</span>
+          </div>
+          <h1 className={styles.heroH1}>
             Vai a Malpensa.<br />
             <span className={styles.heroAccent}>A metà prezzo.</span>
           </h1>
-
           <p className={styles.heroSub}>
-            Inserisci via di partenza e numero del volo. Flot ti abbina a un viaggiatore diretto allo stesso terminal. Dividete il taxi ufficiale a metà, direttamente col tassista.
+            Flot ti trova un viaggiatore diretto al tuo stesso terminal con cui condividere il taxi ufficiale e dividerne il costo. Niente passaggi privati: solo una corsa, in due.
           </p>
 
           <div className={styles.priceCard}>
@@ -1013,128 +848,149 @@ export function EntryPoint() {
               <div className={styles.priceLabel}>Da solo</div>
               <div className={styles.priceStrike}>€120</div>
             </div>
-            <div className={styles.priceArrow}>
-              <IconArrowRight size={22} />
-            </div>
-            <div className={`${styles.priceCol} ${styles.priceColRight}`}>
-              <div className={`${styles.priceLabel} ${styles.priceLabelAccent}`}>Con Flot</div>
+            <div className={styles.priceArrow}><IconArrowRight size={20} /></div>
+            <div className={styles.priceCol}>
+              <div className={styles.priceLabelRow}>
+                <span className={styles.priceLabelAccent}>Con Flot</span>
+                <span className={styles.priceBadge}>-50%</span>
+              </div>
               <div className={styles.priceValue}>€60</div>
             </div>
           </div>
 
-          {heroStep === 'form' ? (
-            <form className={styles.heroForm} id="hero-form" onSubmit={handleSubmit}>
-              <div className={styles.heroFormGroup}>
-                <label className={styles.heroLabel} htmlFor="hero-address">Da dove parti?</label>
-                <AddressInput
-                  id="hero-address"
-                  value={address}
-                  onChange={setAddress}
-                  placeholder="Es. Via Tortona 12, Milano"
-                />
-                {formSubmitted && !address && (
-                  <p className={styles.fieldError}>Inserisci la via di partenza</p>
-                )}
+          <div className={styles.heroChips}>
+            <div className={styles.heroChip}><span className={styles.heroChipIcon}><IconCircleCheck size={18} /></span>La ricerca è gratuita</div>
+            <div className={styles.heroChip}><span className={styles.heroChipIcon}><IconShieldCheck size={18} /></span>Profili verificati</div>
+            <div className={styles.heroChip}><span className={styles.heroChipIcon}><IconCarTaxi size={18} /></span>Taxi ufficiale</div>
+          </div>
+
+          {/* ── BOOKING CARD ── */}
+          <div id="prenota" className={styles.formCard}>
+            <div className={styles.formCardHead}>
+              <div className={styles.formCardHeadIcon}><IconRoute size={21} /></div>
+              <div>
+                <div className={styles.formCardTitle}>Trova un compagno</div>
+                <div className={styles.formCardSub}>Cercare è gratis · paghi solo a match trovato</div>
               </div>
-              <div className={styles.heroFormGroup}>
-                <label className={styles.heroLabel} htmlFor="hero-date">Data del volo</label>
-                <input
-                  id="hero-date"
-                  type="date"
-                  className={styles.heroInput}
-                  value={flightDate}
-                  min={new Date().toISOString().split('T')[0]}
-                  onChange={(e) => { setFlightDate(e.target.value); setResolvedFlight(null); }}
-                />
-              </div>
-              <div className={styles.heroFormGroup}>
-                <label className={styles.heroLabel} htmlFor="hero-flight">Il tuo volo</label>
-                <FlightInput
-                  value={flightNumber}
-                  onChange={(v) => { setFlightNumber(v); setResolvedFlight(null); }}
-                  onFlightResolved={setResolvedFlight}
-                  onDateResolved={setFlightDate}
-                  flightDate={flightDate}
-                  direction="FROM_MXP"
-                  airportCode="MXP"
-                  airportName="Milan Malpensa"
-                />
+            </div>
+
+            {heroStep === 'form' ? (
+              <form className={styles.heroForm} onSubmit={handleSubmit}>
+                <div className={styles.formGroup}>
+                  <label className={styles.formLabel} htmlFor="hero-address">Da dove parti?</label>
+                  <AddressInput
+                    id="hero-address"
+                    value={address}
+                    onChange={setAddress}
+                    placeholder="es. Viale Marche, 101, Milano"
+                  />
+                  {formSubmitted && !address && (
+                    <p className={styles.fieldError}>Inserisci la via di partenza</p>
+                  )}
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel} htmlFor="hero-date">Data del volo</label>
+                    <div className={styles.fieldWrap}>
+                      <span className={styles.fieldIcon}><IconCalendar size={18} /></span>
+                      <input
+                        id="hero-date"
+                        type="date"
+                        className={`${styles.field} ${styles.fieldHasIcon}`}
+                        value={flightDate}
+                        min={new Date().toISOString().split('T')[0]}
+                        onChange={(e) => { setFlightDate(e.target.value); setResolvedFlight(null); }}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel} htmlFor="hero-flight">Il tuo volo</label>
+                    <FlightInput
+                      value={flightNumber}
+                      onChange={(v) => { setFlightNumber(v); setResolvedFlight(null); }}
+                      onFlightResolved={setResolvedFlight}
+                      onDateResolved={setFlightDate}
+                      flightDate={flightDate}
+                      direction="FROM_MXP"
+                      airportCode="MXP"
+                      airportName="Milan Malpensa"
+                    />
+                  </div>
+                </div>
                 {formSubmitted && !resolvedFlight && (
                   <p className={styles.fieldError}>Inserisci un numero di volo valido</p>
                 )}
-              </div>
-              <div className={styles.heroFormGroup}>
-                <label className={styles.heroLabel}>Bagagli</label>
-                <div className={styles.luggageCounter}>
-                  <span className={styles.luggageIcon}><IconBag size={20} /></span>
-                  <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.max(0, n - 1))} disabled={luggage === 0} aria-label="Riduci bagagli">−</button>
-                  <span className={styles.luggageVal}>{luggage}</span>
-                  <button type="button" className={styles.luggageBtn} onClick={() => setLuggage((n) => Math.min(3, n + 1))} disabled={luggage === 3} aria-label="Aggiungi bagaglio">+</button>
-                </div>
-              </div>
-              <button
-                type="submit"
-                className={styles.btnPrimary}
-                disabled={false}
-              >
-                Trova il tuo compagno
-                <IconArrowRight size={19} />
-              </button>
-            </form>
-          ) : (
-            <ResultPanel
-              resolvedFlight={resolvedFlight!}
-              matchState={matchState}
-              bookingState={bookingState}
-              banned={banned}
-              errorMsg={bookingError}
-              isAuthenticated={isAuthenticated}
-              onBack={handleBack}
-              onLogin={handleLogin}
-            />
-          )}
 
-          <div className={styles.trustBadge}>
-            <span className={styles.trustIcon}><IconShieldCheck size={16} /></span>
-            <span className={styles.trustText}><strong>1,99€ solo a match trovato.</strong> Se non troviamo nessuno, è gratis.</span>
+                <div className={styles.bagsRow}>
+                  <div className={styles.bagsLeft}>
+                    <span className={styles.bagsIcon}><IconBriefcase size={20} /></span>
+                    <div>
+                      <div className={styles.bagsTitle}>Bagagli</div>
+                      <div className={styles.bagsSub}>Valigie da stiva</div>
+                    </div>
+                  </div>
+                  <div className={styles.bagsStepper}>
+                    <button type="button" className={styles.stepperBtn} onClick={() => setLuggage((n) => Math.max(0, n - 1))} disabled={luggage === 0} aria-label="Riduci bagagli"><IconMinus size={18} /></button>
+                    <span className={styles.bagsVal}>{luggage}</span>
+                    <button type="button" className={styles.stepperBtn} onClick={() => setLuggage((n) => Math.min(6, n + 1))} disabled={luggage === 6} aria-label="Aggiungi bagaglio"><IconPlus size={18} /></button>
+                  </div>
+                </div>
+
+                <button type="submit" className={styles.btnPrimary}>
+                  <IconUsers size={19} />
+                  Trova un compagno di viaggio
+                </button>
+                <div className={styles.formFootnote}>
+                  <IconLock size={13} />
+                  Gratis cercare · 1,99 € solo se trovi un compagno
+                </div>
+              </form>
+            ) : (
+              <ResultPanel
+                resolvedFlight={resolvedFlight!}
+                matchState={matchState}
+                bookingState={bookingState}
+                banned={banned}
+                errorMsg={bookingError}
+                isAuthenticated={isAuthenticated}
+                onBack={handleBack}
+                onLogin={handleLogin}
+              />
+            )}
           </div>
         </div>
       </section>
 
-      {/* ── LIVE FEED ── */}
-      <LiveFeed />
-
-      {/* ── HOW IT WORKS ── */}
+      {/* ── COME FUNZIONA ── */}
       <HowItWorks />
 
-      {/* ── WHY CHOOSE ── */}
-      <WhyChoose />
+      {/* ── COSA SBLOCCHI ── */}
+      <Unlocks />
 
-      {/* ── FLIGHT MONITOR ── */}
-      <FlightMonitor />
+      {/* ── SICUREZZA ── */}
+      <Safety />
+
+      {/* ── NUMERI ── */}
+      <Stats />
 
       {/* ── FAQ ── */}
-      <FAQ />
+      <Faq />
 
-      {/* ── FINAL CTA ── */}
-      <section className={styles.finalCtaSection}>
-        <div className={styles.wrap}>
-          <h2 className={styles.finalCtaH2}>
-            Da solo paghi 120€.<br />Condividendo, solo 60€.
-          </h2>
+      {/* ── CTA FINALE ── */}
+      <section className={`${styles.section} ${styles.finalCta}`}>
+        <div className={`${styles.wrap} ${styles.wrapNarrow}`}>
+          <h2 className={styles.finalCtaH2}>Il tuo prossimo taxi per Malpensa costa la metà.</h2>
           <p className={styles.finalCtaSub}>
-            Inserisci la tua via di partenza e il numero del volo. Ci pensiamo noi a trovarti un compagno diretto allo stesso terminal.
+            Cerca un compagno di viaggio in pochi secondi. È gratis — paghi 1,99 € solo quando lo trovi.
           </p>
-          <button
-            className={styles.btnPrimaryFull}
-            onClick={handleFindRide}
-          >
-            Trova il tuo compagno
-            <IconArrowRight size={19} />
+          <button className={styles.btnPrimary} onClick={handleFindRide}>
+            <IconUsers size={20} />
+            Trova un compagno di viaggio
           </button>
           <div className={styles.finalGuarantee}>
-            <IconShieldCheck size={16} />
-            <span>Rischio zero: paghi 1,99€ solo a match avvenuto. Altrimenti, è gratis.</span>
+            <span className={styles.finalGuaranteeIcon}><IconCircleCheck size={15} /></span>
+            Nessun costo per cercare e farsi abbinare
           </div>
         </div>
       </section>
@@ -1142,26 +998,31 @@ export function EntryPoint() {
       {/* ── FOOTER ── */}
       <footer className={styles.footer}>
         <div className={styles.wrap}>
-          <div className={styles.footerLogo}>
-            <svg width="26" height="26" viewBox="0 0 64 64">
-              <rect width="64" height="64" rx="14" fill="var(--primary-500)" />
-              <circle cx="22" cy="32" r="8" fill="white" />
-              <circle cx="42" cy="32" r="8" fill="var(--accent-400)" />
-              <rect x="25" y="29" width="14" height="6" rx="3" fill="white" opacity="0.4" />
-            </svg>
-            <span className={styles.footerBrand}>flot</span>
+          <div className={styles.footerTop}>
+            <div className={styles.footerBrand}>
+              <span className={styles.footerLogo}>flot</span>
+              <p className={styles.footerTagline}>
+                La piattaforma che ti abbina a un viaggiatore diretto al tuo stesso terminal per condividere il taxi e dividerne il costo.
+              </p>
+            </div>
+            <div className={styles.footerCols}>
+              <div className={styles.footerCol}>
+                <div className={styles.footerColTitle}>Prodotto</div>
+                <a href="#come-funziona" className={styles.footerLink}>Come funziona</a>
+                <a href="#prenota" className={styles.footerLink}>Trova un compagno</a>
+                <button className={styles.footerLink} onClick={() => navigate('/my-trips')}>I miei viaggi</button>
+              </div>
+              <div className={styles.footerCol}>
+                <div className={styles.footerColTitle}>Legale</div>
+                <a href="#" className={styles.footerLink}>Termini</a>
+                <a href="#" className={styles.footerLink}>Privacy</a>
+                <a href="#" className={styles.footerLink}>Contatti</a>
+              </div>
+            </div>
           </div>
-          <p className={styles.footerTagline}>
-            Dividi il taxi per Malpensa. Condividi il risparmio. Più semplice, più economico, più umano.
-          </p>
-          <div className={styles.footerLinks}>
-            {['Termini di servizio', 'Privacy', 'Note legali', 'Cookie', 'Contatti'].map((l) => (
-              <a key={l} href="#" className={styles.footerLink}>{l}</a>
-            ))}
-          </div>
-          <div className={styles.footerCopy}>
-            © 2026 Flot S.r.l. · Tutti i diritti riservati.<br />
-            P.IVA 00000000000 · Milano, Italia. Flot opera esclusivamente con taxi ufficiali.
+          <div className={styles.footerBottom}>
+            <span>© 2026 Flot. Tutti i diritti riservati.</span>
+            <span>Flot è una piattaforma di matching, non un vettore di trasporto.</span>
           </div>
         </div>
       </footer>

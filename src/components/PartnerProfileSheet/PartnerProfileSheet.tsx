@@ -129,7 +129,7 @@ export function PartnerProfileSheet({ open, partner, onClose }: PartnerProfileSh
       <div className={styles.root}>
         <div className={styles.avatarWrap}>
           {partner.photoUrl ? (
-            <img src={partner.photoUrl} alt={fullName} className={styles.avatar} />
+            <img src={partner.photoUrl} alt={fullName} className={styles.avatar} referrerPolicy="no-referrer" />
           ) : (
             <div className={styles.avatarInitials}>{initials}</div>
           )}

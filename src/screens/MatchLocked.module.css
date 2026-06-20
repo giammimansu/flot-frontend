@@ -354,3 +354,202 @@
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ============================================================
+   Design: Match trovato (locked pre-unlock)
+   ============================================================ */
+
+.dHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 18px 12px;
+  flex-shrink: 0;
+  background: var(--primary-600);
+}
+.dHeaderBtn {
+  width: 42px; height: 42px;
+  border-radius: 9999px;
+  border: 1px solid rgba(255,255,255,0.25);
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+}
+.dHeaderBtn:hover { background: rgba(255,255,255,0.2); }
+.dHeaderCenter { text-align: center; line-height: 1.2; }
+.dHeaderKicker { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.7); }
+.dHeaderCode { font-family: var(--font-mono); font-size: 16px; font-weight: 600; color: #fff; margin-top: 1px; }
+.dUserAvatar {
+  width: 42px; height: 42px; border-radius: 9999px;
+  background: rgba(255,255,255,0.2); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-body); font-size: 14px; font-weight: 700;
+  flex-shrink: 0; object-fit: cover;
+}
+
+.dScroll { flex: 1; min-height: 0; overflow-y: auto; }
+
+.dHero { background: var(--primary-600); padding: 6px 22px 30px; text-align: center; color: #fff; }
+.dHeroPill {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 6px 13px; border-radius: 9999px;
+  background: rgba(255,255,255,0.16); margin-bottom: 14px;
+  font-family: var(--font-body); font-size: 12px; font-weight: 600;
+  letter-spacing: 0.04em; text-transform: uppercase;
+}
+.dHeroDot { width: 7px; height: 7px; border-radius: 9999px; background: var(--accent-400); }
+.dHeroTitle { font-family: var(--font-display); font-size: 25px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.18; }
+.dHeroSub { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: rgba(255,255,255,0.85); margin-top: 8px; }
+
+.dBody { display: flex; flex-direction: column; gap: 14px; padding: 0 20px 24px; margin-top: -16px; position: relative; }
+.dHr { height: 1px; background: var(--border-subtle); }
+.dSubLabel { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--neutral-400); }
+
+/* Co-rider card */
+.dPartnerCard {
+  background: var(--bg-primary); border-radius: 20px;
+  border: 1px solid var(--border-subtle); box-shadow: var(--shadow-3);
+  padding: 20px; display: flex; flex-direction: column; gap: 18px;
+}
+.dIdentity { display: flex; align-items: center; gap: 16px; }
+.dAvatarWrap { position: relative; width: 74px; height: 74px; flex-shrink: 0; }
+.dAvatarImg, .dAvatarBlur {
+  width: 74px; height: 74px; border-radius: 9999px;
+  border: 2px solid var(--primary-100); object-fit: cover; overflow: hidden;
+}
+.dAvatarImg { filter: blur(7px); }
+.dAvatarBlur {
+  background: linear-gradient(135deg, var(--primary-300), var(--primary-500));
+  display: flex; align-items: center; justify-content: center;
+}
+.dAvatarBlur span { font-family: var(--font-display); font-size: 30px; font-weight: 700; color: rgba(255,255,255,0.9); filter: blur(6px); }
+.dLockDot {
+  position: absolute; bottom: -2px; right: -2px;
+  width: 26px; height: 26px; border-radius: 9999px; background: var(--bg-primary);
+  display: flex; align-items: center; justify-content: center; box-shadow: var(--shadow-1);
+}
+.dPartnerInfo { flex: 1; min-width: 0; }
+.dPartnerNameRow { display: flex; align-items: center; gap: 8px; }
+.dPartnerName { font-family: var(--font-display); font-size: 21px; font-weight: 700; color: var(--neutral-900); }
+.dVerified {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 9999px;
+  background: var(--primary-50); color: var(--primary-700);
+  font-family: var(--font-body); font-size: 11px; font-weight: 600;
+}
+.dRatingRow { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+.dStarsGold { color: var(--warning-500); font-size: 15px; letter-spacing: 1px; }
+.dRatingNum { font-family: var(--font-mono); font-size: 15px; font-weight: 600; color: var(--neutral-900); }
+.dTrips { display: flex; align-items: center; gap: 5px; margin-top: 5px; font-family: var(--font-body); font-size: 13px; color: var(--neutral-500); }
+
+.dCompat { display: flex; align-items: center; gap: 10px; background: var(--success-50); border-radius: 12px; padding: 12px 14px; }
+.dCompatTitle { font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--success-700); }
+.dCompatSub { font-family: var(--font-body); font-size: 12px; color: var(--success-700); opacity: 0.8; }
+
+.dDimGrid { display: grid; grid-template-columns: 1fr; gap: 11px; margin-top: 12px; }
+.dDimRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-width: 0; }
+.dDimLeft { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1; }
+.dDimLabel { font-family: var(--font-body); font-size: 13px; color: var(--neutral-700); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.dDimStars { color: var(--warning-500); font-size: 13px; letter-spacing: 1px; flex-shrink: 0; white-space: nowrap; }
+
+/* Trip summary */
+.dSummary {
+  background: var(--bg-primary); border-radius: 16px;
+  border: 1px solid var(--border-subtle); box-shadow: var(--shadow-2);
+  padding: 18px; display: flex; flex-direction: column; gap: 16px;
+}
+.dRoute { display: flex; gap: 14px; }
+.dRouteRail { width: 12px; display: flex; flex-direction: column; align-items: center; padding-top: 5px; }
+.dRouteDotStart { width: 12px; height: 12px; border-radius: 9999px; background: var(--primary-500); flex-shrink: 0; }
+.dRouteLine { flex: 1; width: 2px; background: var(--neutral-200); margin: 4px 0; min-height: 24px; }
+.dRouteDotEnd { width: 12px; height: 12px; border-radius: 9999px; border: 3px solid var(--accent-500); background: var(--bg-primary); flex-shrink: 0; }
+.dRouteBody { flex: 1; display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.dRouteKey { font-family: var(--font-body); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--neutral-400); }
+.dRouteVal { font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--neutral-900); margin-top: 2px; }
+.dMetaRow { display: flex; align-items: center; gap: 10px; }
+.dMetaFlight { flex: 1; display: flex; align-items: center; gap: 8px; }
+.dMetaStats { display: flex; align-items: center; gap: 14px; }
+.dMetaStat { text-align: center; }
+.dMetaKey { font-family: var(--font-body); font-size: 11px; color: var(--neutral-400); }
+.dMetaMono { font-family: var(--font-mono); font-size: 14px; font-weight: 600; color: var(--neutral-800); }
+.dMetaStrong { font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--neutral-800); }
+.dSavings { display: flex; align-items: center; gap: 12px; background: var(--primary-50); border-radius: 12px; padding: 13px 14px; }
+.dSavingsText { flex: 1; }
+.dSavingsTitle { font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--primary-800); }
+.dSavingsNote { font-family: var(--font-body); font-size: 11px; color: var(--primary-700); opacity: 0.8; }
+.dSavingsValue { font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--primary-600); }
+
+/* Locked premium */
+.dLockedCard {
+  background: var(--bg-primary); border-radius: 16px;
+  border: 1px solid var(--border-subtle); box-shadow: var(--shadow-2); padding: 18px;
+}
+.dLockedHead { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; font-family: var(--font-display); font-size: 16px; font-weight: 600; color: var(--neutral-900); }
+.dLockedList { display: flex; flex-direction: column; gap: 10px; }
+.dLockedRow { display: flex; align-items: center; gap: 12px; background: var(--neutral-50); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 14px; overflow: hidden; }
+.dLockedIcon { width: 38px; height: 38px; border-radius: 10px; background: var(--primary-50); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.dLockedInfo { flex: 1; min-width: 0; }
+.dLockedLabel { font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--neutral-800); }
+.dLockedBlur { font-family: var(--font-body); font-size: 13px; color: var(--neutral-700); filter: blur(4px); user-select: none; margin-top: 2px; white-space: nowrap; overflow: hidden; }
+
+.dRejectBtn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; height: 46px; border: 1.5px solid var(--border-default);
+  border-radius: 12px; background: var(--bg-primary); color: var(--neutral-600);
+  font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer;
+}
+.dRejectBtn:hover { background: var(--neutral-50); }
+.dRejectBtn:disabled { opacity: 0.5; cursor: default; }
+.dTrustLine { display: flex; align-items: center; justify-content: center; gap: 7px; font-family: var(--font-body); font-size: 12px; color: var(--neutral-400); }
+
+/* Sticky CTA */
+.dCtaBar { flex-shrink: 0; background: var(--bg-primary); border-top: 1px solid var(--border-subtle); padding: 12px 20px 10px; box-shadow: 0 -4px 16px rgba(10,22,36,0.05); }
+.dCtaTop { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 10px; }
+.dCtaCountdown { display: flex; align-items: center; gap: 7px; font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--accent-700); }
+.dCtaPrice { display: flex; align-items: baseline; gap: 6px; flex-shrink: 0; }
+.dCtaPriceFee { font-family: var(--font-mono); font-size: 12px; color: var(--neutral-400); }
+.dCtaPriceSave { font-family: var(--font-mono); font-size: 14px; font-weight: 700; color: var(--primary-600); }
+.dUnlockBtn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  width: 100%; height: 56px; border: none; border-radius: 14px;
+  background: var(--accent-500); color: #fff;
+  font-family: var(--font-body); font-size: 17px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 12px 28px rgba(232,96,58,0.40);
+}
+.dUnlockBtn:hover { background: var(--accent-600); }
+.dUnlockBtn:disabled { opacity: 0.5; cursor: default; box-shadow: none; }
+.dCtaChips { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 9px; }
+.dCtaChips span { display: inline-flex; align-items: center; gap: 5px; font-family: var(--font-body); font-size: 11px; color: var(--neutral-500); }
+
+/* Sheets */
+.dScrim { position: fixed; inset: 0; background: rgba(10,22,36,0.5); z-index: 40; animation: dFadeBg 200ms var(--ease-out); }
+.dSheet {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 41;
+  background: var(--bg-primary); border-top-left-radius: 24px; border-top-right-radius: 24px;
+  padding: 10px 24px 28px; box-shadow: var(--shadow-4); animation: dUp 300ms var(--ease-out);
+  max-width: 480px; margin: 0 auto;
+}
+@keyframes dUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+@keyframes dFadeBg { from { opacity: 0; } to { opacity: 1; } }
+.dSheetHandle { width: 40px; height: 4px; border-radius: 9999px; background: var(--neutral-200); margin: 6px auto 16px; }
+.dSheetIcon { width: 54px; height: 54px; border-radius: 9999px; background: var(--accent-50); display: flex; align-items: center; justify-content: center; margin-bottom: 14px; }
+.dSheetTitle { font-family: var(--font-display); font-size: 22px; font-weight: 700; letter-spacing: -0.01em; color: var(--neutral-900); }
+.dSheetText { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--neutral-500); margin-top: 8px; }
+.dSheetBenefits { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+.dSheetBenefits > div { display: flex; align-items: center; gap: 12px; font-family: var(--font-body); font-size: 15px; color: var(--neutral-800); }
+.dSheetTotal { display: flex; align-items: center; justify-content: space-between; background: var(--primary-50); border-radius: 12px; padding: 14px 16px; margin-top: 18px; font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--primary-800); }
+.dSheetTotalVal { font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--primary-600); }
+.dSheetPay {
+  display: flex; align-items: center; justify-content: center; gap: 9px;
+  width: 100%; height: 54px; margin-top: 16px; border: none; border-radius: 12px;
+  background: var(--accent-500); color: #fff; font-family: var(--font-body); font-size: 16px; font-weight: 600; cursor: pointer;
+}
+.dSheetPay:hover { background: var(--accent-600); }
+.dSheetPay:disabled { opacity: 0.5; cursor: default; }
+.dSheetSecure { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 12px; font-family: var(--font-body); font-size: 12px; color: var(--neutral-400); }
+.dSheetPrimary { width: 100%; height: 52px; margin-top: 20px; border: none; border-radius: 12px; background: var(--primary-500); color: #fff; font-family: var(--font-body); font-size: 16px; font-weight: 600; cursor: pointer; }
+.dSheetPrimary:hover { background: var(--primary-600); }
+.dSheetPrimary:disabled { opacity: 0.5; cursor: default; }
+.dSheetGhost { width: 100%; height: 48px; margin-top: 6px; border: none; background: transparent; color: var(--neutral-600); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; }

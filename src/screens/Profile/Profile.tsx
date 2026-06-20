@@ -281,6 +281,7 @@ export function Profile() {
                   src={user.photoUrl}
                   alt={fullName}
                   className={styles.avatar}
+                  referrerPolicy="no-referrer"
                   onError={() => setPhotoLoadError(true)}
                 />
               ) : (

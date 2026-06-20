@@ -144,6 +144,12 @@
   --shadow-sheet:  0 -8px 32px rgba(10, 22, 36, 0.12);
   --shadow-button: 0 1px 2px rgba(10, 22, 36, 0.08);
 
+  /* Numbered elevation scale (Claude Design handoff) */
+  --shadow-1: 0 1px 3px rgba(10, 22, 36, 0.06);
+  --shadow-2: 0 2px 8px rgba(10, 22, 36, 0.08);
+  --shadow-3: 0 8px 24px rgba(10, 22, 36, 0.12);
+  --shadow-4: 0 16px 48px rgba(10, 22, 36, 0.16);
+
 
   /* ===========================================
      MOTION
@@ -198,8 +204,10 @@
   --bg-1: var(--neutral-50);
   --bg-2: var(--neutral-0);
   --bg-3: var(--neutral-100);
-  --border:        var(--neutral-200);
-  --border-subtle: var(--neutral-100);
+  --border:         var(--neutral-200);
+  --border-subtle:  var(--neutral-100);
+  --border-default: var(--neutral-200);
+  --bg-primary:     var(--neutral-0);
   --focus-ring:    rgba(92, 185, 178, 0.35);
 
   /* Brand alias */

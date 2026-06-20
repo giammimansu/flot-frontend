@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { MIcon, MSegment, MBtn } from '../components/ui';
+import { MIcon, MBtn } from '../components/ui';
 import { BottomSheet } from '../components/ui/BottomSheet';
 import { TripCard } from '../components/trips/TripCard';
 import { PushPrompt } from '../components/trips/PushPrompt';
@@ -8,12 +8,9 @@ import { ReviewSheet } from '../components/ReviewSheet/ReviewSheet';
 import { NotificationsSheet } from '../components/NotificationsSheet/NotificationsSheet';
 import { getNotifications } from '../services/notifications';
 import type { NotificationItem } from '../types/api';
-import { useAuth } from '../hooks/useAuth';
-import { useAirportStore } from '../stores/airportStore';
 import { getMyTrips, cancelTrip } from '../services/trips';
 import { getReviewedMatchIds, markMatchReviewed } from '../lib/reviewedMatches';
 import type { MyTripsResponse } from '../types/api';
-import { TopNav } from '../components/layout/TopNav';
 import styles from './MyTrips.module.css';
 
 export function MyTrips() {
@@ -21,8 +18,6 @@ export function MyTrips() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const cancelledTripId = (location.state as { cancelledTripId?: string } | null)?.cancelledTripId;
-  const { user } = useAuth();
-  const airport = useAirportStore((s) => s.selectedAirport);
   const [trips, setTrips] = useState<MyTripsResponse['trips']>([]);
   const [tab, setTab] = useState<'active' | 'past'>('active');
   const [loading, setLoading] = useState(true);
@@ -104,47 +99,49 @@ export function MyTrips() {
   const activeStatuses = ['scheduled', 'searching', 'matched', 'unlocked'];
   const pastStatuses = ['completed', 'expired', 'cancelled'];
 
+  const activeCount = trips.filter(t => activeStatuses.includes(t.status)).length;
+  const pastCount = trips.filter(t => pastStatuses.includes(t.status)).length;
+
   const displayedTrips = trips.filter(t =>
     tab === 'active' ? activeStatuses.includes(t.status) : pastStatuses.includes(t.status)
   );
 
-  const totalSaved = trips
-    .filter(t => t.status === 'completed' || t.status === 'unlocked')
-    .length * Math.round((airport?.baseFare ?? 12000) / 2 / 100);
-  const totalCompleted = trips.filter(t => t.status === 'completed').length;
-
   return (
     <div className={styles.screen}>
-      <TopNav showLogo />
       <header className={styles.header}>
         <div className={styles.headerLeft}>
-          <div className={styles.greeting}>Ciao, {user?.firstName || user?.name?.split(' ')[0] || 'Viaggiatore'} 👋</div>
-          <h1 className={styles.title}>I tuoi viaggi</h1>
+          <h1 className={styles.title}>Viaggi</h1>
+          <div className={styles.subtitle}>I tuoi taxi condivisi</div>
         </div>
         <button
           type="button"
-          className={styles.bellBtn}
+          className={styles.iconBtn}
           onClick={openNotifs}
           aria-label={`Notifiche${unreadCount ? `, ${unreadCount} non lette` : ''}`}
         >
-          🔔
+          <MIcon name="bell" size={19} sw={2} />
           {unreadCount > 0 && <span className={styles.bellBadge}>{unreadCount > 9 ? '9+' : unreadCount}</span>}
         </button>
       </header>
 
-      <div className={styles.statsStrip}>
-        <div className={`${styles.statCard} ${styles.success}`}>
-          <div className={styles.statValue}>
-            €{totalSaved}
-          </div>
-          <div className={styles.statLabel}>risparmiati</div>
-        </div>
-        <div className={`${styles.statCard} ${styles.surface}`}>
-          <div className={styles.statValue}>
-            <MIcon name="check" size={18} sw={2} />
-            {totalCompleted}
-          </div>
-          <div className={styles.statLabel}>completati</div>
+      <div className={styles.tabs}>
+        <div className={styles.segment}>
+          <button
+            type="button"
+            className={tab === 'active' ? styles.segOn : styles.segOff}
+            onClick={() => setTab('active')}
+          >
+            <span>Attivi</span>
+            <span className={tab === 'active' ? styles.chipOn : styles.chipOff}>{activeCount}</span>
+          </button>
+          <button
+            type="button"
+            className={tab === 'past' ? styles.segOn : styles.segOff}
+            onClick={() => setTab('past')}
+          >
+            <span>Passati</span>
+            <span className={tab === 'past' ? styles.chipOn : styles.chipOff}>{pastCount}</span>
+          </button>
         </div>
       </div>
 
@@ -152,24 +149,13 @@ export function MyTrips() {
         <PushPrompt />
       </div>
 
-      <div className={styles.tabs}>
-        <MSegment
-          options={[
-            { id: 'active', label: `Attivi (${trips.filter(t => activeStatuses.includes(t.status)).length})` },
-            { id: 'past', label: `Passati (${trips.filter(t => pastStatuses.includes(t.status)).length})` },
-          ]}
-          value={tab}
-          onChange={(v) => setTab(v as 'active' | 'past')}
-        />
-      </div>
-
       <div className={styles.list}>
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 40, color: 'var(--ink-muted)' }}>Caricamento…</div>
+          <div style={{ textAlign: 'center', padding: 40, color: 'var(--neutral-500)' }}>Caricamento…</div>
         ) : fetchError ? (
           <div className={styles.emptyState}>
-            <div className={styles.emptyCircle}>
-              <MIcon name="x" size={28} sw={2} />
+            <div className={`${styles.emptyCircle} ${styles.emptyCircleError}`}>
+              <MIcon name="x" size={40} sw={2} />
             </div>
             <div className={styles.emptyTitle}>Errore di rete</div>
             <div className={styles.emptySub}>{fetchError}</div>
@@ -190,19 +176,21 @@ export function MyTrips() {
         ) : (
           <div className={styles.emptyState}>
             <div className={styles.emptyCircle}>
-              <MIcon name="search" size={28} sw={2} />
+              <MIcon name="route" size={44} sw={2} color="var(--primary-400)" />
             </div>
             <div className={styles.emptyTitle}>Nessun viaggio qui</div>
-            <div className={styles.emptySub}>I tuoi viaggi appariranno qui</div>
-            <MBtn variant="primary" onClick={() => navigate('/')}>
+            <div className={styles.emptySub}>
+              Quando prenoti una tratta, la trovi qui. Inizia condividendo un taxi da Malpensa.
+            </div>
+            <MBtn variant="primary" icon="plus" onClick={() => navigate('/')}>
               Prenota un viaggio
             </MBtn>
           </div>
         )}
       </div>
 
-      <button className={styles.fab} onClick={() => navigate('/')}>
-        <MIcon name="plus" size={26} sw={2.5} />
+      <button className={styles.fab} onClick={() => navigate('/')} aria-label="Prenota un viaggio">
+        <MIcon name="plus" size={28} sw={2.5} />
       </button>
 
       <BottomSheet

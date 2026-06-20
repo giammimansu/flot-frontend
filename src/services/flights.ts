@@ -63,6 +63,27 @@ export async function fetchFlightByNumber(
   }
 }
 
+/** GET /flights/day — whole day of arrivals/departures at the hub (one call). */
+export async function fetchFlightsByDay(
+  direction: 'arrivals' | 'departures',
+  date: string,
+  airportCode = 'MXP',
+  signal?: AbortSignal,
+): Promise<FlightRow[]> {
+  try {
+    const rows = await publicApi
+      .get('flights/day', {
+        searchParams: { direction, date, airport: airportCode },
+        signal,
+      })
+      .json<FlightRow[]>();
+    return Array.isArray(rows) ? rows : [];
+  } catch (err) {
+    if (err instanceof Error && err.name === 'AbortError') throw err;
+    return [];
+  }
+}
+
 /** GET /flights/slot — list arrivals/departures at the hub around a time slot. */
 export async function fetchFlightsBySlot(
   direction: 'arrivals' | 'departures',

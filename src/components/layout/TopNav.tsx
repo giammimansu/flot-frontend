@@ -106,6 +106,7 @@ export function TopNav({
                 src={user!.photoUrl}
                 alt={user?.name ?? 'Profile'}
                 className={styles.avatarImg}
+                referrerPolicy="no-referrer"
                 onError={() => setPhotoError(true)}
               />
             ) : (
