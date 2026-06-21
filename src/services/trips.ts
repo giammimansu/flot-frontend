@@ -42,6 +42,9 @@ export async function getMyTrips(): Promise<import('../types/api').MyTripsRespon
     createdAt: String(t.createdAt ?? ''),
     expiresAt: t.expiresAt ? String(t.expiresAt) : undefined,
     originLabel: t.originLabel ? String(t.originLabel) : undefined,
+    partner: t.partner
+      ? (t.partner as import('../types/api').TripPartnerSummary)
+      : undefined,
   }));
   return { trips };
 }

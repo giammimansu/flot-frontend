@@ -9,6 +9,11 @@
   gap: 14px;
 }
 
+.cardMatch {
+  border: 1.5px solid var(--accent-300);
+  box-shadow: 0 4px 16px rgba(232, 96, 58, 0.12);
+}
+
 .topRow {
   display: flex;
   justify-content: space-between;
@@ -144,4 +149,327 @@
   font-family: var(--font-body);
   font-size: 13px;
   color: var(--neutral-400);
+}
+
+/* ── Active: meta chips ── */
+.metaChips {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  background: var(--neutral-50);
+  border: 1px solid var(--border-subtle);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--neutral-700);
+}
+
+.chipMono {
+  font-family: var(--font-mono);
+}
+
+/* ── Active: shared state body ── */
+.stateBody {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ── Active: searching ── */
+.searchHead {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.searchPing {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pingRing {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: var(--primary-100);
+  animation: tripCardPing 1.8s var(--ease-out) infinite;
+}
+
+.pingCore {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 9999px;
+  background: var(--primary-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes tripCardPing {
+  0% { transform: scale(0.7); opacity: 0.6; }
+  70%, 100% { transform: scale(1.7); opacity: 0; }
+}
+
+.searchText {
+  flex: 1;
+  min-width: 0;
+}
+
+.searchTitle {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+.searchSub {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--neutral-500);
+  margin-top: 1px;
+}
+
+.searchFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.priceWrap {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+}
+
+.priceFull {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--neutral-400);
+  text-decoration: line-through;
+}
+
+.priceSplit {
+  font-family: var(--font-mono);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--neutral-900);
+}
+
+.priceUnit {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--neutral-500);
+}
+
+/* ── Active: match found ── */
+.matchHead {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+}
+
+.avatarWrap {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+
+.avatarBlur {
+  width: 50px;
+  height: 50px;
+  border-radius: 9999px;
+  border: 2px solid var(--primary-100);
+  background: linear-gradient(135deg, var(--primary-300), var(--primary-500));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.avatarPhoto {
+  width: 50px;
+  height: 50px;
+  border-radius: 9999px;
+  border: 2px solid var(--primary-100);
+  object-fit: cover;
+  filter: blur(6px);
+}
+
+.avatarLock {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 9999px;
+  background: var(--bg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-1);
+}
+
+.matchInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.matchName {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.verifiedTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 7px;
+  border-radius: 9999px;
+  background: var(--primary-50);
+  color: var(--primary-700);
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.matchSub {
+  font-family: var(--font-body);
+  font-size: 12px;
+  color: var(--neutral-500);
+  margin-top: 4px;
+}
+
+.compatBar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--success-50);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--success-700);
+}
+
+.unlockBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: var(--accent-500);
+  color: #fff;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgba(232, 96, 58, 0.34);
+  transition: background 150ms var(--ease-out);
+}
+
+.unlockBtn:hover {
+  background: var(--accent-600);
+}
+
+/* ── Active: confirmed ── */
+.confirmedRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.coriderInfo {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+
+.coriderAvatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  background: var(--primary-100);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary-700);
+}
+
+.coriderPhoto {
+  width: 42px;
+  height: 42px;
+  border-radius: 9999px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.coriderName {
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--neutral-900);
+}
+
+.ratingStar {
+  color: var(--warning-500);
+}
+
+.ratingVal {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: var(--neutral-700);
+}
+
+.metaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background: var(--neutral-300);
+}
+
+.coriderMeta {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 2px;
+  font-family: var(--font-body);
+  font-size: 12px;
+}
+
+.coriderConfirmed {
+  color: var(--success-700);
+  font-weight: 600;
 }

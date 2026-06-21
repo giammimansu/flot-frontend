@@ -108,7 +108,22 @@ export interface MyTripsResponse {
     createdAt: string;
     expiresAt?: string;
     originLabel?: string;
+    /** Co-rider summary on matched/unlocked trips. Masked until unlocked. */
+    partner?: TripPartnerSummary;
   }>;
+}
+
+/** Compact co-rider attached to a matched/unlocked trip in the trips list. */
+export interface TripPartnerSummary {
+  userId: string;
+  firstName: string;
+  lastName?: string;
+  photoUrl?: string;
+  blurredPhotoUrl?: string;
+  verified: boolean;
+  rating?: { average: number | null; count: number };
+  tripCount?: number;
+  unlocked: boolean;
 }
 
 /** Trip snapshot inside a match */
