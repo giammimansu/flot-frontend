@@ -64,25 +64,6 @@ function formatTime(isoStr?: string): string {
   }
 }
 
-function DeadlineCountdown({ deadline }: { deadline: string | null }) {
-  const totalSeconds = useMemo(() => {
-    if (!deadline) return 0;
-    const diff = Math.floor((new Date(deadline).getTime() - Date.now()) / 1000);
-    return Math.max(0, diff);
-  }, [deadline]);
-
-  const { display, isComplete } = useCountdown({ totalSeconds });
-
-  if (!deadline || isComplete) return null;
-
-  return (
-    <span className={styles.deadlinePill}>
-      <MIcon name="clock" size={12} sw={2} />
-      Scade in {display}
-    </span>
-  );
-}
-
 function WaitingExpiry({ deadline }: { deadline: string }) {
   const totalSeconds = useMemo(() => {
     const diff = Math.floor((new Date(deadline).getTime() - Date.now()) / 1000);
@@ -348,77 +329,270 @@ export function MatchLocked() {
     { icon: 'message-circle', label: `Chat con ${partnerNameShort}` },
   ];
 
+  // ── Shared bits for "Match in attesa" · Variant 2 ──
+  const partnerFullName =
+    `${partner?.firstName ?? ''}${partner?.lastName ? ` ${partner.lastName}` : ''}`.trim() || partnerFirstName;
+  const partnerInitials =
+    `${partner?.firstName?.[0] ?? ''}${partner?.lastName?.[0] ?? ''}`.toUpperCase() || initial;
+
   // ── Waiting panel: I paid, partner hasn't ────────────────────────────
   // NOTE: when isUnlockedByPartner flips true the routing effect above sends
   // status === 'unlocked' → navigate(`/connection/:matchId`). No extra work here.
+  // ── V2 · A — Hai sbloccato tu, aspetti il partner (Stato calmo) ──
   if (waiting) {
     return (
       <div className={styles.screen}>
-        <TopNav showLogo showBack right={<DeadlineCountdown deadline={match.unlockDeadline} />} />
-        <div className={styles.sheet}>
-          <div className={styles.handle} />
+        <header className={styles.dHeader}>
+          <button type="button" className={styles.dHeaderBtn} onClick={() => navigate(-1)} aria-label="Indietro">
+            <MIcon name="chevron-left" size={20} sw={2} />
+          </button>
+          <div className={styles.dHeaderCenter}>
+            <div className={styles.dHeaderKicker}>Prenotazione</div>
+            {matchId && <div className={styles.dHeaderCode}>#{matchId.slice(-6).toUpperCase()}</div>}
+          </div>
+          {currentUser?.photoUrl ? (
+            <img src={currentUser.photoUrl} alt="" className={styles.dUserAvatar} referrerPolicy="no-referrer" />
+          ) : (
+            <div className={styles.dUserAvatar}>{userInitials}</div>
+          )}
+        </header>
 
-          {/* A) Confirmation header */}
-          <div className={styles.celebration}>
-            <div className={styles.celebrationIcon}><MIcon name="check" size={22} sw={2.5} /></div>
-            <div className={styles.celebrationText}>
-              <h2 className={styles.celebrationTitle}>Hai sbloccato</h2>
-              <p className={styles.celebrationCopy}>
-                Aspettiamo che {partnerFirstName} sblocchi. <strong>€0 finché non sblocca anche lui</strong> — se non risponde in tempo, nessun addebito.
-              </p>
+        <div className={`${styles.dScroll} ${styles.v2Scroll}`}>
+          {/* Emblem */}
+          <div className={styles.v2Emblem}>
+            <div className={styles.v2EmblemAvatars}>
+              <div className={styles.v2Ring} />
+              <div className={styles.v2Pair}>
+                <div className={`${styles.v2Avatar} ${styles.v2AvMe}`}>{userInitials}</div>
+                <div className={`${styles.v2Avatar} ${styles.v2AvWait}`}>{initial}</div>
+                <div className={`${styles.v2Badge} ${styles.v2BadgeWait}`}><MIcon name="timer" size={15} sw={2} color="#fff" /></div>
+              </div>
+            </div>
+            <div className={styles.v2Title}>
+              <span>In attesa di {partnerFirstName}</span>
+              <span className={styles.v2Dots}><span /><span /><span /></span>
+            </div>
+            <div className={styles.v2Sub}>Hai sbloccato il match. Stiamo aspettando che anche {partnerFirstName} faccia la sua parte.</div>
+          </div>
+
+          <div className={styles.v2Body}>
+            {/* Checklist */}
+            <div className={styles.v2Check}>
+              <div className={styles.v2CheckRow}>
+                <div className={`${styles.v2CheckIcon} ${styles.v2CheckIconDone}`}><MIcon name="check" size={16} sw={2.5} color="#fff" /></div>
+                <div className={styles.v2CheckLabel}>Profilo di {partnerFirstName} svelato</div>
+              </div>
+              <div className={styles.v2CheckRow}>
+                <div className={`${styles.v2CheckIcon} ${styles.v2CheckIconDone}`}><MIcon name="check" size={16} sw={2.5} color="#fff" /></div>
+                <div className={styles.v2CheckLabel}>Hai sbloccato · {unlockFeeDisplay}</div>
+              </div>
+              <div className={styles.v2CheckRow}>
+                <div className={`${styles.v2CheckIcon} ${styles.v2CheckIconPending}`}><MIcon name="message-circle" size={15} sw={2} color="var(--accent-500)" /></div>
+                <div className={`${styles.v2CheckLabel} ${styles.v2CheckLabelMuted}`}>Chat con {partnerFirstName}</div>
+                <span className={styles.v2CheckTag}>In attesa</span>
+              </div>
+              <div className={styles.v2CheckRow}>
+                <div className={`${styles.v2CheckIcon} ${styles.v2CheckIconPending}`}><MIcon name="map-pin" size={15} sw={2} color="var(--accent-500)" /></div>
+                <div className={`${styles.v2CheckLabel} ${styles.v2CheckLabelMuted}`}>Punto e orario di ritrovo</div>
+                <span className={styles.v2CheckTag}>In attesa</span>
+              </div>
+            </div>
+
+            {/* Compact profile (revealed) */}
+            <div className={styles.v2Profile}>
+              <div className={styles.v2ProfileAvatar}>
+                <div className={styles.v2ProfileAv}>
+                  {partnerPhoto ? <img src={partnerPhoto} alt="" referrerPolicy="no-referrer" /> : partnerInitials}
+                </div>
+                <div className={styles.v2ProfileCheck}><MIcon name="check" size={10} sw={3} color="#fff" /></div>
+              </div>
+              <div className={styles.v2ProfileInfo}>
+                <div className={styles.v2ProfileName}>{partnerFullName}</div>
+                {hasRating ? (
+                  <div className={styles.v2ProfileMeta}>
+                    <span className={styles.v2Stars}>{starString(overallAvg!)}</span>
+                    <span className={styles.v2RatingNum}>{overallAvg!.toFixed(1)}</span>
+                    <span className={styles.v2Trips}>· {overallCount} {overallCount === 1 ? 'recensione' : 'recensioni'}</span>
+                  </div>
+                ) : (
+                  <div className={styles.v2ProfileMeta}><span className={styles.v2Trips}>Nuovo profilo</span></div>
+                )}
+              </div>
+              <MIcon name="shield-check" size={18} sw={2} color="var(--primary-500)" />
+            </div>
+
+            {/* Reassurance */}
+            <div className={styles.v2Reassure}>
+              <MIcon name="bell" size={19} sw={2} color="var(--primary-600)" />
+              <div className={styles.v2ReassureText}>
+                <b>Ti avvisiamo noi.</b> Riceverai una notifica appena {partnerFirstName} sblocca — di solito entro pochi minuti.
+              </div>
             </div>
           </div>
 
-          {/* B) Partner status card */}
-          <div className={styles.partnerCard}>
-            <div className={styles.avatarWrap}>
-              {partnerPhoto ? (
-                <img src={partnerPhoto} alt="" referrerPolicy="no-referrer" className={styles.avatarPhotoBlurred} />
-              ) : (
-                <div className={`${styles.avatar} ${styles.avatarBlurred}`}>{initial}</div>
+          <div className={styles.v2Footer}>
+            <span className={styles.v2Expiry}>
+              <MIcon name="clock" size={13} sw={2} color="var(--neutral-400)" />
+              {match.unlockDeadline
+                ? <WaitingExpiry deadline={match.unlockDeadline} />
+                : <span>Il match scade a breve</span>}
+            </span>
+            <button type="button" className={styles.v2DeclineLink} onClick={handleDecline} disabled={declining}>
+              {declining ? 'Annullo…' : 'Annulla match'}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── V2 · B — Il partner ha sbloccato per primo, tocca a te ──
+  if (urgent) {
+    return (
+      <div className={styles.screen}>
+        <header className={styles.dHeader}>
+          <button type="button" className={styles.dHeaderBtn} onClick={() => navigate(-1)} aria-label="Indietro">
+            <MIcon name="chevron-left" size={20} sw={2} />
+          </button>
+          <div className={styles.dHeaderCenter}>
+            <div className={styles.dHeaderKicker}>Prenotazione</div>
+            {matchId && <div className={styles.dHeaderCode}>#{matchId.slice(-6).toUpperCase()}</div>}
+          </div>
+          {currentUser?.photoUrl ? (
+            <img src={currentUser.photoUrl} alt="" className={styles.dUserAvatar} referrerPolicy="no-referrer" />
+          ) : (
+            <div className={styles.dUserAvatar}>{userInitials}</div>
+          )}
+        </header>
+
+        <div className={`${styles.dScroll} ${styles.v2Scroll}`}>
+          {/* Emblem */}
+          <div className={styles.v2Emblem}>
+            <div className={styles.v2EmblemAvatars}>
+              <div className={styles.v2Pair}>
+                <div className={`${styles.v2Avatar} ${styles.v2AvDone}`}>{partnerInitials}</div>
+                <div className={`${styles.v2Avatar} ${styles.v2AvTurn}`}>{userInitials}</div>
+                <div className={`${styles.v2Badge} ${styles.v2BadgeDone}`}><MIcon name="check" size={15} sw={2.5} color="#fff" /></div>
+              </div>
+            </div>
+            <div className={styles.v2Title}>{partnerFirstName} è pronto</div>
+            <div className={styles.v2Sub}>Ha già sbloccato dalla sua parte. Tocca a te: un solo passo e siete in contatto.</div>
+          </div>
+
+          <div className={styles.v2Body}>
+            {/* Checklist */}
+            <div className={styles.v2Check}>
+              <div className={styles.v2CheckRow}>
+                <div className={`${styles.v2CheckIcon} ${styles.v2CheckIconDone}`}><MIcon name="check" size={16} sw={2.5} color="#fff" /></div>
+                <div className={styles.v2CheckLabel}>{partnerFirstName} ha sbloccato</div>
+              </div>
+              <div className={styles.v2CheckRow}>
+                <div className={`${styles.v2CheckIcon} ${styles.v2CheckIconActive}`}><MIcon name="lock-open" size={15} sw={2} color="#fff" /></div>
+                <div className={styles.v2CheckLabel}>Sblocca anche tu</div>
+                <span className={`${styles.v2CheckTag} ${styles.v2CheckTagStrong}`}>Tocca a te</span>
+              </div>
+              <div className={styles.v2CheckRow}>
+                <div className={`${styles.v2CheckIcon} ${styles.v2CheckIconLocked}`}><MIcon name="message-circle" size={15} sw={2} color="var(--neutral-400)" /></div>
+                <div className={`${styles.v2CheckLabel} ${styles.v2CheckLabelLocked}`}>Chat con {partnerFirstName}</div>
+                <MIcon name="lock" size={14} sw={2} color="var(--neutral-300)" />
+              </div>
+              <div className={styles.v2CheckRow}>
+                <div className={`${styles.v2CheckIcon} ${styles.v2CheckIconLocked}`}><MIcon name="map-pin" size={15} sw={2} color="var(--neutral-400)" /></div>
+                <div className={`${styles.v2CheckLabel} ${styles.v2CheckLabelLocked}`}>Punto e orario di ritrovo</div>
+                <MIcon name="lock" size={14} sw={2} color="var(--neutral-300)" />
+              </div>
+            </div>
+
+            {/* Compact profile (still locked / blurred) */}
+            <div className={styles.v2Profile}>
+              <div className={styles.v2ProfileAvatar}>
+                <div className={`${styles.v2ProfileAv} ${styles.v2ProfileBlur}`}>
+                  {partnerPhoto ? <img src={partnerPhoto} alt="" referrerPolicy="no-referrer" style={{ filter: 'blur(6px)' }} /> : <span>{initial}</span>}
+                </div>
+              </div>
+              <div className={styles.v2ProfileInfo}>
+                <div className={styles.v2ProfileName}>{partnerNameShort}</div>
+                {hasRating ? (
+                  <div className={styles.v2ProfileMeta}>
+                    <span className={styles.v2Stars}>{starString(overallAvg!)}</span>
+                    <span className={styles.v2RatingNum}>{overallAvg!.toFixed(1)}</span>
+                    <span className={styles.v2Trips}>· {overallCount} {overallCount === 1 ? 'recensione' : 'recensioni'}</span>
+                  </div>
+                ) : (
+                  <div className={styles.v2ProfileMeta}><span className={styles.v2Trips}>Nuovo profilo</span></div>
+                )}
+              </div>
+              {partner?.verified && (
+                <span className={styles.dVerified}><MIcon name="shield-check" size={12} sw={2} />Verificato</span>
               )}
             </div>
-            <div className={styles.partnerInfo}>
-              <div className={styles.partnerNameRow}>
-                <span className={styles.partnerName}>{partnerFirstName}</span>
-              </div>
-              <div className={styles.waitingStatus}>
-                <span className={styles.waitingSpinner} />
-                <span>In attesa di sblocco…</span>
-              </div>
-            </div>
-          </div>
 
-          {/* C) What happens now */}
-          <div className={styles.infoTile}>
-            <div className={styles.infoRow}>
-              <MIcon name="clock" size={16} sw={2} />
-              <span>Di solito entro pochi minuti.</span>
-            </div>
-            <div className={styles.infoRow}>
-              <MIcon name="bell" size={16} sw={2} />
-              <span>Ti invieremo una notifica appena {partnerFirstName} sblocca — puoi chiudere l'app.</span>
-            </div>
+            {error && <div className={styles.errorBox}>{error}</div>}
           </div>
+        </div>
 
-          {/* D) Timeout / exit */}
-          <div className={styles.expiryRow}>
-            <MIcon name="clock" size={13} sw={2} />
-            {match.unlockDeadline
-              ? <WaitingExpiry deadline={match.unlockDeadline} />
-              : <span>Il match scade a breve</span>}
+        {/* Sticky unlock CTA */}
+        <div className={styles.dCtaBar}>
+          <div className={styles.dCtaTop}>
+            <span className={styles.v2CtaStatus}>
+              <MIcon name="check-circle" size={15} sw={2} color="var(--success-700)" />
+              {partnerFirstName} ti sta aspettando
+            </span>
+            <span className={styles.dCtaPriceSave}>~€{halfEur} risparmiati</span>
           </div>
-          <div className={styles.unlockNote}>Alla scadenza senza sblocco non c'è nessun addebito.</div>
-
           <button
             type="button"
-            className={styles.declineBtn}
-            onClick={handleDecline}
-            disabled={declining}
+            className={`${styles.dUnlockBtn} ${styles.v2Pulse}`}
+            onClick={() => setShowUnlockSheet(true)}
+            disabled={unlocking || !canUnlock}
           >
-            {declining ? 'Annullo…' : 'Annulla match'}
+            <MIcon name="lock-open" size={20} sw={2} />
+            {unlocking ? 'Sblocco…' : `Sblocca anche tu · ${unlockFeeDisplay}`}
           </button>
+          <div className={styles.v2Secure}>
+            <MIcon name="shield-check" size={13} sw={2} color="var(--primary-500)" />
+            Pagamento sicuro · rimborso se il viaggio salta
+          </div>
         </div>
+
+        {/* Unlock confirm sheet */}
+        {showUnlockSheet && (
+          <>
+            <div className={styles.dScrim} onClick={() => setShowUnlockSheet(false)} />
+            <div className={styles.dSheet}>
+              <div className={styles.dSheetHandle} />
+              <div className={styles.dSheetIcon}><MIcon name="lock-open" size={26} sw={2} color="var(--accent-500)" /></div>
+              <div className={styles.dSheetTitle}>Sblocca il tuo match con {partnerNameShort}</div>
+              <div className={styles.dSheetText}>{partnerFirstName} ha già sbloccato. Sblocca anche tu e ottieni subito:</div>
+              <div className={styles.dSheetBenefits}>
+                <div><MIcon name="message-circle" size={19} sw={2} color="var(--primary-600)" />Chat diretta con il compagno</div>
+                <div><MIcon name="map-pin" size={19} sw={2} color="var(--primary-600)" />Punto di ritrovo al terminal</div>
+                <div><MIcon name="clock" size={19} sw={2} color="var(--primary-600)" />Orario di ritrovo concordato</div>
+              </div>
+              <div className={styles.dSheetTotal}>
+                <span>Totale oggi</span>
+                <span className={styles.dSheetTotalVal}>{unlockFeeDisplay}</span>
+              </div>
+              <button
+                type="button"
+                className={styles.dSheetPay}
+                onClick={() => { setShowUnlockSheet(false); handleUnlock(); }}
+                disabled={unlocking || !canUnlock}
+              >
+                <MIcon name="credit-card" size={19} sw={2} />{unlocking ? 'Sblocco…' : 'Paga e sblocca'}
+              </button>
+              <div className={styles.dSheetSecure}><MIcon name="shield-check" size={14} sw={2} />Pagamento sicuro · rimborso se il compagno annulla</div>
+            </div>
+          </>
+        )}
+
+        <PaymentSheet
+          open={!!paymentClientSecret}
+          clientSecret={paymentClientSecret}
+          amountLabel={unlockFeeDisplay}
+          onClose={() => { setPaymentClientSecret(null); setPendingStatus(null); }}
+          onAuthorized={handleAuthorized}
+        />
       </div>
     );
   }
@@ -446,7 +620,7 @@ export function MatchLocked() {
         <div className={styles.dHero}>
           <div className={styles.dHeroPill}>
             <span className={styles.dHeroDot} />
-            {urgent ? `${partnerNameShort} ha già sbloccato` : 'Match trovato'}
+            Match trovato
           </div>
           <div className={styles.dHeroTitle}>Abbiamo trovato il tuo compagno di viaggio!</div>
           <div className={styles.dHeroSub}>Diretto al tuo stesso terminal, con orari compatibili. Sblocca per conoscervi e coordinarvi.</div>

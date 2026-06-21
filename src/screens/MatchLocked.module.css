@@ -553,3 +553,102 @@
 .dSheetPrimary:hover { background: var(--primary-600); }
 .dSheetPrimary:disabled { opacity: 0.5; cursor: default; }
 .dSheetGhost { width: 100%; height: 48px; margin-top: 6px; border: none; background: transparent; color: var(--neutral-600); font-family: var(--font-body); font-size: 14px; font-weight: 600; cursor: pointer; }
+
+/* ════════════ "Match in attesa" · Variant 2 (Stato calmo) ════════════ */
+@keyframes v2WaitRing {
+  0% { transform: scale(0.85); opacity: 0.55; }
+  70% { transform: scale(1.35); opacity: 0; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+@keyframes v2Dot {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-2px); }
+}
+@keyframes v2PulseCta {
+  0%, 100% { box-shadow: 0 12px 28px rgba(232,96,58,0.40); }
+  50% { box-shadow: 0 12px 36px rgba(232,96,58,0.62); }
+}
+
+.v2Scroll { display: flex; flex-direction: column; background: var(--bg-primary); }
+
+/* Emblem */
+.v2Emblem { padding: 34px 24px 26px; text-align: center; }
+.v2EmblemAvatars { position: relative; display: inline-flex; align-items: center; justify-content: center; height: 96px; margin-bottom: 22px; }
+.v2Ring { position: absolute; inset: 0; margin: auto; width: 96px; height: 96px; border-radius: 9999px; border: 2px solid var(--accent-200); animation: v2WaitRing 2s var(--ease-out) infinite; }
+.v2Pair { position: relative; display: flex; align-items: center; }
+.v2Avatar {
+  width: 72px; height: 72px; border-radius: 9999px; border: 3px solid var(--bg-primary);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-size: 24px; font-weight: 700; overflow: hidden;
+}
+.v2AvMe { background: linear-gradient(135deg, var(--primary-300), var(--primary-600)); color: #fff; z-index: 1; }
+.v2AvWait { background: var(--neutral-100); color: var(--neutral-400); margin-left: -22px; }
+.v2AvDone { background: linear-gradient(135deg, var(--primary-300), var(--primary-600)); color: #fff; z-index: 1; }
+.v2AvTurn { background: var(--accent-50); color: var(--accent-500); border: 3px dashed var(--accent-300); margin-left: -22px; }
+.v2AvImg { object-fit: cover; }
+.v2Badge {
+  position: absolute; bottom: -6px; width: 30px; height: 30px; border-radius: 9999px;
+  border: 3px solid var(--bg-primary); display: flex; align-items: center; justify-content: center; color: #fff;
+}
+.v2BadgeWait { background: var(--accent-500); left: 50%; transform: translateX(-50%); }
+.v2BadgeDone { background: var(--success-500); left: 18px; }
+
+.v2Title { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-display); font-size: 23px; font-weight: 700; letter-spacing: -0.01em; color: var(--neutral-900); }
+.v2Dots { display: inline-flex; align-items: flex-end; gap: 3px; padding-bottom: 5px; }
+.v2Dots span { width: 5px; height: 5px; border-radius: 9999px; background: var(--accent-500); }
+.v2Dots span:nth-child(1) { animation: v2Dot 1.2s infinite 0s; }
+.v2Dots span:nth-child(2) { animation: v2Dot 1.2s infinite 0.2s; }
+.v2Dots span:nth-child(3) { animation: v2Dot 1.2s infinite 0.4s; }
+.v2Sub { font-family: var(--font-body); font-size: 14px; line-height: 1.5; color: var(--neutral-500); margin-top: 8px; }
+
+.v2Body { display: flex; flex-direction: column; gap: 14px; padding: 0 20px 24px; }
+
+/* Checklist */
+.v2Check { background: var(--bg-primary); border-radius: 16px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-2); padding: 6px 18px; }
+.v2CheckRow { display: flex; align-items: center; gap: 13px; padding: 14px 0; border-bottom: 1px solid var(--border-subtle); }
+.v2CheckRow:last-child { border-bottom: none; }
+.v2CheckIcon { width: 30px; height: 30px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff; }
+.v2CheckIconDone { background: var(--success-500); }
+.v2CheckIconActive { background: var(--accent-500); }
+.v2CheckIconPending { background: var(--accent-50); border: 1.5px solid var(--accent-300); color: var(--accent-500); }
+.v2CheckIconLocked { background: var(--neutral-100); color: var(--neutral-400); }
+.v2CheckLabel { flex: 1; font-family: var(--font-body); font-size: 14px; font-weight: 600; color: var(--neutral-900); }
+.v2CheckLabelMuted { color: var(--neutral-500); }
+.v2CheckLabelLocked { color: var(--neutral-400); }
+.v2CheckTag { font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--accent-600); flex-shrink: 0; }
+.v2CheckTagStrong { font-weight: 700; }
+
+/* Compact profile */
+.v2Profile { display: flex; align-items: center; gap: 14px; background: var(--bg-primary); border-radius: 16px; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-1); padding: 14px 16px; }
+.v2ProfileAvatar { position: relative; width: 52px; height: 52px; flex-shrink: 0; }
+.v2ProfileAv {
+  width: 52px; height: 52px; border-radius: 9999px; border: 2px solid var(--primary-100);
+  background: linear-gradient(135deg, var(--primary-300), var(--primary-600));
+  display: flex; align-items: center; justify-content: center; overflow: hidden;
+  font-family: var(--font-display); font-size: 20px; font-weight: 700; color: #fff;
+}
+.v2ProfileAv img { width: 100%; height: 100%; object-fit: cover; }
+.v2ProfileBlur { background: linear-gradient(135deg, var(--primary-300), var(--primary-500)); }
+.v2ProfileBlur span { filter: blur(6px); font-family: var(--font-display); font-size: 21px; font-weight: 700; color: rgba(255,255,255,0.9); }
+.v2ProfileCheck { position: absolute; bottom: -2px; right: -2px; width: 20px; height: 20px; border-radius: 9999px; background: var(--success-500); border: 2px solid var(--bg-primary); display: flex; align-items: center; justify-content: center; }
+.v2ProfileInfo { flex: 1; min-width: 0; }
+.v2ProfileName { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--neutral-900); }
+.v2ProfileMeta { display: flex; align-items: center; gap: 7px; margin-top: 3px; }
+.v2Stars { color: var(--warning-500); font-size: 13px; letter-spacing: 1px; }
+.v2RatingNum { font-family: var(--font-mono); font-size: 13px; font-weight: 600; color: var(--neutral-800); }
+.v2Trips { font-family: var(--font-body); font-size: 12px; color: var(--neutral-400); }
+
+/* Reassurance */
+.v2Reassure { display: flex; align-items: flex-start; gap: 12px; background: var(--primary-50); border: 1px solid var(--primary-100); border-radius: 14px; padding: 14px 15px; }
+.v2ReassureText { font-family: var(--font-body); font-size: 13px; line-height: 1.5; color: var(--primary-800); }
+
+/* Footer (expiry + decline) for V2·A */
+.v2Footer { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0 20px 8px; }
+.v2Expiry { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-body); font-size: 12px; color: var(--neutral-400); font-variant-numeric: tabular-nums; }
+.v2DeclineLink { border: none; background: none; font-family: var(--font-body); font-size: 13px; font-weight: 600; color: var(--neutral-500); cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 6px; }
+.v2DeclineLink:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Sticky CTA for V2·B */
+.v2CtaStatus { display: flex; align-items: center; gap: 7px; font-family: var(--font-body); font-size: 12px; font-weight: 600; color: var(--success-700); }
+.v2Pulse { animation: v2PulseCta 2.4s ease-in-out infinite; }
+.v2Secure { display: flex; align-items: center; justify-content: center; gap: 7px; margin-top: 9px; font-family: var(--font-body); font-size: 11px; color: var(--neutral-500); }
