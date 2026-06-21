@@ -77,6 +77,18 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
     priceMuted = true;
   }
 
+  // Whole-card tap target: open the match (locked) / connection (unlocked) /
+  // past-trip detail. Searching/scheduled cards stay non-clickable (they have
+  // their own Modifica/Annulla actions).
+  const cardHref =
+    isPast
+      ? `/trip-past/${trip.tripId}`
+      : isMatched && trip.matchId
+        ? `/match/${trip.matchId}`
+        : isUnlocked && trip.matchId
+          ? `/connection/${trip.matchId}`
+          : null;
+
   const luggageLabel = `${trip.luggage} ${trip.luggage === 1 ? 'bagaglio' : 'bagagli'}`;
   // searching here = the design's "in ricerca" state (also covers scheduled).
   const isSearchingState = isSearching || isScheduled;
@@ -96,10 +108,11 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
   return (
     <div
       className={`${styles.card} ${isMatched ? styles.cardMatch : ''}`}
-      onClick={isPast ? () => navigate(`/trip-past/${trip.tripId}`) : undefined}
-      role={isPast ? 'button' : undefined}
-      tabIndex={isPast ? 0 : undefined}
-      style={isPast ? { cursor: 'pointer' } : undefined}
+      onClick={cardHref ? () => navigate(cardHref) : undefined}
+      onKeyDown={cardHref ? (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); navigate(cardHref); } } : undefined}
+      role={cardHref ? 'button' : undefined}
+      tabIndex={cardHref ? 0 : undefined}
+      style={cardHref ? { cursor: 'pointer' } : undefined}
     >
       <div className={styles.topRow}>
         <TripStatusBadge status={trip.status} />
@@ -205,7 +218,7 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
             <MIcon name="check-circle" size={16} sw={2} color="var(--success-500)" />
             <span>Orario e terminal compatibili</span>
           </div>
-          <button type="button" className={styles.unlockBtn} onClick={handleViewMatch}>
+          <button type="button" className={styles.unlockBtn} onClick={(e) => { e.stopPropagation(); handleViewMatch(); }}>
             <MIcon name="lock-open" size={17} sw={2} />
             Sblocca match · €1,99
           </button>
@@ -238,7 +251,7 @@ export function TripCard({ trip, onCancelClick, onReviewClick, reviewed }: TripC
             </div>
           </div>
           {trip.matchId && (
-            <MBtn variant="primary" small onClick={handleOpenChat} icon="message-circle">
+            <MBtn variant="primary" small onClick={(e) => { e?.stopPropagation(); handleOpenChat(); }} icon="message-circle">
               Chatta
             </MBtn>
           )}
